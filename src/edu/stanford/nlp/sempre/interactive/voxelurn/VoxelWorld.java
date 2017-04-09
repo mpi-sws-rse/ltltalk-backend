@@ -1,5 +1,6 @@
 package edu.stanford.nlp.sempre.interactive.voxelurn;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,6 +16,7 @@ import edu.stanford.nlp.sempre.NaiveKnowledgeGraph;
 import edu.stanford.nlp.sempre.StringValue;
 import edu.stanford.nlp.sempre.interactive.Item;
 import edu.stanford.nlp.sempre.interactive.World;
+import fig.basic.LogInfo;
 import fig.basic.Option;
 
 // the world of stacks
@@ -218,7 +220,8 @@ public class VoxelWorld extends World {
 
   // ensures key coherence on mutations
   private void refreshSet(Set<Item> set) {
-    List<Item> s = new LinkedList<>(set);
+    // LogInfo.logs("refreshSet %s %s", set.getClass(), set);
+    List<Item> s = new ArrayList<>(set);
     set.clear();
     set.addAll(s);
   }

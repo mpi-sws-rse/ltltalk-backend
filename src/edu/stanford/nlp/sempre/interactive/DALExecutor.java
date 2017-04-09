@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 import com.google.common.collect.Lists;
 import com.google.common.collect.ObjectArrays;
 import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 
 import edu.stanford.nlp.sempre.*;
 import fig.basic.LogInfo;
@@ -46,6 +48,9 @@ public class DALExecutor extends Executor {
 
     @Option(gloss = "The maximum number of while calls")
     public int maxWhile = 20;
+    
+    @Option(gloss = "Verbosity")
+    public int verbose = 0;
   }
 
   public static Options opts = new Options();
@@ -71,6 +76,15 @@ public class DALExecutor extends Executor {
 
   @SuppressWarnings("rawtypes")
   private void performActions(ActionFormula f, World world) {
+    if (opts.verbose >= 1) {
+      LogInfo.begin_track("DALExecutor.performActions");
+      LogInfo.logs("Executing: %s", f);
+      LogInfo.logs("World: %s", world.toJSON());
+      LogInfo.logs("allItems: %s", world.all());
+      LogInfo.logs("selected: %s", world.selected());
+      LogInfo.logs("previous: %s", world.previous());
+      LogInfo.end_track();
+    }
     if (f.mode == ActionFormula.Mode.primitive) {
       // use reflection to call primitive stuff
       Value method = ((ValueFormula) f.args.get(0)).value;
@@ -269,16 +283,16 @@ public class DALExecutor extends Executor {
       Set<Object> set2 = toSet(processSetFormula(mergeFormula.child2, world));
 
       if (mode == MergeFormula.Mode.or)
-        return Sets.union(set1, set2);
+        return toMutable(Sets.union(set1, set2));
       if (mode == MergeFormula.Mode.and)
-        return Sets.intersection(set1, set2);
+        return toMutable(Sets.intersection(set1, set2));
 
     }
 
     if (formula instanceof NotFormula) {
       NotFormula notFormula = (NotFormula) formula;
       Set<Item> set1 = toItemSet(toSet(processSetFormula(notFormula.child, world)));
-      return Sets.difference(world.allItems, set1);
+      return toMutable(Sets.difference(world.allItems, set1));
     }
 
     if (formula instanceof AggregateFormula) {
@@ -320,6 +334,10 @@ public class DALExecutor extends Executor {
       throw new RuntimeException("SuperlativeFormula is not implemented");
     }
     throw new RuntimeException("ActionExecutor does not handle this formula type: " + formula.getClass());
+  }
+
+  private <T> Set<T> toMutable(SetView<T> intersection) {
+    return new HashSet<>(intersection);
   }
 
   // Example: id = "Math.cos". similar to JavaExecutor's invoke,

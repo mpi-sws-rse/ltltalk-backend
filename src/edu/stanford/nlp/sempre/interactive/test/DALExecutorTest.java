@@ -232,6 +232,7 @@ public class DALExecutorTest {
   @Test(groups = { "Interactive" })
   public void testScoping() {
     // this is a green stick
+    
     String defaultBlocks = "[[1,1,1,\"Green\",[\"S\"]],[1,1,2,\"Green\",[]],[1,1,3,\"Green\",[]],[1,1,4,\"Green\",[]]]";
     ContextValue context = getContext(defaultBlocks);
     LogInfo.begin_track("testIsolation");
@@ -248,5 +249,20 @@ public class DALExecutorTest {
         context, x -> x.selected.size() == 2);
     LogInfo.end_track();
   }
+  
+  @Test(groups = { "Interactive" })
+  public void testUnsupported() {
+    // a rare unsupported operations bug
+    
+    String defaultBlocks = "[[1,1,1,\"fake\",[\"S\"]]]";
+    ContextValue context = getContext(defaultBlocks);
+    LogInfo.begin_track("testUnsuported");
+    executor.opts.verbose = 1;
+    runFormula(executor, "  (:isolate (:s (:isolate (:loop (number 3) (:s (: select (call adj front)) (: add yellow here)))) (:s (:isolate (:s (: select (call adj left)) (: add yellow here))) (:isolate (:s (:s (: select (call adj front)) (: add yellow here)) (:loop (number 2) (:s (: select (call adj left)) (: add yellow here))))) (:isolate (:s (:s (:isolate (: select (call adj back))) (:isolate (: select (call adj left)))) (: add yellow here))) (: select (color yellow)) (:loop (number 4) (: add yellow top)) (:loop (number 2) (: select (call adj top))) (: select (and (call adj left) (call adj front))) (:blk (:s (: select (call adj right)) (: move back))) (:blk (:s (:s (:isolate (: select (call adj right))) (:isolate (: select (call adj top)))) (: move back))) (:s (:s (:s (: select (call adj right)) (:loop (number 2) (: select (call adj top)))) (: select)) (: move back)) (:s (:s (:s (:s (:isolate (: select (call adj right))) (: select (call adj front))) (: select)) (: move back)) (:isolate (:s (:s (: select (call adj left)) (: select (call adj bot this))) (: add yellow here))) (:s (:s (:s (: select (call adj top)) (: select (call adj left))) (: select)) (: move back)) (:s (:s (:s (: select (call adj bot this)) (: select (call adj front))) (: select)) (: move back)) (:isolate (:s (:s (: select (call adj top)) (:loop (number 3) (: select (call adj right)))) (: add yellow here))) (:isolate (:s (:s (:isolate (: select (call adj front))) (:isolate (: select (call adj right)))) (: remove))) (:isolate (:s (:s (:isolate (: select (call adj front))) (:isolate (: select (call adj left)))) (: remove))) (:s (:s (:s (:isolate (:s (: select (call adj left)) (: select (call adj left)))) (:isolate (: select (call adj left)))) (:s (: select (call adj back)) (: select (call adj back)))) (: move back)) (: select (color yellow))))))", context,
+        x -> true);
+    executor.opts.verbose = 0;
+    LogInfo.end_track();
+  }
+  
 
 }
