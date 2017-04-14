@@ -1,12 +1,13 @@
 # README
 
-This `interactive` package is the code for our paper
+This `interactive` package contains code data and utilities for our paper
 *Naturalizing a programming language through interaction* (ACL 2017).
-A live demo is at [www.voxelurn.com](http://www.voxelurn.com).
+A live demo is at
 
-voxelurn is a language interface to a voxel world.
-This server handles commands used to learn from definitions, and other interactive queries.
-In this setting, the system begin with the dependency-based action language (`dal.grammar`), and gradually expand the language through interacting with it users.
+> [http://www.voxelurn.com](http://www.voxelurn.com),
+
+where voxelurn is a language interface for studying naturalizing a programming language.
+In this setup, the system begin with the dependency-based action language (`dal.grammar`), and gradually expand the language through interacting with it users.
 
 ## Overview of the components
 
@@ -15,12 +16,12 @@ In this setting, the system begin with the dependency-based action language (`da
 The `edu.stanford.nlp.sempre.interactive` package live in this repo contains code for
 * running interactive commands (such as query, accept, reject, definition)
 * executor for the dependency-based action (DAL) language
-* voxelurn specific code in `edu.stanford.nlp.sempre.interactive.voxelurn` for actually   generating the voxel and manipulating them
-Utilties and resources such as the grammar and run script are in this directory, and the code in in the regular `sempre/src` directory.
+* voxelurn specific code in `edu.stanford.nlp.sempre.interactive.voxelurn` for actually generating the voxel and manipulating them
+Utilities and resources such as the grammar and run script are in this directory, and the code in in the regular `sempre/src` directory.
 
 ### voxelurn client
 
-It queries the server, and renders the voxels to a browser. A live version is at [www.voxelurn.com](http://www.voxelurn.com), which queries our server. You can also find a client for localhost at [http://local.voxelurn.com](http://local.voxelurn.com), which is the same client, but with queries going to `http://localhost:8410` instead.
+It queries the server, and renders the voxels to a browser. A live version is at [http://www.voxelurn.com](http://www.voxelurn.com), which queries our server. You can also find a client for localhost at [http://local.voxelurn.com](http://local.voxelurn.com), which is the same client, but with queries going to `http://localhost:8410` instead.
 Code for the client at `https://github.com/sidaw/shrdlurn`. See its [README.md](https://github.com/sidaw/shrdlurn/blob/master/README.md) if you want to work with and build the client yourself.
 
 
@@ -79,6 +80,8 @@ After you run the above, there are 3 ways to interact and try your own commands.
 
   which prints out basic statistics and generates the plots used in our paper. The plots are saved at `../state/execs/${lastExec}.exec/`
 
+These results are reproduced on this
+[Codalab worksheet](https://worksheets.codalab.org/worksheets/0xbf8f4f5b42e54eba9921f7654b3c5c5d/).
 
 ## Misc.
 
