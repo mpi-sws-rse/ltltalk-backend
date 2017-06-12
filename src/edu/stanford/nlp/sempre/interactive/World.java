@@ -5,6 +5,9 @@ import java.util.Set;
 
 import edu.stanford.nlp.sempre.ContextValue;
 import edu.stanford.nlp.sempre.interactive.voxelurn.VoxelWorld;
+import edu.stanford.nlp.sempre.interactive.robolurn.RoboWorld;
+
+import fig.basic.LogInfo;
 
 /**
  * The world consists of Items, and tracks allItems: the whole world selected:
@@ -23,6 +26,8 @@ public abstract class World {
   public static World fromContext(String worldname, ContextValue context) {
     if (worldname.equals("VoxelWorld"))
       return VoxelWorld.fromContext(context);
+    else if (worldname.equals("RoboWorld"))
+      return RoboWorld.fromContext(context);
     throw new RuntimeException("World does not exist: " + worldname);
   }
 

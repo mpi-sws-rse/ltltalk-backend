@@ -1,0 +1,8 @@
+(include dal.grammar)
+
+
+
+(def @visit visit)
+
+
+(rule $Action (visit) (ConstantFn (: visit)) (anchored 1))
