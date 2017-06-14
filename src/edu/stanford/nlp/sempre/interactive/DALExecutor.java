@@ -16,6 +16,8 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
 import edu.stanford.nlp.sempre.*;
+import edu.stanford.nlp.sempre.interactive.robolurn.RoboWorld;
+import edu.stanford.nlp.sempre.interactive.robolurn.WorldBlock;
 import fig.basic.LogInfo;
 import fig.basic.Option;
 
@@ -60,11 +62,15 @@ public class DALExecutor extends Executor {
   public Response execute(Formula formula, ContextValue context) {
     // We can do beta reduction here since macro substitution preserves the
     // denotation (unlike for lambda DCS).
-    World world = World.fromContext(opts.worldType, context);
+    //World world = World.fromContext(opts.worldType, context);
+
+    //LogInfo.logs(context.toString());
+    RoboWorld world = RoboWorld.fromContext(context);
     formula = Formulas.betaReduction(formula);
     try {
       performActions((ActionFormula) formula, world);
-      return new Response(new StringValue(world.toJSON()));
+      //return new Response(new StringValue(world.toJSON()));
+      return new Response(new StringValue(world.getJSONPath()));
     } catch (Exception e) {
       // Comment this out if we expect lots of innocuous type checking failures
       if (opts.printStackTrace) {
@@ -82,8 +88,8 @@ public class DALExecutor extends Executor {
       LogInfo.logs("Executing: %s", f);
       LogInfo.logs("World: %s", world.toJSON());
       LogInfo.logs("allItems: %s", world.all());
-      LogInfo.logs("selected: %s", world.selected());
-      LogInfo.logs("previous: %s", world.previous());
+      //LogInfo.logs("selected: %s", world.selected());
+      //LogInfo.logs("previous: %s", world.previous());
       LogInfo.end_track();
     }
     if (f.mode == ActionFormula.Mode.primitive) {
@@ -92,7 +98,7 @@ public class DALExecutor extends Executor {
       String id = ((NameValue) method).id;
       // all actions takes a fixed set as argument
       invoke(id, world, f.args.subList(1, f.args.size()).stream().map(x -> processSetFormula(x, world)).toArray());
-      world.merge();
+      //world.merge();
     } else if (f.mode == ActionFormula.Mode.sequential) {
       for (Formula child : f.args) {
         performActions((ActionFormula) child, world);
@@ -127,48 +133,48 @@ public class DALExecutor extends Executor {
     } else if (f.mode == ActionFormula.Mode.forset) {
       // mostly deprecated
       Set<Object> selected = toSet(processSetFormula(f.args.get(0), world));
-      Set<Item> prevSelected = world.selected;
+      //Set<Item> prevSelected = world.selected;
 
-      world.selected = toItemSet(selected);
+      //world.selected = toItemSet(selected);
       performActions((ActionFormula) f.args.get(1), world);
 
-      world.selected = prevSelected;
-      world.merge();
+      //world.selected = prevSelected;
+      //world.merge();
     } else if (f.mode == ActionFormula.Mode.foreach) {
-      Set<Item> selected = toItemSet(toSet(processSetFormula(f.args.get(0), world)));
-      Set<Item> prevSelected = world.selected;
+      Set<WorldBlock> selected = toItemSet(toSet(processSetFormula(f.args.get(0), world)));
+      //Set<Item> prevSelected = world.selected;
       // CopyOnWriteArraySet<Object> fixedset =
       // Sets.newCopyOnWriteArraySet(selected);
-      Iterator<Item> iterator = selected.iterator();
+      Iterator<WorldBlock> iterator = selected.iterator();
       while (iterator.hasNext()) {
-        world.selected = (toItemSet(toSet(iterator.next())));
-        performActions((ActionFormula) f.args.get(1), world);
+        //world.selected = (toItemSet(toSet(iterator.next())));
+        //performActions((ActionFormula) f.args.get(1), world);
       }
-      world.selected = prevSelected;
-      world.merge();
+      //world.selected = prevSelected;
+      //world.merge();
 
     } else if (f.mode == ActionFormula.Mode.isolate) {
-      Set<Item> prevAll = world.allItems;
+      //Set<Item> prevAll = world.allItems;
       // Set<Item> prevSelected = world.selected;
       // Set<Item> prevPrevious = world.previous;
       if (f.args.size() > 1)
         throw new RuntimeException("No longer supporting this isolate formula: " + f);
 
-      world.allItems = Sets.newHashSet(world.selected);
+      //world.allItems = Sets.newHashSet(world.selected);
       // world.selected = scope;
       // world.previous = scope;
       performActions((ActionFormula) f.args.get(0), world);
 
-      world.allItems.addAll(prevAll); // merge, overriding;
+      //world.allItems.addAll(prevAll); // merge, overriding;
       // world.selected = prevSelected;
       // world.previous = prevPrevious;
-      world.merge();
+      //world.merge();
 
     } else if (f.mode == ActionFormula.Mode.block || f.mode == ActionFormula.Mode.blockr) {
       // we should never mutate selected in actions
-      Set<Item> prevSelected = world.selected;
-      Set<Item> prevPrevious = world.previous;
-      world.previous = world.selected;
+      //Set<Item> prevSelected = world.selected;
+      //Set<Item> prevPrevious = world.previous;
+      //world.previous = world.selected;
 
       for (Formula child : f.args) {
         performActions((ActionFormula) child, world);
@@ -176,33 +182,14 @@ public class DALExecutor extends Executor {
 
       // restore on default blocks
       if (f.mode == ActionFormula.Mode.block) {
-        world.selected = prevSelected;
-        world.merge();
+        //world.selected = prevSelected;
+        //world.merge();
       }
       // LogInfo.logs("CBlocking prevselected=%s selected=%s all=%s",
       // prevSelected, world.selected, world.allitems);
       // LogInfo.logs("BlockingWorldIs %s", world.toJSON());
-      world.previous = prevPrevious;
+      //world.previous = prevPrevious;
     }
-    // } else if (f.mode == ActionFormula.Mode.let) {
-    // // let declares a new local variable
-    // // set access and reassigns the value of some variable
-    // // block determines what is considered local scope
-    // // for now the use case is just (:blk (:let x this) (:blah) (:set this
-    // x))
-    // Set<Item> varset = toItemSet(toSet(processSetFormula(f.args.get(1),
-    // world)));
-    // Value method = ((ValueFormula)f.args.get(0)).value;
-    // String varname = ((NameValue)method).id;
-    // world.variables.put(varname, varset);
-    // } else if (f.mode == ActionFormula.Mode.set) {
-    // Set<Item> varset = toItemSet(toSet(processSetFormula(f.args.get(1),
-    // world)));
-    // Value method = ((ValueFormula)f.args.get(0)).value;
-    // String varname = ((NameValue)method).id;
-    // world.variables.get(varname).clear();
-    // world.variables.get(varname).addAll(varset);
-    // }
 
   }
 
@@ -221,8 +208,8 @@ public class DALExecutor extends Executor {
     return set;
   }
 
-  private Set<Item> toItemSet(Set<Object> maybeItems) {
-    Set<Item> itemset = maybeItems.stream().map(i -> (Item) i).collect(Collectors.toSet());
+  private Set<WorldBlock> toItemSet(Set<Object> maybeItems) {
+    Set<WorldBlock> itemset = maybeItems.stream().map(i -> (WorldBlock) i).collect(Collectors.toSet());
     return itemset;
   }
 
@@ -249,14 +236,14 @@ public class DALExecutor extends Executor {
         // world.selected().toString(), world.allitems.toString());
         if (id.equals(SpecialSets.All))
           return world.all();
-        if (id.equals(SpecialSets.This))
-          return world.selected();
-        if (id.equals(SpecialSets.Selected))
-          return world.selected();
+        //if (id.equals(SpecialSets.This))
+          //return world.selected();
+        //if (id.equals(SpecialSets.Selected))
+          //return world.selected();
         if (id.equals(SpecialSets.EmptySet))
           return world.empty();
-        if (id.equals(SpecialSets.Previous))
-          return world.previous();
+        //if (id.equals(SpecialSets.Previous))
+          //return world.previous();
       }
       return toObject(((ValueFormula<?>) formula).value);
     }
@@ -292,8 +279,8 @@ public class DALExecutor extends Executor {
 
     if (formula instanceof NotFormula) {
       NotFormula notFormula = (NotFormula) formula;
-      Set<Item> set1 = toItemSet(toSet(processSetFormula(notFormula.child, world)));
-      return toMutable(Sets.difference(world.allItems, set1));
+      Set<WorldBlock> set1 = toItemSet(toSet(processSetFormula(notFormula.child, world)));
+      return toMutable(Sets.difference(world.allBlocks, set1));
     }
 
     if (formula instanceof AggregateFormula) {
@@ -383,10 +370,10 @@ public class DALExecutor extends Executor {
       int cost = typeCastCost(m.getParameterTypes(), args);
 
       // append optional selected parameter when needed:
-      if (cost == INVALID_TYPE_COST && args.length + 1 == m.getParameterCount()) {
-        args = ObjectArrays.concat(args, thisObj.selected);
-        cost = typeCastCost(m.getParameterTypes(), args);
-      }
+      //if (cost == INVALID_TYPE_COST && args.length + 1 == m.getParameterCount()) {
+        //args = ObjectArrays.concat(args, thisObj.selected);
+        //cost = typeCastCost(m.getParameterTypes(), args);
+      //}
 
       if (cost < bestCost) {
         bestCost = cost;

@@ -5,4 +5,13 @@
 (def @visit visit)
 
 
-(rule $Action (visit) (ConstantFn (: visit)) (anchored 1))
+(rule $Action (visit $Number , $Number) (lambda x (lambda y (: @visit (var x) (var y)))) (anchored 1))
+#(rule $Action (visit) (ConstantFn (: @visit)) (anchored 1))
+
+(rule $ROOT (visit $Number $Number) (lambda x (lambda y (: @visit (var x) (var y)))) (anchored 1))
+
+(rule $Number ($TOKEN) (NumberFn) (anchored 1))
+#(rule $Number (- $TOKEN) (lambda x (- 0 (var x))) (anchored 1))
+
+#(rule $ROOT (n) (+ (number 0) (number 2)) (anchored 1))
+(rule $ROOT ($TOKEN) (NumberFn) (anchored 1))
