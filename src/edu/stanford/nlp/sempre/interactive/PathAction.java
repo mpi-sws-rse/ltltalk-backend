@@ -10,6 +10,12 @@ import org.testng.collections.Lists;
 import edu.stanford.nlp.sempre.Json;
 
 public abstract class PathAction {
+  
+  public interface Action { }
+  
+  public Action action;
+  public int x;
+  public int y;
 
   public abstract Object get(String property);
 

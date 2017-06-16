@@ -12,7 +12,7 @@ import edu.stanford.nlp.sempre.interactive.PathAction;
 
 public class RoboAction extends PathAction {
 
-  public enum Action {
+  public enum Action implements PathAction.Action {
     PICKITEM, DROPITEM, PATH, DESTINATION;
 
     public static Action fromString(String s) {
@@ -94,8 +94,8 @@ public class RoboAction extends PathAction {
   }
 
   @Override
-  public Object toJSON() {
-    List<Object> cube = Lists.newArrayList(x, y, action, spec);
+  public Object toJSON() {	
+    List<? extends Object> cube = Lists.newArrayList(x, y, action, spec);
     return cube;
   }
 

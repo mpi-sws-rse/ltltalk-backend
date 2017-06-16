@@ -1,8 +1,18 @@
 (include dal.grammar)
 
-
-
 (def @visit visit)
+(def @pick pick)
+(def @drop drop)
+
+
+# General Rules
+(rule $ROOT ($P) (IdentityFn) (anchored 1))
+(rule $P ($ST) (IdentityFn) (anchored 1))
+
+(rule $ST ($Spec) (IdentityFn) (anchored 1))
+#(rule $ST ($Spec) ($ST) (string help) (anchored 1))
+
+
 
 
 (rule $Action (visit $Number , $Number) (lambda x (lambda y (: @visit (var x) (var y)))) (anchored 1))
@@ -15,3 +25,38 @@
 
 #(rule $ROOT (n) (+ (number 0) (number 2)) (anchored 1))
 (rule $ROOT ($TOKEN) (NumberFn) (anchored 1))
+
+
+
+# Specifications
+
+(rule $Spec (visit $LSet while avoiding $LSet) (ConcatFn " avoiding ") (anchored 1))
+(rule $Spec (visit $LSet) (IdentityFn) (anchored 1))
+#(rule $Spec (visit per [ $LSet , $TimeStep , $N ] ) (ConcatFn ", ") (anchored 1))
+(rule $Spec (visit per [ $LSet , $TimeStep , $N ] while avoiding $LSet ) (ConcatFn ", ") (anchored 1))
+(rule $Spec (visit per [ $LSet , $TimeStep , $N ]) (ConcatFn ", ") (anchored 1))
+
+(rule $TimeStep ($N) (IdentityFn) (anchored 1))
+(rule $N ($TOKEN) (NumberFn) (anchored 1))
+
+# Iterables?
+
+# Items
+(rule $I (item) item (anchored 1))
+(rule $I ($I has color $C) hasColor (anchored 1))
+
+(for C (red blue green)
+  (rule $C (C) C (anchored 1)))
+
+# Locations and location sets
+(rule $LSet ($L) (IdentityFn) (anchored 1))
+(rule $LSet ([ $L ]) (IdentityFn) (anchored 1))
+(rule $LSet ([ $L , $LSet ]) (ConcatFn ", ") (anchored 1))
+#(rule $LSet ($L , $L) (ConcatFn " and ") (anchored 1))
+
+(rule $L (world) world (anchored 1))
+(rule $L (current) current (anchored 1))
+(rule $L ($F) (ConcatFn "") (anchored 1))
+
+(for F (ra rb rc rd)
+  (rule $F (F) F (anchored 1)))
