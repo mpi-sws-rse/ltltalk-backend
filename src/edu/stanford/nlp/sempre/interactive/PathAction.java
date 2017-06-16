@@ -1,14 +1,5 @@
 package edu.stanford.nlp.sempre.interactive;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.testng.collections.Lists;
-
-import edu.stanford.nlp.sempre.Json;
-
 public abstract class PathAction {
   
   public interface Action { }

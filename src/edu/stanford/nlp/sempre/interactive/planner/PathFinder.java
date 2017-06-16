@@ -1,14 +1,11 @@
 package edu.stanford.nlp.sempre.interactive.planner;
 
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import es.usc.citius.hipster.algorithm.Algorithm;
 import es.usc.citius.hipster.algorithm.Algorithm.SearchResult;
 import es.usc.citius.hipster.algorithm.Hipster;
 import es.usc.citius.hipster.model.Transition;
@@ -17,57 +14,9 @@ import es.usc.citius.hipster.model.function.impl.StateTransitionFunction;
 import es.usc.citius.hipster.model.problem.ProblemBuilder;
 import es.usc.citius.hipster.model.problem.SearchProblem;
 import es.usc.citius.hipster.util.examples.maze.Maze2D;
-import es.usc.citius.hipster.util.examples.maze.Mazes;
-import fig.basic.LogInfo;
 
 
 public class PathFinder {
-    public static void main(String[] args) throws InterruptedException {
-      Mazes.TestMaze example = Mazes.TestMaze.MAZE1;
-      String[] myMaze = new String[]{
-          "XXXXXXXXXXX",
-          "X         X",
-          "X         X",
-          "X S       X",
-          "X         X",
-          "XXXXX  XXXX",
-          "X         X",
-          "X         X",
-          "X       G X",
-          "X         X", 
-          "XXXXXXXXXXX"};
-
-          
-//      final Maze2D maze = example.getMaze();
-      final Maze2D maze = new Maze2D(myMaze);
-      
-      Point origin = maze.getInitialLoc();
-      Point goal = maze.getGoalLoc();
-      
-      
-      SearchProblem p = ProblemBuilder.create()
-          .initialState(origin)
-          .defineProblemWithExplicitActions()
-          .useTransitionFunction(new StateTransitionFunction<Point>() {
-            @Override
-            public Iterable<Point> successorsOf(Point state) {
-              return maze.validLocationsFrom(state);
-            }
-          })
-          .useCostFunction(new CostFunction<Void, Point, Double>() {
-            @Override
-            public Double evaluate(Transition<Void, Point> transition) {
-              Point source = transition.getFromState();
-              Point destination = transition.getState();
-              return source.distance(destination);
-            }
-          })
-          .build();
-
-       //System.out.println(Hipster.createAStar(p).search(goal).getOptimalPaths());
-       SearchResult result = Hipster.createAStar(p).search(goal);
-       System.out.println(result.toString());
-    }
     
     /** Finds a path from start to end given a set of wall coordinates.
      * low/highCorner give size of the map.

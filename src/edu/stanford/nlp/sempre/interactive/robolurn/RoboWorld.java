@@ -2,14 +2,9 @@ package edu.stanford.nlp.sempre.interactive.robolurn;
 
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import com.google.common.collect.Sets;
 
 import edu.stanford.nlp.sempre.ContextValue;
 import edu.stanford.nlp.sempre.Json;
@@ -18,7 +13,6 @@ import edu.stanford.nlp.sempre.StringValue;
 import edu.stanford.nlp.sempre.interactive.PathAction;
 import edu.stanford.nlp.sempre.interactive.World;
 import edu.stanford.nlp.sempre.interactive.planner.PathFinder;
-import fig.basic.LogInfo;
 import fig.basic.Option;
 
 public class RoboWorld extends World {
