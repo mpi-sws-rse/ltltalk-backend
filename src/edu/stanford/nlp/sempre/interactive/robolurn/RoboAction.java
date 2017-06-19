@@ -1,18 +1,15 @@
 package edu.stanford.nlp.sempre.interactive.robolurn;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.testng.collections.Lists;
 
 import edu.stanford.nlp.sempre.Json;
 import edu.stanford.nlp.sempre.interactive.PathAction;
 
-public class RoboAction extends PathAction {
+public class RoboAction extends PathAction<RoboAction.Action> {
 
-  public enum Action implements PathAction.Action {
+  public enum Action {
     PICKITEM, DROPITEM, PATH, DESTINATION;
 
     public static Action fromString(String s) {
@@ -40,13 +37,12 @@ public class RoboAction extends PathAction {
     }
   }
   
-  int x, y;
   String spec;
-  Action action;
 
-  public RoboAction(int x, int y, Action action, String spec) {
+  public RoboAction(int x, int y, Action action, String spec, boolean possible) {
     this(x, y, action);
     this.spec = spec;
+    this.possible = possible;
   }
 
   public RoboAction(int x, int y, Action action) {
@@ -54,6 +50,7 @@ public class RoboAction extends PathAction {
     this.x = x;
     this.y = y;
     this.action = action;
+    this.possible = true;
   }
 
   public RoboAction() { }
@@ -69,6 +66,8 @@ public class RoboAction extends PathAction {
       propval = this.action;
     else if (property.equals("spec"))
       propval = new String(this.spec);
+    else if (property.equals("possible"))
+      propval = this.possible;
     else
       throw new RuntimeException("getting property " + property + " is not supported.");
     return propval;
@@ -80,7 +79,6 @@ public class RoboAction extends PathAction {
     return fromJSONObject(props);
   }
 
-  @SuppressWarnings("unchecked")
   public static RoboAction fromJSONObject(List<Object> props) {
     RoboAction act = new RoboAction();
     act.x = ((Integer) props.get(0));
@@ -95,13 +93,15 @@ public class RoboAction extends PathAction {
 
   @Override
   public Object toJSON() {	
-    List<? extends Object> cube = Lists.newArrayList(x, y, action, spec);
+    @SuppressWarnings("unchecked")
+    List<? extends Object> cube =
+        Lists.newArrayList(x, y, action.toString(), "\"" + spec + "\"", possible);
     return cube;
   }
 
   @Override
   public RoboAction clone() {
-    RoboAction c = new RoboAction(this.x, this.y, this.action, this.spec);
+    RoboAction c = new RoboAction(this.x, this.y, this.action, this.spec, this.possible);
     return c;
   }
 
@@ -140,4 +140,5 @@ public class RoboAction extends PathAction {
   public String toString() {
     return this.toJSON().toString();
   }
+
 }

@@ -54,6 +54,9 @@ public class JavaExecutor extends Executor {
     shortcuts.put(">", className + ".greaterThan");
     shortcuts.put(">=", className + ".greaterThanEq");
 
+    shortcuts.put("||", className + ".or");
+    shortcuts.put("&&", className + ".and");
+
     shortcuts.put("if", className + ".ifThenElse");
     shortcuts.put("map", className + ".map");
     shortcuts.put("reduce", className + ".reduce");
@@ -76,9 +79,13 @@ public class JavaExecutor extends Executor {
     public static boolean lessThan(double x, double y) { return x < y; }
     public static boolean lessThanEq(double x, double y) { return x <= y; }
     public static boolean equals(double x, double y) { return x == y; }
+    public static boolean equals(boolean x, boolean y) { return x == y; }
     public static boolean greaterThan(double x, double y) { return x > y; }
     public static boolean greaterThanEq(double x, double y) { return x >= y; }
 
+    public static boolean or(boolean x, boolean y) { return x || y; }
+    public static boolean and(boolean x, boolean y) { return x && y; }
+    
     public static Object ifThenElse(boolean b, Object x, Object y) { return b ? x : y; }
 
     // For very simple string concatenation

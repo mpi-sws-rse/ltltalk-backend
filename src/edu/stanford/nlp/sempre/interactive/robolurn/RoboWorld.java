@@ -13,6 +13,7 @@ import edu.stanford.nlp.sempre.StringValue;
 import edu.stanford.nlp.sempre.interactive.PathAction;
 import edu.stanford.nlp.sempre.interactive.World;
 import edu.stanford.nlp.sempre.interactive.planner.PathFinder;
+import fig.basic.LogInfo;
 import fig.basic.Option;
 
 public class RoboWorld extends World {
@@ -21,6 +22,37 @@ public class RoboWorld extends World {
     public int maxBlocks = 1024 ^ 2;
   }
 
+  enum BasicColor {
+    Red(0), Orange(1), Yellow(2), Green(3), Blue(4), Purple(5), Pink(6), Brown(7);//, None(-5);
+    private final int value;
+
+    BasicColor(int value) {
+      this.value = value;
+    }
+    
+    public String toString() {
+      return this.name().toLowerCase();
+    }
+
+    public BasicColor fromString(String color) {
+      for (BasicColor c : BasicColor.values())
+        if (c.name().equalsIgnoreCase(color))
+          return c;
+      return null;
+    }
+  };
+  
+  /*
+   * 
+  public String descriptionNot(String str) {
+    Set<String> colors = str.split(",");
+    for (BasicColor c : BasicColor.values()) {
+      
+    }
+  }
+   */
+  
+  
   public static Options opts = new Options();
 
   public static RoboWorld fromContext(ContextValue context) {
@@ -32,15 +64,14 @@ public class RoboWorld extends World {
     return fromJSON(wallString);
   }
 
-  private List<PathAction> pathActions;
+  private List<RoboAction> pathActions;
 
   private Robot robot;
 
-  @SuppressWarnings("unchecked")
   public RoboWorld(Set<WorldBlock> blockset) {
     super();
     this.allBlocks = blockset;
-    this.pathActions = new ArrayList<PathAction>();
+    this.pathActions = new ArrayList<RoboAction>();
   }
 
   @Override
@@ -53,7 +84,7 @@ public class RoboWorld extends World {
     StringBuilder sb = new StringBuilder();
     sb.append("[");
     boolean first = true;
-    for (PathAction pa : pathActions) {
+    for (RoboAction pa : pathActions) {
       if (first)
         first = false;
       else
@@ -124,10 +155,57 @@ public class RoboWorld extends World {
         .collect(Collectors.toList())
     );
     if (pathActions.size() > 1) {
-      pathActions.get(pathActions.size() - 1).action = RoboAction.Action.DESTINATION;
+      RoboAction last = pathActions.get(pathActions.size() - 1);
+      last.action = RoboAction.Action.DESTINATION;
+      robot.x = last.x;
+      robot.y = last.y;
     }
-    //pathActions.add(new RoboAction(robot.x, robot.y, RoboAction.Action.PATH));
-    //pathActions.add(new RoboAction(x, y, RoboAction.Action.DESTINATION));
+  }
+  
+  private String parseSpec(String spec) {
+    LogInfo.logs("~~~~~~~");
+    LogInfo.logs(spec);
+    return spec;
+  }
+  
+  public void pickSingle(String spec) {
+    spec = parseSpec(spec);
+    WorldBlock block = null;
+    for (WorldBlock b : allBlocks) {
+      if (b.x == robot.x && b.y == robot.y && b.color.equals(spec)) {
+        block = b;
+        allBlocks.remove(b);
+        robot.items.add(spec);
+        break;
+      }
+    }
+    RoboAction ra;
+    if (block == null) {
+      ra = new RoboAction(robot.x, robot.y, RoboAction.Action.PICKITEM, spec, false);
+    } else {
+      ra = new RoboAction(robot.x, robot.y, RoboAction.Action.PICKITEM, spec, true);
+    }
+    pathActions.add(ra);
+  }
+
+  public void pickAll(String spec) {
+    spec = parseSpec(spec);
+    WorldBlock block = null;
+    for (WorldBlock b : allBlocks) {
+      if (b.x == robot.x && b.y == robot.y && b.color.equals(spec)) {
+        block = b;
+        allBlocks.remove(b);
+        robot.items.add(spec);
+        break;
+      }
+    }
+    RoboAction ra;
+    if (block == null) {
+      ra = new RoboAction(robot.x, robot.y, RoboAction.Action.PICKITEM, spec, false);
+    } else {
+      ra = new RoboAction(robot.x, robot.y, RoboAction.Action.PICKITEM, spec, true);
+    }
+    pathActions.add(ra);
   }
 
   private void refreshSet(Set<WorldBlock> set) {
@@ -136,6 +214,7 @@ public class RoboWorld extends World {
     set.addAll(s);
   }
 
+  @SuppressWarnings("unused")
   private void keyConsistency() {
     refreshSet(allBlocks);
   }

@@ -14,6 +14,7 @@ import es.usc.citius.hipster.model.function.impl.StateTransitionFunction;
 import es.usc.citius.hipster.model.problem.ProblemBuilder;
 import es.usc.citius.hipster.model.problem.SearchProblem;
 import es.usc.citius.hipster.util.examples.maze.Maze2D;
+import fig.basic.LogInfo;
 
 
 public class PathFinder {
@@ -56,7 +57,7 @@ public class PathFinder {
         }
       }
       Maze2D maze = new Maze2D(charMap);
-//      LogInfo.logs(maze.toString());
+      //LogInfo.logs(maze.toString());
 
       SearchProblem problem = ProblemBuilder.create()
           .initialState(origin)

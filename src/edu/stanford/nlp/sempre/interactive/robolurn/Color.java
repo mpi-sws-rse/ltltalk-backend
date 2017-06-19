@@ -2,8 +2,7 @@ package edu.stanford.nlp.sempre.interactive.robolurn;
 
 public class Color {
   enum BasicColor {
-    Red(0), Orange(1), Yellow(2), Green(3), Blue(4), White(6), Black(7), Pink(8), Brown(9), Gray(10), Fake(11), None(
-        -5);
+    Red(0), Orange(1), Yellow(2), Green(3), Blue(4), White(6), Black(7), Pink(8), Brown(9), Gray(10), None(-5);
     private final int value;
 
     BasicColor(int value) {
@@ -18,7 +17,6 @@ public class Color {
     }
   };
 
-  public static Color Fake = new Color(BasicColor.Fake.toString());
   String colorName;
   boolean isCode = false;
 

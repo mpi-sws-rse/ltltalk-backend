@@ -1,13 +1,17 @@
 package edu.stanford.nlp.sempre.interactive;
 
-public abstract class PathAction {
+/**
+ * @author brendonboldt
+ * Generic type A represents and action type
+ * @param <A>
+ */
+public abstract class PathAction<A> {
   
-  public interface Action { }
-  
-  public Action action;
+  public A action;
   public int x;
   public int y;
-
+  public boolean possible;
+  
   public abstract Object get(String property);
 
   //public static PathAction fromJSON(String json);
@@ -16,5 +20,5 @@ public abstract class PathAction {
 
   public abstract Object toJSON();
 
-  public abstract PathAction clone();
+  public abstract PathAction<A> clone();
 }
