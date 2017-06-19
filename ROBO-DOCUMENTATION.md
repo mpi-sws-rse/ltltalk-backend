@@ -21,3 +21,9 @@ client (SEMPRE receives the world context from the client) and an ordered list
 of `RoboAction`s that are converted into JSON in order to be sent to the front
 end. This class also contains all logic related to core language functions (e.g.,
 `visit`, `pick`, `drop`).
+
+## Running SEMPRE
+
+To run SEMPRE with the proper settings for the robot world use
+`./interactive/run @mode=voxelurn -interactive false -server true` (the `true`
+and `false` can be switched in order to use the server with a CLI).
