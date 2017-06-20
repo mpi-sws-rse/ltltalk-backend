@@ -1,6 +1,8 @@
 # Robo Specific Documentation
 
 Files are contained under `src/edu/stanford/nlp/sempre/interactive`.
+Grammar files are contained under `interactive`. The grammar with commands specific to robot-world is [my.grammar](/interactive/my.grammar) and general rules can be 
+found in the file [dal.grammar](/interactive/dal.grammar)
 
 ## Planner
 
