@@ -1,4 +1,5 @@
-# SEMPRE 2.3: Semantic Parsing with Execution
+# SEMPRE 2.3-robo: Semantic Parsing with Execution, modified for usage in robotic world 
+(based on original interactive sempre repository https://github.com/sidaw/sempre-interactive)
 
 ## What is semantic parsing?
 
@@ -89,17 +90,17 @@ similar your system is.
 
 ## Easy setup
 
-1. Clone the GitHub repository:
+1. Clone this GitHub repository:
 
-        git clone https://github.com/percyliang/sempre
+        `git clone git-rts@gitlab.mpi-sws.org:gavran/sempre-interactive.git` (ssh) or `git clone https://gavran@gitlab.mpi-sws.org/gavran/sempre-interactive.git` (https)
 
 2. Download the minimal core dependencies (all dependencies will be placed in `lib`):
 
-        ./pull-dependencies core
+        ./pull-dependencies interactive
 
 3. Compile the source code (this produces `libsempre/sempre-core.jar`):
 
-        ant core
+        ant interactive
 
 4. Run an interactive shell:
 
@@ -111,6 +112,8 @@ similar your system is.
 
 To go further, check out the [tutorial](TUTORIAL.md) and then the [full
 documentation](DOCUMENTATION.md).
+
+To go further with running sempre in the context of Robotic world, check [Robo-documentation](https://gitlab.mpi-sws.org/gavran/sempre-interactive/blob/master/ROBO-DOCUMENTATION.md)
 
 ## Virtuoso graph database
 
