@@ -5,7 +5,6 @@
 (def @drop drop)
 
 
-#(def @dNot edu.stanford.nlp.sempre.interactive.robolurn.RoboWorld.descriptionNot)
 (def @dNot descriptionNot)
 (def @dOr descriptionOr)
 (def @dAnd descriptionAnd)
@@ -23,10 +22,17 @@
 (rule $Cardinality (single) single (anchored 1))
 (rule $Cardinality (all) all (anchored 1))
 
-(rule $Description (has color $Color) (IdentityFn) (anchored 1))
-(rule $Description ($Description &&  $Description) (lambda x (lambda y (call @dAnd (var x) (var y)))) (anchored 1))
-(rule $Description ($Description ||  $Description) (lambda x (lambda y (call @dOr (var x) (var y)))) (anchored 1))
-(rule $Description (! $Description) (lambda x (call @dNot (var x))) (anchored 1))
+(rule $Description (has color $Color)
+   (IdentityFn) (anchored 1))
+(rule $Description ( { $Description } )
+   (IdentityFn) (anchored 1))
+(rule $Description ($Description &&  $Description)
+   (lambda x (lambda y (call @dAnd (var x) (var y)))) (anchored 1))
+(rule $Description ($Description ||  $Description)
+   (lambda x (lambda y (call @dOr (var x) (var y)))) (anchored 1))
+(rule $Description (! $Description)
+   (lambda x (call @dNot (var x))) (anchored 1))
+
 
 # TODO Find a better way to define these
 (for C (red orange yellow blue green purple brown pink)
