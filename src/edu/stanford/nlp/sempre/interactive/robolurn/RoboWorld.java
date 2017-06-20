@@ -2,6 +2,9 @@ package edu.stanford.nlp.sempre.interactive.robolurn;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,15 +45,45 @@ public class RoboWorld extends World {
     }
   };
   
-  /*
-   * 
   public String descriptionNot(String str) {
-    Set<String> colors = str.split(",");
+    Set<String> colors = new HashSet<>(Arrays.asList(str.split(",")));
+    StringBuilder sb = new StringBuilder();
     for (BasicColor c : BasicColor.values()) {
-      
+      if (!colors.contains(c.toString())) {
+        if (sb.length() != 0)
+          sb.append(",");
+        sb.append(c.toString());
+      }
     }
+    return sb.toString();
   }
-   */
+  
+  public String descriptionAnd(String str1, String str2) {
+    Set<String> colors1 = new HashSet<>(Arrays.asList(str1.split(",")));
+    Set<String> colors2 = new HashSet<>(Arrays.asList(str2.split(",")));
+    StringBuilder sb = new StringBuilder();
+    for (String c : colors1) {
+      if (colors2.contains(c)) {
+        if (sb.length() != 0)
+          sb.append(",");
+        sb.append(c.toString());
+      }
+    }
+    return sb.toString();
+  }
+  
+  public String descriptionOr(String str1, String str2) {
+    Set<String> colors1 = new HashSet<>(Arrays.asList(str1.split(",")));
+    List<String> colors2 = Arrays.asList(str2.split(","));
+    colors1.addAll(colors2);
+    StringBuilder sb = new StringBuilder();
+    for (String c : colors1) {
+      if (sb.length() != 0)
+        sb.append(",");
+      sb.append(c.toString());
+    }
+    return sb.toString();
+  }
   
   
   public static Options opts = new Options();
@@ -162,50 +195,87 @@ public class RoboWorld extends World {
     }
   }
   
-  private String parseSpec(String spec) {
-    LogInfo.logs("~~~~~~~");
-    LogInfo.logs(spec);
-    return spec;
+  private Set<String> parseSpec(String spec) {
+    Set<String> colors = new HashSet<>(Arrays.asList(spec.split(",")));
+//    LogInfo.logs("~~~~~~~");
+//    LogInfo.logs(spec);
+    return colors;
   }
   
-  public void pickSingle(String spec) {
-    spec = parseSpec(spec);
-    WorldBlock block = null;
-    for (WorldBlock b : allBlocks) {
-      if (b.x == robot.x && b.y == robot.y && b.color.equals(spec)) {
-        block = b;
-        allBlocks.remove(b);
-        robot.items.add(spec);
-        break;
+//  public void pickSingle(String spec) {
+//    pick(spec, true);
+//  }
+//
+//  public void pickAll(String spec) {
+//    pick(spec, false);
+//  }
+//  
+//    if (cardinality.equals("single"))
+//      pick(spec, true);
+//    else
+//      pick(spec, false);
+//  }
+  
+  public void pick(String cardinality, String spec) {
+    boolean single;
+    if (cardinality.equals("single"))
+      single = true;
+    else
+      single = false;
+    Set<String> colors = parseSpec(spec);
+    boolean match = false;
+    Iterator<WorldBlock> iter = allBlocks.iterator();
+    WorldBlock b;
+    while (iter.hasNext()) {
+      b = iter.next();
+      if (b.x == robot.x && b.y == robot.y && colors.contains(b.color)) {
+        match = true;
+        robot.items.add(b.color);
+        pathActions.add(
+            new RoboAction(robot.x, robot.y, RoboAction.Action.PICKITEM, b.color, true));
+        iter.remove();
+        if (single)
+          break;
       }
     }
-    RoboAction ra;
-    if (block == null) {
-      ra = new RoboAction(robot.x, robot.y, RoboAction.Action.PICKITEM, spec, false);
-    } else {
-      ra = new RoboAction(robot.x, robot.y, RoboAction.Action.PICKITEM, spec, true);
+    if (!match) {
+      pathActions.add(new RoboAction(robot.x, robot.y, RoboAction.Action.PICKITEM, spec, false));
     }
-    pathActions.add(ra);
   }
 
-  public void pickAll(String spec) {
-    spec = parseSpec(spec);
-    WorldBlock block = null;
-    for (WorldBlock b : allBlocks) {
-      if (b.x == robot.x && b.y == robot.y && b.color.equals(spec)) {
-        block = b;
-        allBlocks.remove(b);
-        robot.items.add(spec);
-        break;
+//  public void dropSingle(String spec) {
+//    drop(spec, true);
+//  }
+//
+//  public void dropAll(String spec) {
+//    drop(spec, false);
+//  }
+  
+  public void drop(String cardinality, String spec) {
+    boolean single;
+    if (cardinality.equals("single"))
+      single = true;
+    else
+      single = false;
+    Set<String> colors = parseSpec(spec);
+    boolean match = false;
+    Iterator<String> iter = robot.items.iterator();
+    String item;
+    while (iter.hasNext()) {
+      item = iter.next();
+      if (colors.contains(item)) {
+        match = true;
+        allBlocks.add(new WorldBlock(robot.x, robot.y, WorldBlock.Type.ITEM));
+        pathActions.add(
+            new RoboAction(robot.x, robot.y, RoboAction.Action.DROPITEM, item, true));
+        iter.remove();
+        if (single)
+          break;
       }
     }
-    RoboAction ra;
-    if (block == null) {
-      ra = new RoboAction(robot.x, robot.y, RoboAction.Action.PICKITEM, spec, false);
-    } else {
-      ra = new RoboAction(robot.x, robot.y, RoboAction.Action.PICKITEM, spec, true);
+    if (!match) {
+      pathActions.add(new RoboAction(robot.x, robot.y, RoboAction.Action.DROPITEM, spec, false));
     }
-    pathActions.add(ra);
   }
 
   private void refreshSet(Set<WorldBlock> set) {

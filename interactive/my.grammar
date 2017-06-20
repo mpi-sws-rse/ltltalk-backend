@@ -1,27 +1,34 @@
 (include dal.grammar)
 
 (def @visit visit)
-(def @pickSingle pickSingle)
-(def @pickAll pickSingle)
-(def @dropSingle dropSingle)
-(def @dropAll dropSingle)
+(def @pick pick)
+(def @drop drop)
+
+
+#(def @dNot edu.stanford.nlp.sempre.interactive.robolurn.RoboWorld.descriptionNot)
+(def @dNot descriptionNot)
+(def @dOr descriptionOr)
+(def @dAnd descriptionAnd)
 
 
 # Real Rules (for now)
 
 (rule $Action (visit [ $Number , $Number ] ) (lambda x (lambda y (: @visit (var x) (var y)))) (anchored 1))
 
-(rule $Action (pick single $Description ) (lambda x (: @pickSingle (var x) )) (anchored 1))
-(rule $Action (pick all $Description ) (lambda x (: @pickAll (var x) )) (anchored 1))
-(rule $Action (drop single $Description ) (lambda x (: @dropSingle (var x) )) (anchored 1))
-(rule $Action (drop all $Description ) (lambda x (: @dropAll (var x) )) (anchored 1))
+(rule $Action (pick $Cardinality $Description) (lambda x (lambda y (: @pick (var x) (var y)))) (anchored 1))
+(rule $Action (pick $Cardinality) (lambda x (: @pick (var x) (call @dNot (string "")))) (anchored 1))
+(rule $Action (drop $Cardinality $Description) (lambda x (lambda y (: @drop (var x) (var y)))) (anchored 1))
+(rule $Action (drop $Cardinality) (lambda x (: @drop (var x) (call @dNot (string "")))) (anchored 1))
 
-#(rule $Description (has color $Color) (IdentityFn) (anchored 1))
-#(rule $Description ($Description &&  $Description) (: descriptionAnd) (anchored 1))
-#(rule $Description ($Description ||  $Description) (: descriptionOr) (anchored 1))
-#(rule $Description (! $Color) (: descriptionNot) (anchored 1))
+(rule $Cardinality (single) single (anchored 1))
+(rule $Cardinality (all) all (anchored 1))
 
-# Find a better way to define these
+(rule $Description (has color $Color) (IdentityFn) (anchored 1))
+(rule $Description ($Description &&  $Description) (lambda x (lambda y (call @dAnd (var x) (var y)))) (anchored 1))
+(rule $Description ($Description ||  $Description) (lambda x (lambda y (call @dOr (var x) (var y)))) (anchored 1))
+(rule $Description (! $Description) (lambda x (call @dNot (var x))) (anchored 1))
+
+# TODO Find a better way to define these
 (for C (red orange yellow blue green purple brown pink)
   (rule $Color (C) C (anchored 1)))
 

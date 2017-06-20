@@ -6,6 +6,7 @@ import org.testng.collections.Lists;
 
 import edu.stanford.nlp.sempre.Json;
 import edu.stanford.nlp.sempre.interactive.PathAction;
+import edu.stanford.nlp.sempre.interactive.robolurn.RoboAction.Action;
 
 public class RoboAction extends PathAction<RoboAction.Action> {
 
@@ -54,6 +55,7 @@ public class RoboAction extends PathAction<RoboAction.Action> {
   }
 
   public RoboAction() { }
+
 
   @Override
   public Object get(String property) {

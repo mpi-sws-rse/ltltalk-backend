@@ -16,6 +16,7 @@
 (rule $Action ({ $Actions }) (lambda a (:blk (var a))) (anchored 1))
 (rule $Action (return { $Actions }) (lambda a (:blkr (var a))) (anchored 1))
 (rule $Action ([ $Actions ]) (IdentityFn) (anchored 1))
+(rule $Action ($Action ;) (IdentityFn) (anchored 1))
 
 (rule $Action (repeat $Numbers $Action) (lambda n (lambda a (:loop (var n) (var a)))) (anchored 1))
 (rule $Action (if $ValueSets $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored 1))
