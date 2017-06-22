@@ -1,5 +1,6 @@
 package edu.stanford.nlp.sempre.interactive;
 
+import java.awt.Point;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -10,14 +11,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.naming.OperationNotSupportedException;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.ObjectArrays;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
 import edu.stanford.nlp.sempre.*;
-import edu.stanford.nlp.sempre.interactive.robolurn.RoboWorld;
-import edu.stanford.nlp.sempre.interactive.robolurn.WorldBlock;
+import edu.stanford.nlp.sempre.interactive.planner.PathFinder;
+import edu.stanford.nlp.sempre.interactive.robolurn.RoboBlock;
 import fig.basic.LogInfo;
 import fig.basic.Option;
 
@@ -65,7 +68,7 @@ public class DALExecutor extends Executor {
     //World world = World.fromContext(opts.worldType, context);
 
     //LogInfo.logs(context.toString());
-    RoboWorld world = RoboWorld.fromContext(context);
+    World<?> world = World.fromContext(opts.worldType, context);
     formula = Formulas.betaReduction(formula);
     try {
       performActions((ActionFormula) formula, world);
@@ -87,7 +90,7 @@ public class DALExecutor extends Executor {
       LogInfo.begin_track("DALExecutor.performActions");
       LogInfo.logs("Executing: %s", f);
       LogInfo.logs("World: %s", world.toJSON());
-      LogInfo.logs("allItems: %s", world.all());
+      //LogInfo.logs("allItems: %s", world.all());
       //LogInfo.logs("selected: %s", world.selected());
       //LogInfo.logs("previous: %s", world.previous());
       LogInfo.end_track();
@@ -132,7 +135,7 @@ public class DALExecutor extends Executor {
       }
     } else if (f.mode == ActionFormula.Mode.forset) {
       // mostly deprecated
-      Set<Object> selected = toSet(processSetFormula(f.args.get(0), world));
+      //Set<Point> selected = toSet(processSetFormula(f.args.get(0), world));
       //Set<Item> prevSelected = world.selected;
 
       //world.selected = toItemSet(selected);
@@ -141,56 +144,21 @@ public class DALExecutor extends Executor {
       //world.selected = prevSelected;
       //world.merge();
     } else if (f.mode == ActionFormula.Mode.foreach) {
-      Set<WorldBlock> selected = toItemSet(toSet(processSetFormula(f.args.get(0), world)));
+      //Set<Block<?>> selected = toItemSet(toSet(processSetFormula(f.args.get(0), world)));
+      List<Point> selected = toFieldList(toSet(processSetFormula(f.args.get(0), world)))
+          .stream().map(i -> new Point(i[0],i[1])).collect(Collectors.toList());
+      //selected.add(0, world.selectedField);
       //Set<Item> prevSelected = world.selected;
       // CopyOnWriteArraySet<Object> fixedset =
       // Sets.newCopyOnWriteArraySet(selected);
-      Iterator<WorldBlock> iterator = selected.iterator();
-      while (iterator.hasNext()) {
-        //world.selected = (toItemSet(toSet(iterator.next())));
-        //performActions((ActionFormula) f.args.get(1), world);
+      int[] order = PathFinder.getFieldOrder(selected);
+      for (int i = 0; i < order.length; ++i) {
+        world.selectedField = selected.get(order[i]);
+        performActions((ActionFormula) f.args.get(1), world);
       }
       //world.selected = prevSelected;
       //world.merge();
-
-    } else if (f.mode == ActionFormula.Mode.isolate) {
-      //Set<Item> prevAll = world.allItems;
-      // Set<Item> prevSelected = world.selected;
-      // Set<Item> prevPrevious = world.previous;
-      if (f.args.size() > 1)
-        throw new RuntimeException("No longer supporting this isolate formula: " + f);
-
-      //world.allItems = Sets.newHashSet(world.selected);
-      // world.selected = scope;
-      // world.previous = scope;
-      performActions((ActionFormula) f.args.get(0), world);
-
-      //world.allItems.addAll(prevAll); // merge, overriding;
-      // world.selected = prevSelected;
-      // world.previous = prevPrevious;
-      //world.merge();
-
-    } else if (f.mode == ActionFormula.Mode.block || f.mode == ActionFormula.Mode.blockr) {
-      // we should never mutate selected in actions
-      //Set<Item> prevSelected = world.selected;
-      //Set<Item> prevPrevious = world.previous;
-      //world.previous = world.selected;
-
-      for (Formula child : f.args) {
-        performActions((ActionFormula) child, world);
-      }
-
-      // restore on default blocks
-      if (f.mode == ActionFormula.Mode.block) {
-        //world.selected = prevSelected;
-        //world.merge();
-      }
-      // LogInfo.logs("CBlocking prevselected=%s selected=%s all=%s",
-      // prevSelected, world.selected, world.allitems);
-      // LogInfo.logs("BlockingWorldIs %s", world.toJSON());
-      //world.previous = prevPrevious;
-    }
-
+    } 
   }
 
   @SuppressWarnings("unchecked")
@@ -201,6 +169,13 @@ public class DALExecutor extends Executor {
       return Sets.newHashSet(maybeSet);
   }
 
+  private Point toPoint(int[] args) {
+    Point p = new Point();
+    p.x = args[0];
+    p.y = args[1];
+    return p;
+  }
+  
   private Object toElement(Set<Object> set) {
     if (set.size() == 1) {
       return set.iterator().next();
@@ -208,18 +183,24 @@ public class DALExecutor extends Executor {
     return set;
   }
 
-  private Set<WorldBlock> toItemSet(Set<Object> maybeItems) {
-    Set<WorldBlock> itemset = maybeItems.stream().map(i -> (WorldBlock) i).collect(Collectors.toSet());
+  private Set<Block<?>> toItemSet(Set<Object> maybeItems) {
+    Set<Block<?>> itemset = maybeItems.stream().map(i -> (Block<?>) i).collect(Collectors.toSet());
     return itemset;
   }
 
+  private Set<int[]> toFieldSet(Set<Object> maybeFields) {
+    Set<int[]> fieldSet = maybeFields.stream().map(i -> (int[]) i).collect(Collectors.toSet());
+    return fieldSet;
+  }
+
+  private List<int[]> toFieldList(Set<Object> maybeFields) {
+    List<int[]> fieldList = maybeFields.stream().map(i -> (int[]) i).collect(Collectors.toList());
+    return fieldList;
+  }
+
   static class SpecialSets {
-    static String All = "*";
-    static String EmptySet = "nothing";
-    static String This = "this"; // current scope if it exists, otherwise the
-                                 // globally marked object
-    static String Previous = "prev"; // global variable for selected
-    static String Selected = "selected"; // global variable for selected
+//    static String Selected = "selected"; // global variable for selected
+    static String World = "world"; // global variable for selected
   };
 
   // a subset of lambda dcs. no types, and no marks
@@ -232,55 +213,26 @@ public class DALExecutor extends Executor {
       // special unary
       if (v instanceof NameValue) {
         String id = ((NameValue) v).id;
-        // LogInfo.logs("%s : this %s, all: %s", id,
-        // world.selected().toString(), world.allitems.toString());
-        if (id.equals(SpecialSets.All))
-          return world.all();
-        //if (id.equals(SpecialSets.This))
-          //return world.selected();
-        //if (id.equals(SpecialSets.Selected))
-          //return world.selected();
-        if (id.equals(SpecialSets.EmptySet))
-          return world.empty();
-        //if (id.equals(SpecialSets.Previous))
-          //return world.previous();
+        // Maybe add "items" and "walls" here?
+        if (id.equals(SpecialSets.World))
+          // TODO Should these methods return Set<Point> or Set<int[]>? 
+          return world.getOpenFields().stream()
+              .map(i -> new int [] {((Point) i).x, ((Point) i).y})
+              .collect(Collectors.toSet());
       }
       return toObject(((ValueFormula<?>) formula).value);
     }
 
     if (formula instanceof JoinFormula) {
-      JoinFormula joinFormula = (JoinFormula) formula;
-      if (joinFormula.relation instanceof ValueFormula) {
-        String rel = ((ValueFormula<NameValue>) joinFormula.relation).value.id;
-        Set<Object> unary = toSet(processSetFormula(joinFormula.child, world));
-        return world.has(rel, unary);
-      } else if (joinFormula.relation instanceof ReverseFormula) {
-        ReverseFormula reverse = (ReverseFormula) joinFormula.relation;
-        String rel = ((ValueFormula<NameValue>) reverse.child).value.id;
-        Set<Object> unary = toSet(processSetFormula(joinFormula.child, world));
-        return world.get(rel, toItemSet(unary));
-      } else {
-        throw new RuntimeException("relation can either be a value, or its reverse");
-      }
+      LogInfo.logs("ERROR: This operation is not supported.");
     }
 
     if (formula instanceof MergeFormula) {
-      MergeFormula mergeFormula = (MergeFormula) formula;
-      MergeFormula.Mode mode = mergeFormula.mode;
-      Set<Object> set1 = toSet(processSetFormula(mergeFormula.child1, world));
-      Set<Object> set2 = toSet(processSetFormula(mergeFormula.child2, world));
-
-      if (mode == MergeFormula.Mode.or)
-        return toMutable(Sets.union(set1, set2));
-      if (mode == MergeFormula.Mode.and)
-        return toMutable(Sets.intersection(set1, set2));
-
+      LogInfo.logs("ERROR: This operation is not supported.");
     }
 
     if (formula instanceof NotFormula) {
-      NotFormula notFormula = (NotFormula) formula;
-      Set<WorldBlock> set1 = toItemSet(toSet(processSetFormula(notFormula.child, world)));
-      return toMutable(Sets.difference(world.allBlocks, set1));
+      LogInfo.logs("ERROR: This operation is not supported.");
     }
 
     if (formula instanceof AggregateFormula) {

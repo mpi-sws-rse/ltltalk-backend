@@ -13,13 +13,14 @@ import edu.stanford.nlp.sempre.ContextValue;
 import edu.stanford.nlp.sempre.Json;
 import edu.stanford.nlp.sempre.NaiveKnowledgeGraph;
 import edu.stanford.nlp.sempre.StringValue;
+import edu.stanford.nlp.sempre.interactive.Block;
 import edu.stanford.nlp.sempre.interactive.PathAction;
 import edu.stanford.nlp.sempre.interactive.World;
 import edu.stanford.nlp.sempre.interactive.planner.PathFinder;
 import fig.basic.LogInfo;
 import fig.basic.Option;
 
-public class RoboWorld extends World {
+public class RoboWorld extends World<RoboBlock> {
   public static class Options {
     @Option(gloss = "maximum number of cubes to convert")
     public int maxBlocks = 1024 ^ 2;
@@ -44,6 +45,9 @@ public class RoboWorld extends World {
       return null;
     }
   };
+  
+  private Point lowCorner;
+  private Point highCorner;
   
   public String descriptionNot(String str) {
     Set<String> colors = new HashSet<>(Arrays.asList(str.split(",")));
@@ -85,7 +89,6 @@ public class RoboWorld extends World {
     return sb.toString();
   }
   
-  
   public static Options opts = new Options();
 
   public static RoboWorld fromContext(ContextValue context) {
@@ -101,12 +104,40 @@ public class RoboWorld extends World {
 
   private Robot robot;
 
-  public RoboWorld(Set<WorldBlock> blockset) {
+  public RoboWorld(Set<RoboBlock> walls, Set<RoboBlock> items) {
     super();
-    this.allBlocks = blockset;
+    this.walls = walls;
+    this.items = items;
     this.pathActions = new ArrayList<RoboAction>();
+    this.selectedField = new Point();
+    this.findCorners();
   }
 
+  private void findCorners() {
+    int maxX = 0, maxY = 0, minX = 0, minY = 0;
+    for (Point p : walls) {
+      if (p.x > maxX)
+        maxX = p.x;
+      else if (p.x < minX)
+        minX = p.x;
+
+      if (p.y > maxY)
+        maxY = p.y;
+      else if (p.y < minY)
+        minY = p.y;
+    }
+    this.lowCorner = new Point(minX, minY);
+    this.highCorner = new Point(maxX, maxY);
+  }
+  
+  public Point getLowCorner() {
+    return this.lowCorner;
+  }
+  
+  public Point getHighCorner() {
+    return this.highCorner;
+  }
+  
   @Override
   public String toJSON() {
     return "NOT YET SUPPORTED";
@@ -137,53 +168,60 @@ public class RoboWorld extends World {
       (int) rawRobot.get(1),
       (List<String>) rawRobot.get(2)
     );
-    Set<WorldBlock> blocks = blockstr.subList(1, blockstr.size()).stream().map(c -> {
-      return WorldBlock.fromJSONObject(c);
-    }).collect(Collectors.toSet());
-    RoboWorld world = new RoboWorld(blocks);
+    Set<RoboBlock> walls = new HashSet<>();
+    Set<RoboBlock> items = new HashSet<>();
+    blockstr.subList(1, blockstr.size()).stream().forEach(c -> {
+      RoboBlock rb = RoboBlock.fromJSONObject(c);
+      if (rb.type == RoboBlock.Type.ITEM)
+        items.add(rb);
+      else
+        walls.add(rb);
+    });
+    RoboWorld world = new RoboWorld(walls, items);
     world.robot = robot;
     return world;
   }
 
-  @Override
-  public Set<WorldBlock> has(String rel, Set<Object> values) {
-    return this.allBlocks.stream().filter(i -> values.contains(i.get(rel))).collect(Collectors.toSet());
-  }
+//  @Override
+//  public Set<Block<?>> has(String rel, Set<Object> values) {
+//    return this.allBlocks.stream().filter(i -> values.contains(i.get(rel))).collect(Collectors.toSet());
+//  }
 
-  @Override
-  public Set<Object> get(String rel, Set<WorldBlock> subset) {
-    return subset.stream().map(i -> i.get(rel)).collect(Collectors.toSet());
-  }
+//  @Override
+//  public Set<Object> get(String rel, Set<Block<?>> subset) {
+//    return subset.stream().map(i -> i.get(rel)).collect(Collectors.toSet());
+//  }
+  
 
   public void noop() {
   }
   
-  public void visit(int x, int y) {
-    List<Point> walls = allBlocks.stream()
-        .filter(b -> b.type == WorldBlock.Type.WALL)
-        .map(b -> new Point(b.x, b.y))
-        .collect(Collectors.toList()
-    );
-    int maxX = 0, maxY = 0, minX = 0, minY = 0;
-    for (Point p : walls) {
-      if (p.x > maxX)
-        maxX = p.x;
-      else if (p.x < minX)
-        minX = p.x;
-
-      if (p.y > maxY)
-        maxY = p.y;
-      else if (p.y < minY)
-        minY = p.y;
-    }
+  public int[] intPair(int a, int b) {
+    int[] arr = {a,b};
+    return arr;
+  }
+  
+  public void visit(int[] args) {
+    this.selectedField.x = args[0];
+    this.selectedField.y = args[1];
+    gotoSelectedField();
+  }
+  
+  public void visit() {
+    gotoSelectedField();
+  }
+  
+  private void gotoSelectedField() {
+    int x = selectedField.x;
+    int y = selectedField.y;
     // Is this unclear? It is quite beautiful, though.
     pathActions.addAll(
         PathFinder.findPath(
             walls,
             new Point(robot.x, robot.y),
             new Point(x,y),
-            new Point(minX,minY),
-            new Point(maxX,maxY))
+            this.getLowCorner(),
+            this.getHighCorner())
         .stream().map(p -> new RoboAction(p.x, p.y, RoboAction.Action.PATH))
         .collect(Collectors.toList())
     );
@@ -202,20 +240,6 @@ public class RoboWorld extends World {
     return colors;
   }
   
-//  public void pickSingle(String spec) {
-//    pick(spec, true);
-//  }
-//
-//  public void pickAll(String spec) {
-//    pick(spec, false);
-//  }
-//  
-//    if (cardinality.equals("single"))
-//      pick(spec, true);
-//    else
-//      pick(spec, false);
-//  }
-  
   public void pick(String cardinality, String spec) {
     boolean single;
     if (cardinality.equals("single"))
@@ -224,9 +248,8 @@ public class RoboWorld extends World {
       single = false;
     Set<String> colors = parseSpec(spec);
     boolean match = false;
-    Iterator<WorldBlock> iter = allBlocks.iterator();
-    WorldBlock b;
-    while (iter.hasNext()) {
+    RoboBlock b;
+    for (Iterator<RoboBlock> iter = items.iterator(); iter.hasNext(); ) {
       b = iter.next();
       if (b.x == robot.x && b.y == robot.y && colors.contains(b.color)) {
         match = true;
@@ -242,14 +265,6 @@ public class RoboWorld extends World {
       pathActions.add(new RoboAction(robot.x, robot.y, RoboAction.Action.PICKITEM, spec, false));
     }
   }
-
-//  public void dropSingle(String spec) {
-//    drop(spec, true);
-//  }
-//
-//  public void dropAll(String spec) {
-//    drop(spec, false);
-//  }
   
   public void drop(String cardinality, String spec) {
     boolean single;
@@ -259,13 +274,12 @@ public class RoboWorld extends World {
       single = false;
     Set<String> colors = parseSpec(spec);
     boolean match = false;
-    Iterator<String> iter = robot.items.iterator();
     String item;
-    while (iter.hasNext()) {
+    for (Iterator<String> iter=  robot.items.iterator(); iter.hasNext(); ) {
       item = iter.next();
       if (colors.contains(item)) {
         match = true;
-        allBlocks.add(new WorldBlock(robot.x, robot.y, WorldBlock.Type.ITEM));
+        items.add(new RoboBlock(robot.x, robot.y, RoboBlock.Type.ITEM));
         pathActions.add(
             new RoboAction(robot.x, robot.y, RoboAction.Action.DROPITEM, item, true));
         iter.remove();
@@ -278,14 +292,37 @@ public class RoboWorld extends World {
     }
   }
 
-  private void refreshSet(Set<WorldBlock> set) {
-    List<WorldBlock> s = new ArrayList<>(set);
+  public Set<int[]> getRoom() {
+    Set<int[]> set = new HashSet<>();
+    int[] a = {0,4};
+    set.add(a.clone());
+    a[1]--;
+    set.add(a.clone());
+    a[1]--;
+    set.add(a.clone());
+    a[1]--;
+    set.add(a.clone());
+    a[1]--;
+    set.add(a.clone());
+    a[1]--;
+    set.add(a.clone());
+    a[1]--;
+    set.add(a.clone());
+    a[1]--;
+    set.add(a.clone());
+    return set;
+  }
+  
+  @SuppressWarnings("unused")
+  private void refreshSet(Set<RoboBlock> set) {
+    List<RoboBlock> s = new ArrayList<>(set);
     set.clear();
     set.addAll(s);
   }
 
+
   @SuppressWarnings("unused")
   private void keyConsistency() {
-    refreshSet(allBlocks);
+    //refreshSet(allBlocks);
   }
 }

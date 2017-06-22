@@ -1,18 +1,21 @@
 (include dal.grammar)
 
+# Robot action functions
 (def @visit visit)
 (def @pick pick)
 (def @drop drop)
 
-
+# Color logic functions
 (def @dNot descriptionNot)
 (def @dOr descriptionOr)
 (def @dAnd descriptionAnd)
 
 
-# Real Rules (for now)
+# Grammar rules
 
-(rule $Action (visit [ $Number , $Number ] ) (lambda x (lambda y (: @visit (var x) (var y)))) (anchored 1))
+(rule $Action (visit $Field) (lambda x (: @visit (var x))) (anchored 1))
+# Visit selected field (usually set by foreach)
+(rule $Action (visit) (ConstantFn (: @visit)) (anchored 1))
 
 (rule $Action (pick $Cardinality $Description) (lambda x (lambda y (: @pick (var x) (var y)))) (anchored 1))
 (rule $Action (pick $Cardinality) (lambda x (: @pick (var x) (call @dNot (string "")))) (anchored 1))
@@ -33,52 +36,17 @@
 (rule $Description (! $Description)
    (lambda x (call @dNot (var x))) (anchored 1))
 
+(rule $Action (foreach $Set $Action ) (lambda s (lambda a (:foreach (var s) (var a)))) (anchored 1))
+(rule $Set (room) (ConstantFn (call getRoom)) (anchored 1))
+(rule $Set (world) world (anchored 1))
+
+# Data type definitions
 
 # TODO Find a better way to define these
 (for C (red orange yellow blue green purple brown pink)
-  (rule $Color (C) C (anchored 1)))
+  (rule $Color (C) (ConstantFn C) (anchored 1)))
+
+(rule $Field ([ $Number , $Number ]) (lambda x (lambda y (call intPair (var x) (var y)))) (anchored 1))
+(rule $Set (selected) this (anchored 1))
 
 (rule $Number ($TOKEN) (NumberFn) (anchored 1))
-
-
-# Unimplemented Rules
-
-# General Rules
-(rule $ROOT ($P) (IdentityFn) (anchored 1))
-(rule $P ($ST) (IdentityFn) (anchored 1))
-
-(rule $ST ($Spec) (IdentityFn) (anchored 1))
-#(rule $ST ($Spec) ($ST) (string help) (anchored 1))
-
-# Specifications
-
-(rule $Spec (visit $LSet while avoiding $LSet) (ConcatFn " avoiding ") (anchored 1))
-(rule $Spec (visit $LSet) (IdentityFn) (anchored 1))
-#(rule $Spec (visit per [ $LSet , $TimeStep , $N ] ) (ConcatFn ", ") (anchored 1))
-(rule $Spec (visit per [ $LSet , $TimeStep , $N ] while avoiding $LSet ) (ConcatFn ", ") (anchored 1))
-(rule $Spec (visit per [ $LSet , $TimeStep , $N ]) (ConcatFn ", ") (anchored 1))
-
-(rule $TimeStep ($N) (IdentityFn) (anchored 1))
-(rule $N ($TOKEN) (NumberFn) (anchored 1))
-
-# Iterables?
-
-# Items
-(rule $I (item) item (anchored 1))
-(rule $I ($I has color $C) hasColor (anchored 1))
-
-(for C (red blue green)
-  (rule $C (C) C (anchored 1)))
-
-# Locations and location sets
-(rule $LSet ($L) (IdentityFn) (anchored 1))
-(rule $LSet ([ $L ]) (IdentityFn) (anchored 1))
-(rule $LSet ([ $L , $LSet ]) (ConcatFn ", ") (anchored 1))
-#(rule $LSet ($L , $L) (ConcatFn " and ") (anchored 1))
-
-(rule $L (world) world (anchored 1))
-(rule $L (current) current (anchored 1))
-(rule $L ($F) (ConcatFn "") (anchored 1))
-
-(for F (ra rb rc rd)
-  (rule $F (F) F (anchored 1)))

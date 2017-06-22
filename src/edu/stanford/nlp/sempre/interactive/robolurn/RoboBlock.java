@@ -8,8 +8,9 @@ import org.testng.collections.Lists;
 import fig.basic.LogInfo;
 
 import edu.stanford.nlp.sempre.Json;
+import edu.stanford.nlp.sempre.interactive.Block;
 
-public class WorldBlock {
+public class RoboBlock extends Block<RoboBlock.Type> {
 
   public enum Type {
     WALL, ITEM;
@@ -24,26 +25,24 @@ public class WorldBlock {
     }
   }
 
-  int x, y;
-  Type type;
   String color;
 
-  public WorldBlock(int x, int y, Type type, String color) {
+  public RoboBlock(int x, int y, Type type, String color) {
     this(x, y, type);
     this.color = color;
   }
 
-  public WorldBlock(int x, int y, Type type) {
+  public RoboBlock(int x, int y, Type type) {
     this();
     this.x = x;
     this.y = y;
     this.type = type;
   }
 
-  private WorldBlock() { }
+  private RoboBlock() { }
 
   @SuppressWarnings("unchecked")
-  public static WorldBlock fromJSON(String json) {
+  public static RoboBlock fromJSON(String json) {
     List<Object> props = Json.readValueHard(json, List.class);
     return fromJSONObject(props);
   }
@@ -60,9 +59,11 @@ public class WorldBlock {
       throw new RuntimeException("getting property " + property + " is not supported.");
     return propval;
   }
+
   @SuppressWarnings("unchecked")
-  public static WorldBlock fromJSONObject(List<Object> props) {
-    WorldBlock wb = new WorldBlock();
+  public static RoboBlock fromJSONObject(List<Object> props) {
+
+    RoboBlock wb = new RoboBlock();
     wb.x = ((Integer) props.get(0));
     wb.y = ((Integer) props.get(1));
     wb.type = Type.fromString((props.get(2).toString()));
@@ -79,8 +80,8 @@ public class WorldBlock {
   }
 
   @Override
-  public WorldBlock clone() {
-    WorldBlock c = new WorldBlock(this.x, this.y, this.type);
+  public RoboBlock clone() {
+    RoboBlock c = new RoboBlock(this.x, this.y, this.type);
     return c;
   }
 
