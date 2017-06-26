@@ -11,10 +11,11 @@ import edu.stanford.nlp.sempre.interactive.robolurn.RoboWorld;
 /**
  * @param <B> Represents block type
  */
-public abstract class World<B extends Block> {
+public abstract class World<B extends Block<?>> {
   
   public Set<B> walls;
   public Set<B> items;
+  public Set<Point> open;
   
   // Should this be a set or a single Point?
   public Point selectedField;
@@ -37,8 +38,10 @@ public abstract class World<B extends Block> {
 
   public abstract Point getLowCorner();
   
-  // Maybe run this at construction time (or lazy eval)
+  // Lazy eval for now. If the walls (they don't now) change, this will need to be updated.
   public Set<Point> getOpenFields() {
+    if (this.open != null)
+      return this.open;
     Point lc = this.getLowCorner();
     Point hc = this.getHighCorner();
     boolean[][] fields = new boolean[hc.y - lc.y + 1][hc.x - lc.x + 1];
@@ -55,15 +58,33 @@ public abstract class World<B extends Block> {
         }
       }
     }
+    this.open = open;
     return open;
   }
   
-//  public abstract Set<Block<?>> has(String rel, Set<Object> values);
+  public abstract Set<Object> has(String rel, Set<Object> values);
 
-//  public abstract Set<Object> get(String rel, Set<Block<?>> subset);
+  public abstract Set<Object> get(String rel, Set<Block<?>> subset);
 
   //public abstract void update(String rel, Object value, Set<WorldBlock> selected);
-
+  public abstract Set<? extends Object> universalSet(Class<?> c);
+  
+  public Point makePoint(int x, int y) {
+    return new Point(x, y);
+  }
+  
+  public Set<Point> makeArea() {
+    return new HashSet<>();
+  }
+  
+  public Point anyPoint(Set<Point> s) {
+    Iterator<Point> iter = s.iterator();
+    if (iter.hasNext())
+      return iter.next();
+    else
+      return null;
+  }
+  
   public World() {
     this.walls = new HashSet<>();
     this.items = new HashSet<>();

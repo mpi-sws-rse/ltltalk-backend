@@ -47,6 +47,7 @@ public class RoboBlock extends Block<RoboBlock.Type> {
     return fromJSONObject(props);
   }
 
+  @Override
   public Object get(String property) {
     Object propval;
     if (property.equals("x"))

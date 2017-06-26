@@ -11,42 +11,59 @@
 (def @dAnd descriptionAnd)
 
 
-# Grammar rules
+# Action Rules
 
 (rule $Action (visit $Field) (lambda x (: @visit (var x))) (anchored 1))
-# Visit selected field (usually set by foreach)
+# Visit selected field (usually set by foreach); to be changed
 (rule $Action (visit) (ConstantFn (: @visit)) (anchored 1))
 
-(rule $Action (pick $Cardinality $Description) (lambda x (lambda y (: @pick (var x) (var y)))) (anchored 1))
-(rule $Action (pick $Cardinality) (lambda x (: @pick (var x) (call @dNot (string "")))) (anchored 1))
-(rule $Action (drop $Cardinality $Description) (lambda x (lambda y (: @drop (var x) (var y)))) (anchored 1))
-(rule $Action (drop $Cardinality) (lambda x (: @drop (var x) (call @dNot (string "")))) (anchored 1))
+(rule $Action (pick $Cardinality $ColorSet) (lambda x (lambda y (: @pick (var x) (var y)))) (anchored 1))
+(rule $Action (pick $Cardinality) (lambda x (: @pick (var x) )) (anchored 1))
+(rule $Action (drop $Cardinality $ColorSet) (lambda x (lambda y (: @drop (var x) (var y)))) (anchored 1))
+(rule $Action (drop $Cardinality) (lambda x (: @drop (var x) )) (anchored 1))
+
+(rule $Action (foreach $Set $Action ) (lambda s (lambda a (:foreach (var s) (var a)))) (anchored 1))
+
+# Location Rules
+
+(rule $Set ($Areas) (IdentityFn) (anchored 1))
+
+(rule $Area (world) world (anchored 1))
+(rule $Area ([ $Fields ]) (IdentityFn) (anchored 1))
+(rule $Area ( not $Areas ) (lambda a1 (not (var a1))) (anchored 1))
+(rule $Areas ( $Area ) (IdentityFn) (anchored 1))
+(rule $Areas ( $Areas union $Area ) (lambda a1 (lambda a2 (or (var a1) (var a2)))) (anchored 1))
+(rule $Areas ( $Areas intersect $Area ) (lambda a1 (lambda a2 (and (var a1) (var a2)))) (anchored 1))
+
+(rule $Field (any $Area) (lambda x (call anyPoint (var x))) (anchored 1))
+(rule $Field ([ $Number , $Number ]) (lambda x (lambda y (call makePoint (var x) (var y)))) (anchored 1))
+(rule $Fields ( $Field ) (IdentityFn) (anchored 1))
+(rule $Fields ( $Fields , $Field ) (lambda x ( lambda y (or (var x) (var y)))) (anchored 1))
+
+# Item Rules
 
 (rule $Cardinality (single) single (anchored 1))
 (rule $Cardinality (all) all (anchored 1))
 
-(rule $Description (has color $Color)
-   (IdentityFn) (anchored 1))
-(rule $Description ( { $Description } )
-   (IdentityFn) (anchored 1))
-(rule $Description ($Description &&  $Description)
-   (lambda x (lambda y (call @dAnd (var x) (var y)))) (anchored 1))
-(rule $Description ($Description ||  $Description)
-   (lambda x (lambda y (call @dOr (var x) (var y)))) (anchored 1))
-(rule $Description (! $Description)
-   (lambda x (call @dNot (var x))) (anchored 1))
+(rule $ColorSet (has $Rel $Color) (lambda r (lambda c ((var r) (var c)))) (anchored 1))
+(rule $ColorSets ($ColorSet) (IdentityFn) (anchored 1))
+(rule $ColorSet ( { $ColorSets } ) (IdentityFn) (anchored 1))
+#(rule $ColorSet ($ColorSets and  $ColorSet) (lambda x (lambda y (and (var x) (var y)))) (anchored 1))
+#(rule $ColorSet ($ColorSets or  $ColorSet) (lambda x (lambda y (or (var x) (var y)))) (anchored 1))
+(rule $ColorSet (not $ColorSets) (lambda x (not (var x))) (anchored 1))
+(for @op (or and)
+(rule $ColorSets ($ColorSets @op $ColorSet) (lambda s1 (lambda s2
+					(@op (var s1) (var s2)))) (anchored 1))
+)
 
-(rule $Action (foreach $Set $Action ) (lambda s (lambda a (:foreach (var s) (var a)))) (anchored 1))
-(rule $Set (room) (ConstantFn (call getRoom)) (anchored 1))
-(rule $Set (world) world (anchored 1))
+(rule $Rel (color) color (anchored 1))
+
+
 
 # Data type definitions
 
 # TODO Find a better way to define these
 (for C (red orange yellow blue green purple brown pink)
   (rule $Color (C) (ConstantFn C) (anchored 1)))
-
-(rule $Field ([ $Number , $Number ]) (lambda x (lambda y (call intPair (var x) (var y)))) (anchored 1))
-(rule $Set (selected) this (anchored 1))
 
 (rule $Number ($TOKEN) (NumberFn) (anchored 1))

@@ -11,11 +11,10 @@
 
 (rule $Actions ($Actions ; $Action) (lambda a1 (lambda a2 (:s (var a1) (var a2)))) (anchored 1))
 (rule $Actions ($Action) (IdentityFn) (anchored 1))
-(rule $Actions ($Actions and then $Action) (lambda a1 (lambda a2 (:s (var a1) (var a2)))) (anchored 1))
 (rule $Action ({ $Actions }) (IdentityFn) (anchored 1))
 (rule $Action ($Action ;) (IdentityFn) (anchored 1))
 
-(rule $Action (repeat $Numbers $Action) (lambda n (lambda a (:loop (var n) (var a)))) (anchored 1))
+(rule $Action (repeat $Numbers times $Action) (lambda n (lambda a (:loop (var n) (var a)))) (anchored 1))
 (rule $Action (if $ValueSets $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored 1))
 (rule $Action (if $Sets $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored 1))
 

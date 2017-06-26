@@ -26,25 +26,25 @@ public class RoboWorld extends World<RoboBlock> {
     public int maxBlocks = 1024 ^ 2;
   }
 
-  enum BasicColor {
-    Red(0), Orange(1), Yellow(2), Green(3), Blue(4), Purple(5), Pink(6), Brown(7);//, None(-5);
-    private final int value;
-
-    BasicColor(int value) {
-      this.value = value;
-    }
-    
-    public String toString() {
-      return this.name().toLowerCase();
-    }
-
-    public BasicColor fromString(String color) {
-      for (BasicColor c : BasicColor.values())
-        if (c.name().equalsIgnoreCase(color))
-          return c;
-      return null;
-    }
-  };
+//  enum BasicColor {
+//    Red(0), Orange(1), Yellow(2), Green(3), Blue(4), Purple(5), Pink(6), Brown(7);//, None(-5);
+//    private final int value;
+//
+//    BasicColor(int value) {
+//      this.value = value;
+//    }
+//    
+//    public String toString() {
+//      return this.name().toLowerCase();
+//    }
+//
+//    public BasicColor fromString(String color) {
+//      for (BasicColor c : BasicColor.values())
+//        if (c.name().equalsIgnoreCase(color))
+//          return c;
+//      return null;
+//    }
+//  };
   
   private Point lowCorner;
   private Point highCorner;
@@ -52,7 +52,7 @@ public class RoboWorld extends World<RoboBlock> {
   public String descriptionNot(String str) {
     Set<String> colors = new HashSet<>(Arrays.asList(str.split(",")));
     StringBuilder sb = new StringBuilder();
-    for (BasicColor c : BasicColor.values()) {
+    for (Color.BasicColor c : Color.BasicColor.values()) {
       if (!colors.contains(c.toString())) {
         if (sb.length() != 0)
           sb.append(",");
@@ -101,7 +101,6 @@ public class RoboWorld extends World<RoboBlock> {
   }
 
   private List<RoboAction> pathActions;
-
   private Robot robot;
 
   public RoboWorld(Set<RoboBlock> walls, Set<RoboBlock> items) {
@@ -182,28 +181,37 @@ public class RoboWorld extends World<RoboBlock> {
     return world;
   }
 
-//  @Override
-//  public Set<Block<?>> has(String rel, Set<Object> values) {
-//    return this.allBlocks.stream().filter(i -> values.contains(i.get(rel))).collect(Collectors.toSet());
-//  }
+  @Override
+  public Set<Object> has(String rel, Set<Object> values) {
+    if ("color".equals(rel)) {
+      return values.stream()
+          .map(i -> Color.BasicColor.fromString((String) i)).collect(Collectors.toSet());
+    } 
+    return null;
+  }
 
-//  @Override
-//  public Set<Object> get(String rel, Set<Block<?>> subset) {
-//    return subset.stream().map(i -> i.get(rel)).collect(Collectors.toSet());
-//  }
+  @Override
+  public Set<Object> get(String rel, Set<Block<?>> subset) {
+    return subset.stream().map(i -> i.get(rel)).collect(Collectors.toSet());
+  }
   
+  @Override
+  public Set<? extends Object> universalSet(Class<?> c) {
+    System.out.println("\n~~~~~~~~~~~");
+    System.out.println(c);
+    if (c == Color.BasicColor.class) {
+      return new HashSet<>(Arrays.asList(Color.BasicColor.values()));
+    } else if (c == Point.class) {
+      return this.getOpenFields();
+    }
+    return new HashSet<Object>();
+  }
 
   public void noop() {
   }
   
-  public int[] intPair(int a, int b) {
-    int[] arr = {a,b};
-    return arr;
-  }
-  
-  public void visit(int[] args) {
-    this.selectedField.x = args[0];
-    this.selectedField.y = args[1];
+  public void visit(Point p) {
+    this.selectedField = p;
     gotoSelectedField();
   }
   
@@ -233,25 +241,22 @@ public class RoboWorld extends World<RoboBlock> {
     }
   }
   
-  private Set<String> parseSpec(String spec) {
-    Set<String> colors = new HashSet<>(Arrays.asList(spec.split(",")));
-//    LogInfo.logs("~~~~~~~");
-//    LogInfo.logs(spec);
-    return colors;
+  public void pick(String cardinality) {
+    pick(cardinality, new HashSet<>(Arrays.asList(Color.BasicColor.values())));
   }
-  
-  public void pick(String cardinality, String spec) {
+
+  public void pick(String cardinality, Set<Color.BasicColor> colors) {
     boolean single;
     if (cardinality.equals("single"))
       single = true;
     else
       single = false;
-    Set<String> colors = parseSpec(spec);
     boolean match = false;
     RoboBlock b;
     for (Iterator<RoboBlock> iter = items.iterator(); iter.hasNext(); ) {
       b = iter.next();
-      if (b.x == robot.x && b.y == robot.y && colors.contains(b.color)) {
+      if (b.x == robot.x && b.y == robot.y
+          && colors.contains(Color.BasicColor.fromString(b.color))) {
         match = true;
         robot.items.add(b.color);
         pathActions.add(
@@ -262,22 +267,25 @@ public class RoboWorld extends World<RoboBlock> {
       }
     }
     if (!match) {
-      pathActions.add(new RoboAction(robot.x, robot.y, RoboAction.Action.PICKITEM, spec, false));
+      pathActions.add(new RoboAction(robot.x, robot.y, RoboAction.Action.PICKITEM, null, false));
     }
   }
   
-  public void drop(String cardinality, String spec) {
+  public void drop(String cardinality) {
+    drop(cardinality, new HashSet<>(Arrays.asList(Color.BasicColor.values())));
+  }
+  
+  public void drop(String cardinality, Set<Color.BasicColor> colors) {
     boolean single;
     if (cardinality.equals("single"))
       single = true;
     else
       single = false;
-    Set<String> colors = parseSpec(spec);
     boolean match = false;
     String item;
-    for (Iterator<String> iter=  robot.items.iterator(); iter.hasNext(); ) {
+    for (Iterator<String> iter =  robot.items.iterator(); iter.hasNext(); ) {
       item = iter.next();
-      if (colors.contains(item)) {
+      if (colors.contains(Color.BasicColor.fromString(item))) {
         match = true;
         items.add(new RoboBlock(robot.x, robot.y, RoboBlock.Type.ITEM));
         pathActions.add(
@@ -288,7 +296,7 @@ public class RoboWorld extends World<RoboBlock> {
       }
     }
     if (!match) {
-      pathActions.add(new RoboAction(robot.x, robot.y, RoboAction.Action.DROPITEM, spec, false));
+      pathActions.add(new RoboAction(robot.x, robot.y, RoboAction.Action.DROPITEM, null, false));
     }
   }
 

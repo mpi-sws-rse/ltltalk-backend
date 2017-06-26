@@ -1,7 +1,7 @@
 package edu.stanford.nlp.sempre.interactive.robolurn;
 
 public class Color {
-  enum BasicColor {
+  static enum BasicColor {
     Red(0), Orange(1), Yellow(2), Green(3), Blue(4), White(6), Black(7), Pink(8), Brown(9), Gray(10), None(-5);
     private final int value;
 
@@ -9,7 +9,7 @@ public class Color {
       this.value = value;
     }
 
-    public BasicColor fromString(String color) {
+    public static BasicColor fromString(String color) {
       for (BasicColor c : BasicColor.values())
         if (c.name().equalsIgnoreCase(color))
           return c;

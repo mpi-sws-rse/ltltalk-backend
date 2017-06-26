@@ -145,8 +145,7 @@ public class DALExecutor extends Executor {
       //world.merge();
     } else if (f.mode == ActionFormula.Mode.foreach) {
       //Set<Block<?>> selected = toItemSet(toSet(processSetFormula(f.args.get(0), world)));
-      List<Point> selected = toFieldList(toSet(processSetFormula(f.args.get(0), world)))
-          .stream().map(i -> new Point(i[0],i[1])).collect(Collectors.toList());
+      List<Point> selected = toFieldList(toSet(processSetFormula(f.args.get(0), world)));
       //selected.add(0, world.selectedField);
       //Set<Item> prevSelected = world.selected;
       // CopyOnWriteArraySet<Object> fixedset =
@@ -188,19 +187,18 @@ public class DALExecutor extends Executor {
     return itemset;
   }
 
-  private Set<int[]> toFieldSet(Set<Object> maybeFields) {
-    Set<int[]> fieldSet = maybeFields.stream().map(i -> (int[]) i).collect(Collectors.toSet());
+  private Set<Point> toFieldSet(Set<Object> maybeFields) {
+    Set<Point> fieldSet = maybeFields.stream().map(i -> (Point) i).collect(Collectors.toSet());
     return fieldSet;
   }
 
-  private List<int[]> toFieldList(Set<Object> maybeFields) {
-    List<int[]> fieldList = maybeFields.stream().map(i -> (int[]) i).collect(Collectors.toList());
+  private List<Point> toFieldList(Set<Object> maybeFields) {
+    List<Point> fieldList = maybeFields.stream().map(i -> (Point) i).collect(Collectors.toList());
     return fieldList;
   }
 
   static class SpecialSets {
-//    static String Selected = "selected"; // global variable for selected
-    static String World = "world"; // global variable for selected
+    static String World = "world";
   };
 
   // a subset of lambda dcs. no types, and no marks
@@ -215,24 +213,50 @@ public class DALExecutor extends Executor {
         String id = ((NameValue) v).id;
         // Maybe add "items" and "walls" here?
         if (id.equals(SpecialSets.World))
-          // TODO Should these methods return Set<Point> or Set<int[]>? 
-          return world.getOpenFields().stream()
-              .map(i -> new int [] {((Point) i).x, ((Point) i).y})
-              .collect(Collectors.toSet());
+          return world.getOpenFields();
       }
       return toObject(((ValueFormula<?>) formula).value);
     }
 
     if (formula instanceof JoinFormula) {
-      LogInfo.logs("ERROR: This operation is not supported.");
+      JoinFormula joinFormula = (JoinFormula) formula;
+      if (joinFormula.relation instanceof ValueFormula) {
+        String rel = ((ValueFormula<NameValue>) joinFormula.relation).value.id;
+        Set<Object> unary = toSet(processSetFormula(joinFormula.child, world));
+        return world.has(rel, unary);
+      } else if (joinFormula.relation instanceof ReverseFormula) {
+        ReverseFormula reverse = (ReverseFormula) joinFormula.relation;
+        String rel = ((ValueFormula<NameValue>) reverse.child).value.id;
+        Set<Object> unary = toSet(processSetFormula(joinFormula.child, world));
+        // Untested
+        return world.get(rel, toItemSet(unary));
+      } else {
+        throw new RuntimeException("relation can either be a value, or its reverse");
+      }
     }
 
     if (formula instanceof MergeFormula) {
-      LogInfo.logs("ERROR: This operation is not supported.");
+      MergeFormula mergeFormula = (MergeFormula) formula;
+      MergeFormula.Mode mode = mergeFormula.mode;
+      Set<Object> set1 = toSet(processSetFormula(mergeFormula.child1, world));
+      Set<Object> set2 = toSet(processSetFormula(mergeFormula.child2, world));
+
+      if (mode == MergeFormula.Mode.or)
+        return toMutable(Sets.union(set1, set2));
+      if (mode == MergeFormula.Mode.and)
+        return toMutable(Sets.intersection(set1, set2));
     }
 
     if (formula instanceof NotFormula) {
-      LogInfo.logs("ERROR: This operation is not supported.");
+      NotFormula notFormula = (NotFormula) formula;
+      Set<Object> set1 = toSet(processSetFormula(notFormula.child, world));
+      Iterator<Object> iter = set1.iterator();
+      if (iter.hasNext()) {
+        // Since we do not know if set1 is colors or fields, let world decide
+        return toMutable(Sets.difference(world.universalSet(iter.next().getClass()), set1));
+      }
+      //return toMutable(Sets.difference(world.allItems, set1));
+      throw new RuntimeException("Reverse formula cannot be executed on empty set.");
     }
 
     if (formula instanceof AggregateFormula) {
