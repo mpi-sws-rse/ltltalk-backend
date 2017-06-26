@@ -66,6 +66,14 @@ public abstract class World<B extends Block<?>> {
 
   public abstract Set<Object> get(String rel, Set<Block<?>> subset);
 
+  public Object getNull() {
+    return null;
+  }
+  
+  public Set<Object> emptySet() {
+    return new HashSet<>();
+  }
+  
   //public abstract void update(String rel, Object value, Set<WorldBlock> selected);
   public abstract Set<? extends Object> universalSet(Class<?> c);
   

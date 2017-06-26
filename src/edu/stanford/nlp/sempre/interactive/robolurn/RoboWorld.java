@@ -195,10 +195,13 @@ public class RoboWorld extends World<RoboBlock> {
     return subset.stream().map(i -> i.get(rel)).collect(Collectors.toSet());
   }
   
+  @SuppressWarnings("unchecked")
+  public Set<Color.BasicColor> allColors() {
+    return (Set<Color.BasicColor>) universalSet(Color.BasicColor.class);
+  }
+  
   @Override
   public Set<? extends Object> universalSet(Class<?> c) {
-    System.out.println("\n~~~~~~~~~~~");
-    System.out.println(c);
     if (c == Color.BasicColor.class) {
       return new HashSet<>(Arrays.asList(Color.BasicColor.values()));
     } else if (c == Point.class) {
@@ -241,28 +244,21 @@ public class RoboWorld extends World<RoboBlock> {
     }
   }
   
-  public void pick(String cardinality) {
-    pick(cardinality, new HashSet<>(Arrays.asList(Color.BasicColor.values())));
-  }
-
-  public void pick(String cardinality, Set<Color.BasicColor> colors) {
-    boolean single;
-    if (cardinality.equals("single"))
-      single = true;
-    else
-      single = false;
+  public void pick(int cardinality, Set<Color.BasicColor> colors) {
+    if (cardinality == -1)
+      cardinality = Integer.MAX_VALUE;
     boolean match = false;
     RoboBlock b;
     for (Iterator<RoboBlock> iter = items.iterator(); iter.hasNext(); ) {
       b = iter.next();
       if (b.x == robot.x && b.y == robot.y
-          && colors.contains(Color.BasicColor.fromString(b.color))) {
+          && (colors.contains(Color.BasicColor.fromString(b.color)))) {
         match = true;
         robot.items.add(b.color);
         pathActions.add(
             new RoboAction(robot.x, robot.y, RoboAction.Action.PICKITEM, b.color, true));
         iter.remove();
-        if (single)
+        if (--cardinality == 0)
           break;
       }
     }
@@ -271,27 +267,20 @@ public class RoboWorld extends World<RoboBlock> {
     }
   }
   
-  public void drop(String cardinality) {
-    drop(cardinality, new HashSet<>(Arrays.asList(Color.BasicColor.values())));
-  }
-  
-  public void drop(String cardinality, Set<Color.BasicColor> colors) {
-    boolean single;
-    if (cardinality.equals("single"))
-      single = true;
-    else
-      single = false;
+  public void drop(int cardinality, Set<Color.BasicColor> colors) {
+    if (cardinality == -1)
+      cardinality = Integer.MAX_VALUE;
     boolean match = false;
     String item;
     for (Iterator<String> iter =  robot.items.iterator(); iter.hasNext(); ) {
       item = iter.next();
-      if (colors.contains(Color.BasicColor.fromString(item))) {
+      if (colors == null || colors.contains(Color.BasicColor.fromString(item))) {
         match = true;
         items.add(new RoboBlock(robot.x, robot.y, RoboBlock.Type.ITEM));
         pathActions.add(
             new RoboAction(robot.x, robot.y, RoboAction.Action.DROPITEM, item, true));
         iter.remove();
-        if (single)
+        if (--cardinality == 0)
           break;
       }
     }
