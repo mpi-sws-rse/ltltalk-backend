@@ -1,6 +1,7 @@
 package edu.stanford.nlp.sempre.interactive.planner;
 
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -46,9 +47,6 @@ public class PathFinder {
     for (Point p : map) {
       charMap[p.y - lowCorner.y][p.x - lowCorner.x] = Maze2D.Symbol.OCCUPIED.value();
     }
-    // TODO Check if the space is a wall?
-    charMap[start.y][start.x] = Maze2D.Symbol.START.value();
-    charMap[goal.y][goal.x] = Maze2D.Symbol.GOAL.value();
     for (int i = 0; i < ySize; i++) {
       for (int j = 0; j < xSize; j++) {
         if (charMap[i][j] == '\u0000') {
@@ -56,6 +54,12 @@ public class PathFinder {
         }
       }
     }
+    charMap[start.y][start.x] = Maze2D.Symbol.START.value();
+    boolean replaceGoal = false;
+    if (charMap[goal.y][goal.x] == Maze2D.Symbol.OCCUPIED.value())
+      replaceGoal = true;
+
+    charMap[goal.y][goal.x] = Maze2D.Symbol.GOAL.value();
     Maze2D maze = new Maze2D(charMap);
     // LogInfo.logs(maze.toString());
 
@@ -94,11 +98,16 @@ public class PathFinder {
 
     // Readjust coordinates
     List<Point> path = (List<Point>) result.getOptimalPaths().get(0);
-    return path.stream().map(p -> {
+    List<Point> transformed = path.stream().map(p -> {
       p.x += lowCorner.x;
       p.y += lowCorner.y;
       return p;
     }).collect(Collectors.toList());
+    // If the goal was a wall, do not include the last move in the path
+    if (replaceGoal)
+      return transformed.subList(0, transformed.size() - 1);
+    else
+      return transformed;
   }
 
   private static double dist(Point p1, Point p2) {

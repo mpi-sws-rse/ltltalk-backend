@@ -183,11 +183,15 @@ public class RoboWorld extends World<RoboBlock> {
 
   @Override
   public Set<Object> has(String rel, Set<Object> values) {
-    if ("color".equals(rel)) {
-      return values.stream()
-          .map(i -> Color.BasicColor.fromString((String) i)).collect(Collectors.toSet());
-    } 
-    return null;
+//    if ("color".equals(rel)) {
+//      return values.stream()
+//          .map(i -> Color.BasicColor.fromString((String) i)).collect(Collectors.toSet());
+//    } 
+    if ("color".equals(rel) || "type".equals(rel) || "field".equals(rel)) {
+      return items.stream()
+          .filter(i -> values.contains(i.get(rel))).collect(Collectors.toSet());
+    }
+    throw new RuntimeException("getting property " + rel + " is not supported.");
   }
 
   @Override
@@ -201,16 +205,25 @@ public class RoboWorld extends World<RoboBlock> {
   }
   
   @Override
-  public Set<? extends Object> universalSet(Class<?> c) {
-    if (c == Color.BasicColor.class) {
-      return new HashSet<>(Arrays.asList(Color.BasicColor.values()));
-    } else if (c == Point.class) {
+  public Set<? extends Object> universalSet(Object o) {
+    if (o.getClass() == RoboBlock.class) {
+      if (((RoboBlock) o).type == RoboBlock.Type.ITEM) {
+        return this.items;
+      } else {
+        return this.walls;
+      }
+    } else if (o instanceof Point) {
       return this.getOpenFields();
     }
     return new HashSet<Object>();
   }
 
   public void noop() {
+  }
+  
+  public void visit(Point p, Set<Point> avoidSet) {
+    this.selectedField = p;
+    gotoSelectedField(avoidSet);
   }
   
   public void visit(Point p) {
@@ -223,12 +236,18 @@ public class RoboWorld extends World<RoboBlock> {
   }
   
   private void gotoSelectedField() {
+    gotoSelectedField(new HashSet<>());
+  }
+  
+  private void gotoSelectedField(Set<Point> avoidSet) {
     int x = selectedField.x;
     int y = selectedField.y;
+    
+    avoidSet.addAll(walls);
     // Is this unclear? It is quite beautiful, though.
     pathActions.addAll(
         PathFinder.findPath(
-            walls,
+            avoidSet,
             new Point(robot.x, robot.y),
             new Point(x,y),
             this.getLowCorner(),
@@ -236,7 +255,7 @@ public class RoboWorld extends World<RoboBlock> {
         .stream().map(p -> new RoboAction(p.x, p.y, RoboAction.Action.PATH))
         .collect(Collectors.toList())
     );
-    if (pathActions.size() > 1) {
+    if (pathActions.size() > 0) {
       RoboAction last = pathActions.get(pathActions.size() - 1);
       last.action = RoboAction.Action.DESTINATION;
       robot.x = last.x;
@@ -251,8 +270,9 @@ public class RoboWorld extends World<RoboBlock> {
     RoboBlock b;
     for (Iterator<RoboBlock> iter = items.iterator(); iter.hasNext(); ) {
       b = iter.next();
-      if (b.x == robot.x && b.y == robot.y
-          && (colors.contains(Color.BasicColor.fromString(b.color)))) {
+//      if (b.x == robot.x && b.y == robot.y
+//          && (colors.contains(Color.BasicColor.fromString(b.color)))) {
+      if (colors.contains(b)) {
         match = true;
         robot.items.add(b.color);
         pathActions.add(
@@ -316,7 +336,6 @@ public class RoboWorld extends World<RoboBlock> {
     set.clear();
     set.addAll(s);
   }
-
 
   @SuppressWarnings("unused")
   private void keyConsistency() {

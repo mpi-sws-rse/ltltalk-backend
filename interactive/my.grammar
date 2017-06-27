@@ -14,6 +14,10 @@
 # Action Rules
 
 (rule $Action (visit $Field) (lambda x (: @visit (var x))) (anchored 1))
+(rule $Action (visit $Area) (lambda a (: @visit (call anyPoint (var a)))) (anchored 1))
+(rule $Action (visit $Field while avoiding $Area) (lambda f  (lambda a (: @visit (var f) (var a)))) (anchored 1))
+(rule $Action (visit $Area while avoiding $Area)
+    (lambda a1 (lambda a2 (: @visit (call anyPoint (var a1)) (var a2)))) (anchored 1))
 # Visit selected field (usually set by foreach); to be changed
 (rule $Action (visit) (ConstantFn (: @visit)) (anchored 1))
 
@@ -23,6 +27,16 @@
 (rule $Action (drop every $Item) (lambda c (: @drop (number -1) (var c))) (anchored 1))
 
 (rule $Action (foreach $Set $Action ) (lambda s (lambda a (:foreach (var s) (var a)))) (anchored 1))
+
+# Situation Rules
+
+(rule $Situation ( { $Situations } ) (IdentityFn) (anchored 1))
+(rule $Situations ($Situation) (IdentityFn) (anchored 1))
+(rule $Situations ($Situations or $Situation) (lambda s1 (lambda s2 (call || (var s1) (var s2)))) (anchored 1))
+(rule $Situations ($Situations and $Situation) (lambda s1 (lambda s2 (call && (var s1) (var s2)))) (anchored 1))
+(rule $Situation (not $Situations) (lambda s (call ! (var s) )) (anchored 1))
+
+(rule $Situation ($Item at $Field) (lambda i (lambda f (and (var i) (field (var f))))) (anchored 1))
 
 # Location Rules
 
@@ -42,7 +56,7 @@
 
 # Item Rules
 
-(rule $Item (item) (ConstantFn (call allColors)) (anchored 1))
+(rule $Item (item) (ConstantFn (call allItems)) (anchored 1))
 (rule $Item (item $ColorSets) (IdentityFn) (anchored 1))
 
 (rule $ColorSet (has $Rel $Color) (lambda r (lambda c ((var r) (var c)))) (anchored 1))

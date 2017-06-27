@@ -9,5 +9,4 @@ public abstract class Block<T> extends Point {
   public abstract String toString();
 
   public abstract Object get(String property);
-
 }

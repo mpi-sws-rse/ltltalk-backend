@@ -1,6 +1,7 @@
 package edu.stanford.nlp.sempre.interactive.robolurn;
 
 import java.util.List;
+import java.awt.Point;
 import java.util.Arrays;
 
 import org.testng.collections.Lists;
@@ -54,8 +55,12 @@ public class RoboBlock extends Block<RoboBlock.Type> {
       propval = this.x;
     else if (property.equals("y"))
       propval = this.y;
+    else if (property.equals("color"))
+      propval = this.color;
     else if (property.equals("type"))
       propval = this.type;
+    else if (property.equals("field"))
+      propval = new Point(this.x, this.y);
     else
       throw new RuntimeException("getting property " + property + " is not supported.");
     return propval;
@@ -97,10 +102,30 @@ public class RoboBlock extends Block<RoboBlock.Type> {
     return result;
   }
 
+  /**
+   * Two different cubes can be "equal" since multiple cubes of the same type
+   * can be in the same location.
+   */
   @Override
   public boolean equals(Object obj) {
-    // Multiple items can share the same location, type, color, etc.
-    return this == obj;
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    RoboBlock other = (RoboBlock) obj;
+
+    if (x != other.x)
+      return false;
+    if (y != other.y)
+      return false;
+    if (type != other.type)
+      return false;
+    if ((color != null && !color.equals(other.color)) || other.color != null)
+      return false;
+
+    return true;
   }
 
   @Override

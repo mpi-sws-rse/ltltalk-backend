@@ -252,8 +252,7 @@ public class DALExecutor extends Executor {
       Set<Object> set1 = toSet(processSetFormula(notFormula.child, world));
       Iterator<Object> iter = set1.iterator();
       if (iter.hasNext()) {
-        // Since we do not know if set1 is colors or fields, let world decide
-        return toMutable(Sets.difference(world.universalSet(iter.next().getClass()), set1));
+        return toMutable(Sets.difference(world.universalSet(iter.next()), set1));
       }
       //return toMutable(Sets.difference(world.allItems, set1));
       throw new RuntimeException("Reverse formula cannot be executed on empty set.");

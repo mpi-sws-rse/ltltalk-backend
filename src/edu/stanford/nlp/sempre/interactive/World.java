@@ -74,8 +74,12 @@ public abstract class World<B extends Block<?>> {
     return new HashSet<>();
   }
   
+  public Set<B> allItems() {
+    return items;
+  }
+  
   //public abstract void update(String rel, Object value, Set<WorldBlock> selected);
-  public abstract Set<? extends Object> universalSet(Class<?> c);
+  public abstract Set<? extends Object> universalSet(Object o);
   
   public Point makePoint(int x, int y) {
     return new Point(x, y);
