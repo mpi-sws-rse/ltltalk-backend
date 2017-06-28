@@ -1,12 +1,12 @@
 package edu.stanford.nlp.sempre.interactive.robolurn;
 
+import java.awt.Point;
 import java.util.List;
 
 import org.testng.collections.Lists;
 
 import edu.stanford.nlp.sempre.Json;
 import edu.stanford.nlp.sempre.interactive.PathAction;
-import edu.stanford.nlp.sempre.interactive.robolurn.RoboAction.Action;
 
 public class RoboAction extends PathAction<RoboAction.Action> {
 
@@ -38,18 +38,17 @@ public class RoboAction extends PathAction<RoboAction.Action> {
     }
   }
   
-  String spec;
+  public Color.BasicColor spec;
 
-  public RoboAction(int x, int y, Action action, String spec, boolean possible) {
-    this(x, y, action);
+  public RoboAction(Point point, Action action, Color.BasicColor spec, boolean possible) {
+    this(point, action);
     this.spec = spec;
     this.possible = possible;
   }
 
-  public RoboAction(int x, int y, Action action) {
+  public RoboAction(Point point, Action action) {
     this();
-    this.x = x;
-    this.y = y;
+    this.point = point;
     this.action = action;
     this.possible = true;
   }
@@ -60,14 +59,12 @@ public class RoboAction extends PathAction<RoboAction.Action> {
   @Override
   public Object get(String property) {
     Object propval;
-    if (property.equals("x"))
-      propval = this.x;
-    else if (property.equals("y"))
-      propval = this.y;
+    if (property.equals("field"))
+      propval = this.point;
     else if (property.equals("action"))
       propval = this.action;
     else if (property.equals("spec"))
-      propval = new String(this.spec);
+      propval = this.spec;
     else if (property.equals("possible"))
       propval = this.possible;
     else
@@ -83,13 +80,12 @@ public class RoboAction extends PathAction<RoboAction.Action> {
 
   public static RoboAction fromJSONObject(List<Object> props) {
     RoboAction act = new RoboAction();
-    act.x = ((Integer) props.get(0));
-    act.y = ((Integer) props.get(1));
+    act.point = new Point((Integer) props.get(0), (Integer) props.get(1));
     act.action = Action.fromString(((String) props.get(2)));
     if (props.get(3) == null)
       act.spec = null;
     else
-      act.spec = (String) props.get(3);
+      act.spec = Color.BasicColor.fromString((String) props.get(3));
     return act;
   }
 
@@ -97,21 +93,22 @@ public class RoboAction extends PathAction<RoboAction.Action> {
   public Object toJSON() {	
     @SuppressWarnings("unchecked")
     List<? extends Object> cube =
-        Lists.newArrayList(x, y, action.toString(), "\"" + spec + "\"", possible);
+        Lists.newArrayList(point.x, point.y, action.toString(), "\"" + spec + "\"", possible);
     return cube;
   }
 
   @Override
   public RoboAction clone() {
-    RoboAction c = new RoboAction(this.x, this.y, this.action, this.spec, this.possible);
+    RoboAction c = new RoboAction(new Point(point.x, point.y), this.action, this.spec, this.possible);
     return c;
   }
 
+  /*
   public int hashCode() {
     final int prime = 19;
     int result = 1;
-    result = prime * result + x;
-    result = prime * result + y;
+    result = prime * result + point.x;
+    result = prime * result + point.y;
     result = prime * result + action.hashCode();
 
     return result;
@@ -137,6 +134,7 @@ public class RoboAction extends PathAction<RoboAction.Action> {
 
     return true;
   }
+   */
 
   @Override
   public String toString() {

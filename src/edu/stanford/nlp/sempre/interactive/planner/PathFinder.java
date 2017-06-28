@@ -117,6 +117,8 @@ public class PathFinder {
   public static int[] getFieldOrder(List<Point> points) {
     if (points.size() == 1) {
       return new int[] {0};
+    } else if (points.size() == 0) {
+      return new int[] {};
     }
     double[][] weights = new double[points.size()][points.size()];
     for (int i = 0; i < points.size(); ++i) {

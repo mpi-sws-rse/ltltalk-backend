@@ -2,9 +2,9 @@ package edu.stanford.nlp.sempre.interactive;
 
 import java.awt.Point;
 
-public abstract class Block<T> extends Point {
+public abstract class Block {
   
-  public T type;
+  public Point point;
   
   public abstract String toString();
 

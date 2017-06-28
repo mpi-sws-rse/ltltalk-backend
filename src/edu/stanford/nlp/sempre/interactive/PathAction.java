@@ -1,5 +1,7 @@
 package edu.stanford.nlp.sempre.interactive;
 
+import java.awt.Point;
+
 /**
  * @author brendonboldt
  * Generic type A represents and action type
@@ -8,8 +10,7 @@ package edu.stanford.nlp.sempre.interactive;
 public abstract class PathAction<A> {
   
   public A action;
-  public int x;
-  public int y;
+  public Point point;
   public boolean possible;
   
   public abstract Object get(String property);

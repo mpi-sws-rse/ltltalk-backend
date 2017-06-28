@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -85,7 +86,7 @@ public class DALExecutor extends Executor {
   }
 
   @SuppressWarnings("rawtypes")
-  private void performActions(ActionFormula f, World world) {
+  private void performActions(ActionFormula f, World<?> world) {
     if (opts.verbose >= 1) {
       LogInfo.begin_track("DALExecutor.performActions");
       LogInfo.logs("Executing: %s", f);
@@ -145,15 +146,15 @@ public class DALExecutor extends Executor {
       //world.merge();
     } else if (f.mode == ActionFormula.Mode.foreach) {
       //Set<Block<?>> selected = toItemSet(toSet(processSetFormula(f.args.get(0), world)));
-      List<Point> selected = toFieldList(toSet(processSetFormula(f.args.get(0), world)));
-      //selected.add(0, world.selectedField);
+      List<Point> selected = toFieldList(toSet(processSetFormula(f.args.get(1), world)));
       //Set<Item> prevSelected = world.selected;
       // CopyOnWriteArraySet<Object> fixedset =
       // Sets.newCopyOnWriteArraySet(selected);
       int[] order = PathFinder.getFieldOrder(selected);
+      VariablePoint vp = (VariablePoint) processSetFormula(f.args.get(0), world);
       for (int i = 0; i < order.length; ++i) {
-        world.selectedField = selected.get(order[i]);
-        performActions((ActionFormula) f.args.get(1), world);
+        world.variables.put(vp.name, selected.get(order[i]));
+        performActions((ActionFormula) f.args.get(2), world);
       }
       //world.selected = prevSelected;
       //world.merge();
@@ -182,19 +183,31 @@ public class DALExecutor extends Executor {
     return set;
   }
 
-  private Set<Block<?>> toItemSet(Set<Object> maybeItems) {
-    Set<Block<?>> itemset = maybeItems.stream().map(i -> (Block<?>) i).collect(Collectors.toSet());
+  private Set<Block> toItemSet(Set<Object> maybeItems) {
+    Set<Block> itemset = maybeItems.stream().map(i -> (Block) i).collect(Collectors.toSet());
     return itemset;
   }
 
   private Set<Point> toFieldSet(Set<Object> maybeFields) {
-    Set<Point> fieldSet = maybeFields.stream().map(i -> (Point) i).collect(Collectors.toSet());
+    if (maybeFields.isEmpty())
+      return new HashSet<>();
+    Set<Point> fieldSet;
+    if (maybeFields.iterator().next() instanceof Block)
+      fieldSet = maybeFields.stream().map(i -> ((Block) i).point).collect(Collectors.toSet());
+    else
+      fieldSet = maybeFields.stream().map(i -> (Point) i).collect(Collectors.toSet());
     return fieldSet;
   }
 
   private List<Point> toFieldList(Set<Object> maybeFields) {
-    List<Point> fieldList = maybeFields.stream().map(i -> (Point) i).collect(Collectors.toList());
-    return fieldList;
+    if (maybeFields.isEmpty())
+      return new ArrayList<>();
+    List<Point> fieldSet;
+    if (maybeFields.iterator().next() instanceof Block)
+      fieldSet = maybeFields.stream().map(i -> ((Block) i).point).collect(Collectors.toList());
+    else
+      fieldSet = maybeFields.stream().map(i -> (Point) i).collect(Collectors.toList());
+    return fieldSet;
   }
 
   static class SpecialSets {

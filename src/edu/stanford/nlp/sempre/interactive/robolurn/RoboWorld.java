@@ -3,6 +3,8 @@ package edu.stanford.nlp.sempre.interactive.robolurn;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -15,6 +17,7 @@ import edu.stanford.nlp.sempre.NaiveKnowledgeGraph;
 import edu.stanford.nlp.sempre.StringValue;
 import edu.stanford.nlp.sempre.interactive.Block;
 import edu.stanford.nlp.sempre.interactive.PathAction;
+import edu.stanford.nlp.sempre.interactive.VariablePoint;
 import edu.stanford.nlp.sempre.interactive.World;
 import edu.stanford.nlp.sempre.interactive.planner.PathFinder;
 import fig.basic.LogInfo;
@@ -25,26 +28,9 @@ public class RoboWorld extends World<RoboBlock> {
     @Option(gloss = "maximum number of cubes to convert")
     public int maxBlocks = 1024 ^ 2;
   }
-
-//  enum BasicColor {
-//    Red(0), Orange(1), Yellow(2), Green(3), Blue(4), Purple(5), Pink(6), Brown(7);//, None(-5);
-//    private final int value;
-//
-//    BasicColor(int value) {
-//      this.value = value;
-//    }
-//    
-//    public String toString() {
-//      return this.name().toLowerCase();
-//    }
-//
-//    public BasicColor fromString(String color) {
-//      for (BasicColor c : BasicColor.values())
-//        if (c.name().equalsIgnoreCase(color))
-//          return c;
-//      return null;
-//    }
-//  };
+  
+  public Set<Item> items;
+  public Set<Wall> walls;
   
   private Point lowCorner;
   private Point highCorner;
@@ -103,27 +89,28 @@ public class RoboWorld extends World<RoboBlock> {
   private List<RoboAction> pathActions;
   private Robot robot;
 
-  public RoboWorld(Set<RoboBlock> walls, Set<RoboBlock> items) {
+  public RoboWorld(Set<Wall> walls, Set<Item> items) {
     super();
     this.walls = walls;
     this.items = items;
     this.pathActions = new ArrayList<RoboAction>();
     this.selectedField = new Point();
     this.findCorners();
+    this.variables = new HashMap<>();
   }
 
   private void findCorners() {
     int maxX = 0, maxY = 0, minX = 0, minY = 0;
-    for (Point p : walls) {
-      if (p.x > maxX)
-        maxX = p.x;
-      else if (p.x < minX)
-        minX = p.x;
+    for (Wall w : walls) {
+      if (w.point.x > maxX)
+        maxX = w.point.x;
+      else if (w.point.x < minX)
+        minX = w.point.x;
 
-      if (p.y > maxY)
-        maxY = p.y;
-      else if (p.y < minY)
-        minY = p.y;
+      if (w.point.y > maxY)
+        maxY = w.point.y;
+      else if (w.point.y < minY)
+        minY = w.point.y;
     }
     this.lowCorner = new Point(minX, minY);
     this.highCorner = new Point(maxX, maxY);
@@ -162,19 +149,22 @@ public class RoboWorld extends World<RoboBlock> {
     @SuppressWarnings("unchecked")
     List<List<Object>> blockstr = Json.readValueHard(wallString, List.class);
     List<Object> rawRobot = blockstr.get(0);
-    Robot robot = new Robot(
-      (int) rawRobot.get(0),
-      (int) rawRobot.get(1),
-      (List<String>) rawRobot.get(2)
-    );
-    Set<RoboBlock> walls = new HashSet<>();
-    Set<RoboBlock> items = new HashSet<>();
+    
+    Point robotPoint = new Point((int) rawRobot.get(0), (int) rawRobot.get(1));
+    Set<Item> robotItems = ((Collection<String>) rawRobot.get(2)).stream()
+        .map(c -> new Item(null, Color.BasicColor.fromString(c), true))
+        .collect(Collectors.toSet());
+    
+//    Robot robot = new Robot(robotPoint, robotItems);
+    Robot robot = new Robot(robotPoint);
+    Set<Wall> walls = new HashSet<>();
+    Set<Item> items = robotItems;
     blockstr.subList(1, blockstr.size()).stream().forEach(c -> {
       RoboBlock rb = RoboBlock.fromJSONObject(c);
-      if (rb.type == RoboBlock.Type.ITEM)
-        items.add(rb);
+      if (rb instanceof Item)
+        items.add((Item) rb);
       else
-        walls.add(rb);
+        walls.add((Wall) rb);
     });
     RoboWorld world = new RoboWorld(walls, items);
     world.robot = robot;
@@ -195,10 +185,14 @@ public class RoboWorld extends World<RoboBlock> {
   }
 
   @Override
-  public Set<Object> get(String rel, Set<Block<?>> subset) {
+  public Set<Object> get(String rel, Set<Block> subset) {
     return subset.stream().map(i -> i.get(rel)).collect(Collectors.toSet());
   }
   
+  public Set<Item> allItems() {
+    return this.items;
+  }
+
   @SuppressWarnings("unchecked")
   public Set<Color.BasicColor> allColors() {
     return (Set<Color.BasicColor>) universalSet(Color.BasicColor.class);
@@ -206,36 +200,35 @@ public class RoboWorld extends World<RoboBlock> {
   
   @Override
   public Set<? extends Object> universalSet(Object o) {
-    if (o.getClass() == RoboBlock.class) {
-      if (((RoboBlock) o).type == RoboBlock.Type.ITEM) {
-        return this.items;
-      } else {
-        return this.walls;
-      }
-    } else if (o instanceof Point) {
+    if (o instanceof Item) {
+      return this.items;
+    } else if (o instanceof Wall) {
+      return this.walls;
+    }  else if (o instanceof Point) {
       return this.getOpenFields();
     }
-    return new HashSet<Object>();
+    return new HashSet<>();
   }
 
+  public Point getRobotLocation() {
+    return new Point(robot.point.x, robot.point.y);
+  }
+  
   public void noop() {
   }
   
   public void visit(Point p, Set<Point> avoidSet) {
+    if (p instanceof VariablePoint)
+      p = variables.get(((VariablePoint) p).name);
     this.selectedField = p;
     gotoSelectedField(avoidSet);
   }
   
   public void visit(Point p) {
-    this.selectedField = p;
-    gotoSelectedField();
+    visit(p, new HashSet<>());
   }
   
   public void visit() {
-    gotoSelectedField();
-  }
-  
-  private void gotoSelectedField() {
     gotoSelectedField(new HashSet<>());
   }
   
@@ -243,102 +236,98 @@ public class RoboWorld extends World<RoboBlock> {
     int x = selectedField.x;
     int y = selectedField.y;
     
-    avoidSet.addAll(walls);
+    avoidSet.addAll(walls.stream().map(w -> w.point).collect(Collectors.toList()));
     // Is this unclear? It is quite beautiful, though.
     pathActions.addAll(
         PathFinder.findPath(
             avoidSet,
-            new Point(robot.x, robot.y),
+            new Point(robot.point.x, robot.point.y),
             new Point(x,y),
             this.getLowCorner(),
             this.getHighCorner())
-        .stream().map(p -> new RoboAction(p.x, p.y, RoboAction.Action.PATH))
+        .stream().map(p -> new RoboAction(p, RoboAction.Action.PATH))
         .collect(Collectors.toList())
     );
     if (pathActions.size() > 0) {
       RoboAction last = pathActions.get(pathActions.size() - 1);
       last.action = RoboAction.Action.DESTINATION;
-      robot.x = last.x;
-      robot.y = last.y;
+      robot.point = last.point;
     }
   }
   
-  public void pick(int cardinality, Set<Color.BasicColor> colors) {
+  public void pick(int cardinality, Set<Item> blocks) {
     if (cardinality == -1)
       cardinality = Integer.MAX_VALUE;
     boolean match = false;
-    RoboBlock b;
-    for (Iterator<RoboBlock> iter = items.iterator(); iter.hasNext(); ) {
-      b = iter.next();
-//      if (b.x == robot.x && b.y == robot.y
-//          && (colors.contains(Color.BasicColor.fromString(b.color)))) {
-      if (colors.contains(b)) {
-        match = true;
-        robot.items.add(b.color);
-        pathActions.add(
-            new RoboAction(robot.x, robot.y, RoboAction.Action.PICKITEM, b.color, true));
-        iter.remove();
-        if (--cardinality == 0)
-          break;
-      }
-    }
-    if (!match) {
-      pathActions.add(new RoboAction(robot.x, robot.y, RoboAction.Action.PICKITEM, null, false));
-    }
-  }
-  
-  public void drop(int cardinality, Set<Color.BasicColor> colors) {
-    if (cardinality == -1)
-      cardinality = Integer.MAX_VALUE;
-    boolean match = false;
-    String item;
-    for (Iterator<String> iter =  robot.items.iterator(); iter.hasNext(); ) {
+    Item item;
+    for (Iterator<Item> iter = items.iterator(); iter.hasNext(); ) {
       item = iter.next();
-      if (colors == null || colors.contains(Color.BasicColor.fromString(item))) {
+      if (item.isCarried())
+        continue;
+      if (item.point.x == robot.point.x && item.point.y == robot.point.y && item.isIn(blocks)) {
         match = true;
-        items.add(new RoboBlock(robot.x, robot.y, RoboBlock.Type.ITEM));
+//        robot.items.add(item);
+        item.setCarried(true);
+        pathActions.add(new RoboAction(robot.point, RoboAction.Action.PICKITEM, item.color, true));
+//        iter.remove();
+        if (--cardinality == 0)
+          break;
+      }
+    }
+    if (!match) {
+      pathActions.add(new RoboAction(robot.point, RoboAction.Action.PICKITEM, null, false));
+    }
+    keyConsistency();
+  }
+  
+  public void drop(int cardinality, Set<Item> blocks) {
+        System.out.println(
+            this.allItems().stream()
+//            .map(i -> i.point.toString())
+            .map(i -> i.toString())
+            .reduce("Items: ", (a1,a2) -> a1 + a2));
+    if (cardinality == -1)
+      cardinality = Integer.MAX_VALUE;
+    boolean match = false;
+    Item item;
+    for (Iterator<Item> iter =  blocks.iterator(); iter.hasNext(); ) {
+      item = iter.next();
+      if (!item.isCarried())
+        continue;
+      if (item.isIn(blocks)) {
+//      if (blocks.contains(item)) {
+        match = true;
+//        item.point = robot.point;
+        assert(robot.point != null);
+        item.setCarried(false);
+//        items.add(item);
         pathActions.add(
-            new RoboAction(robot.x, robot.y, RoboAction.Action.DROPITEM, item, true));
+            new RoboAction(robot.point, RoboAction.Action.DROPITEM, item.color, true));
         iter.remove();
         if (--cardinality == 0)
           break;
       }
     }
     if (!match) {
-      pathActions.add(new RoboAction(robot.x, robot.y, RoboAction.Action.DROPITEM, null, false));
+      pathActions.add(new RoboAction(robot.point, RoboAction.Action.DROPITEM, null, false));
     }
+    keyConsistency();
   }
 
-  public Set<int[]> getRoom() {
-    Set<int[]> set = new HashSet<>();
-    int[] a = {0,4};
-    set.add(a.clone());
-    a[1]--;
-    set.add(a.clone());
-    a[1]--;
-    set.add(a.clone());
-    a[1]--;
-    set.add(a.clone());
-    a[1]--;
-    set.add(a.clone());
-    a[1]--;
-    set.add(a.clone());
-    a[1]--;
-    set.add(a.clone());
-    a[1]--;
-    set.add(a.clone());
-    return set;
+  public VariablePoint getVariable(String name) {
+    return new VariablePoint(0, 0, name);
   }
-  
-  @SuppressWarnings("unused")
-  private void refreshSet(Set<RoboBlock> set) {
-    List<RoboBlock> s = new ArrayList<>(set);
+
+  private <T> void refreshSet(Set<T> set) {
+    List<T> s = new ArrayList<>(set);
     set.clear();
     set.addAll(s);
   }
 
-  @SuppressWarnings("unused")
   private void keyConsistency() {
-    //refreshSet(allBlocks);
+    refreshSet(walls);
+    refreshSet(items);
+    if (open != null)
+      refreshSet(open);
   }
 }

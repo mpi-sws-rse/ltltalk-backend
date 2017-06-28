@@ -1,23 +1,20 @@
 package edu.stanford.nlp.sempre.interactive.robolurn;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.ArrayList;
-
-import fig.basic.LogInfo;
+import java.util.stream.Collectors;
+import java.awt.Point;
 
 public class Robot {
   
-  public int x, y;
-  public List<String> items;
+  public Point point;
+//  public Collection<Item> items;
 
-  public Robot(int x, int y) {
-    this.x = x;
-    this.y = y;
-    this.items = new ArrayList<>();
+  public Robot(Point point) {
+    this.point = point;
   }
-
-  public Robot(int x, int y, List<String> items) {
-    this(x,y);
-    this.items = items;
-  }
+//  public Robot(Point point, Collection<Item> items) {
+//    this.point = point;
+//    this.items = items;
+//  }
 }

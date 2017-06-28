@@ -8,6 +8,10 @@ public class Color {
     BasicColor(int value) {
       this.value = value;
     }
+    
+    public String toString() {
+      return super.toString().toLowerCase();
+    }
 
     public static BasicColor fromString(String color) {
       for (BasicColor c : BasicColor.values())

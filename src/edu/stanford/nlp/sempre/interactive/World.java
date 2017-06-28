@@ -3,6 +3,7 @@ package edu.stanford.nlp.sempre.interactive;
 import java.awt.Point;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import edu.stanford.nlp.sempre.ContextValue;
@@ -11,16 +12,18 @@ import edu.stanford.nlp.sempre.interactive.robolurn.RoboWorld;
 /**
  * @param <B> Represents block type
  */
-public abstract class World<B extends Block<?>> {
+public abstract class World<B extends Block> {
   
-  public Set<B> walls;
-  public Set<B> items;
-  public Set<Point> open;
+  public Set<? extends B> walls;
+  public Set<? extends B> items;
+  public Set<? extends Point> open;
+  
+  public Map<String, Point> variables;
   
   // Should this be a set or a single Point?
   public Point selectedField;
 
-  public static World fromContext(String worldname, ContextValue context) {
+  public static World<?> fromContext(String worldname, ContextValue context) {
     if (worldname.equals("RoboWorld"))
       return RoboWorld.fromContext(context);
     throw new RuntimeException("World does not exist: " + worldname);
@@ -39,15 +42,16 @@ public abstract class World<B extends Block<?>> {
   public abstract Point getLowCorner();
   
   // Lazy eval for now. If the walls (they don't now) change, this will need to be updated.
+  @SuppressWarnings("unchecked")
   public Set<Point> getOpenFields() {
     if (this.open != null)
-      return this.open;
+      return (Set<Point>) this.open;
     Point lc = this.getLowCorner();
     Point hc = this.getHighCorner();
     boolean[][] fields = new boolean[hc.y - lc.y + 1][hc.x - lc.x + 1];
     Point p; 
-    for (Iterator<B> iter = walls.iterator(); iter.hasNext(); ) {
-      p = iter.next();
+    for (Iterator<? extends B> iter = walls.iterator(); iter.hasNext(); ) {
+      p = iter.next().point;
       fields[p.y - lc.y][p.x - lc.x] = true;
     }
     Set<Point> open = new HashSet<>();
@@ -64,7 +68,7 @@ public abstract class World<B extends Block<?>> {
   
   public abstract Set<Object> has(String rel, Set<Object> values);
 
-  public abstract Set<Object> get(String rel, Set<Block<?>> subset);
+  public abstract Set<Object> get(String rel, Set<Block> subset);
 
   public Object getNull() {
     return null;
@@ -72,10 +76,6 @@ public abstract class World<B extends Block<?>> {
   
   public Set<Object> emptySet() {
     return new HashSet<>();
-  }
-  
-  public Set<B> allItems() {
-    return items;
   }
   
   //public abstract void update(String rel, Object value, Set<WorldBlock> selected);

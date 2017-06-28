@@ -26,33 +26,56 @@
 (rule $Action (drop $Item) (lambda c (: @drop (number 1) (var c))) (anchored 1))
 (rule $Action (drop every $Item) (lambda c (: @drop (number -1) (var c))) (anchored 1))
 
-(rule $Action (foreach $Set $Action ) (lambda s (lambda a (:foreach (var s) (var a)))) (anchored 1))
+#(rule $Action (foreach $Set $Action ) (lambda s (lambda a (:foreach (var s) (var a)))) (anchored 1))
+(rule $Action (foreach $Variable in $Set $Action )
+    (lambda v (lambda s (lambda a (:foreach (var v) (var s) (var a))))) (anchored 1))
+
+# Variable Rules
+
+(rule $Field ($FieldVariable) (IdentityFn) (anchored 1))
+(rule $Variable ($FieldVariable) (IdentityFn) (anchored 1))
+#(rule $Area ($Variable) (IdentityFn) (anchored 1))
+
+(for @var (field0 field1 field2)
+  (rule $FieldVariable (@var) (ConstantFn (call getVariable (string @var))) (anchored 1))
+)
 
 # Situation Rules
 
-(rule $Situation ( { $Situations } ) (IdentityFn) (anchored 1))
+# These will be used only if the final language spec requires it
+#(rule $Situation ( { $Situations } ) (IdentityFn) (anchored 1))
 (rule $Situations ($Situation) (IdentityFn) (anchored 1))
-(rule $Situations ($Situations or $Situation) (lambda s1 (lambda s2 (call || (var s1) (var s2)))) (anchored 1))
-(rule $Situations ($Situations and $Situation) (lambda s1 (lambda s2 (call && (var s1) (var s2)))) (anchored 1))
-(rule $Situation (not $Situations) (lambda s (call ! (var s) )) (anchored 1))
+#(rule $Situations ($Situations or $Situation) (lambda s1 (lambda s2 (call || (var s1) (var s2)))) (anchored 1))
+#(rule $Situations ($Situations and $Situation) (lambda s1 (lambda s2 (call && (var s1) (var s2)))) (anchored 1))
+#(rule $Situation (not $Situations) (lambda s (call ! (var s) )) (anchored 1))
 
 (rule $Situation ($Item at $Field) (lambda i (lambda f (and (var i) (field (var f))))) (anchored 1))
+(rule $Situation ($Item at $Area) (lambda i (lambda f (and (var a) (field (var a))))) (anchored 1))
 
 # Location Rules
 
-(rule $Set ($Areas) (IdentityFn) (anchored 1))
+(rule $Set ($Area) (IdentityFn) (anchored 1))
+
+
+(rule $Collection ([ $AreaList ]) (IdentityFn) (anchored 1))
 
 (rule $Area (world) world (anchored 1))
-(rule $Area ([ $Fields ]) (IdentityFn) (anchored 1))
-(rule $Area ( not $Areas ) (lambda a1 (not (var a1))) (anchored 1))
+(rule $Area ([ $FieldList ]) (IdentityFn) (anchored 1))
+#(rule $Area ( not $Areas ) (lambda a1 (not (var a1))) (anchored 1))
 (rule $Areas ( $Area ) (IdentityFn) (anchored 1))
-(rule $Areas ( $Areas union $Area ) (lambda a1 (lambda a2 (or (var a1) (var a2)))) (anchored 1))
-(rule $Areas ( $Areas intersect $Area ) (lambda a1 (lambda a2 (and (var a1) (var a2)))) (anchored 1))
+(rule $Areas ( $Areas + $Area ) (lambda a1 (lambda a2 (or (var a1) (var a2)))) (anchored 1))
+(rule $Areas ( $Areas * $Area ) (lambda a1 (lambda a2 (and (var a1) (var a2)))) (anchored 1))
+(rule $Areas ( $Areas - $Area ) (lambda a1 (lambda a2 (and (var a1) (not (var a2))))) (anchored 1))
+(rule $AreaList ( $Area ) (IdentityFn) (anchored 1))
+(rule $AreaList ( $AreaList , $Area ) (lambda x ( lambda y (or (var x) (var y)))) (anchored 1))
 
 (rule $Field (any $Area) (lambda x (call anyPoint (var x))) (anchored 1))
 (rule $Field ([ $Number , $Number ]) (lambda x (lambda y (call makePoint (var x) (var y)))) (anchored 1))
-(rule $Fields ( $Field ) (IdentityFn) (anchored 1))
-(rule $Fields ( $Fields , $Field ) (lambda x ( lambda y (or (var x) (var y)))) (anchored 1))
+(rule $Field (current) (ConstantFn (call getRobotLocation)) (anchored 1))
+(rule $FieldList ( $Field ) (IdentityFn) (anchored 1))
+(rule $FieldList ( $FieldList , $Field ) (lambda x ( lambda y (or (var x) (var y)))) (anchored 1))
+
+(rule $Area ($Area containing $Item) (lambda a (lambda i (and (field (var a)) (var i)))) (anchored 1))
 
 # Item Rules
 
@@ -64,11 +87,11 @@
 (rule $ColorSet ( { $ColorSets } ) (IdentityFn) (anchored 1))
 #(rule $ColorSet ($ColorSets and  $ColorSet) (lambda x (lambda y (and (var x) (var y)))) (anchored 1))
 #(rule $ColorSet ($ColorSets or  $ColorSet) (lambda x (lambda y (or (var x) (var y)))) (anchored 1))
-(rule $ColorSet (not $ColorSets) (lambda x (not (var x))) (anchored 1))
-(for @op (or and)
-(rule $ColorSets ($ColorSets @op $ColorSet) (lambda s1 (lambda s2
-					(@op (var s1) (var s2)))) (anchored 1))
-)
+(rule $ColorSet (! $ColorSets) (lambda x (not (var x))) (anchored 1))
+(rule $ColorSets ($ColorSets && $ColorSet) (lambda s1 (lambda s2
+					(and (var s1) (var s2)))) (anchored 1))
+(rule $ColorSets ($ColorSets || $ColorSet) (lambda s1 (lambda s2
+					(or (var s1) (var s2)))) (anchored 1))
 
 (rule $Rel (color) color (anchored 1))
 
