@@ -66,7 +66,7 @@ public abstract class World<B extends Block> {
     return open;
   }
   
-  public abstract Set<Object> has(String rel, Set<Object> values);
+  public abstract Set<? extends B> has(String rel, Set<Object> values);
 
   public abstract Set<Object> get(String rel, Set<Block> subset);
 

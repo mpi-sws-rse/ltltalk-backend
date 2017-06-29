@@ -52,7 +52,7 @@ public class Item extends RoboBlock {
   }
   
   public void setCarried(boolean state) {
-    if (state = false)
+    if (state == false)
       point = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
     carried = state;
   }

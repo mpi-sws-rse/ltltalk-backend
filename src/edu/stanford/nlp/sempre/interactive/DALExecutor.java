@@ -22,6 +22,7 @@ import com.google.common.collect.Sets.SetView;
 import edu.stanford.nlp.sempre.*;
 import edu.stanford.nlp.sempre.interactive.planner.PathFinder;
 import edu.stanford.nlp.sempre.interactive.robolurn.RoboBlock;
+import edu.stanford.nlp.sempre.interactive.robolurn.RoboWorld;
 import fig.basic.LogInfo;
 import fig.basic.Option;
 
@@ -156,8 +157,6 @@ public class DALExecutor extends Executor {
         world.variables.put(vp.name, selected.get(order[i]));
         performActions((ActionFormula) f.args.get(2), world);
       }
-      //world.selected = prevSelected;
-      //world.merge();
     } 
   }
 
@@ -253,6 +252,9 @@ public class DALExecutor extends Executor {
       MergeFormula.Mode mode = mergeFormula.mode;
       Set<Object> set1 = toSet(processSetFormula(mergeFormula.child1, world));
       Set<Object> set2 = toSet(processSetFormula(mergeFormula.child2, world));
+
+//      System.out.println(set1.stream().reduce((a,b) -> a.toString() + ", " + b.toString()));
+//      System.out.println(set2.stream().reduce((a,b) -> a.toString() + ", " + b.toString()));
 
       if (mode == MergeFormula.Mode.or)
         return toMutable(Sets.union(set1, set2));

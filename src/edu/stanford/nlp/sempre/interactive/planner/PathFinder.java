@@ -120,6 +120,7 @@ public class PathFinder {
     } else if (points.size() == 0) {
       return new int[] {};
     }
+    
     double[][] weights = new double[points.size()][points.size()];
     for (int i = 0; i < points.size(); ++i) {
       for (int j = 0; j < points.size(); ++j) {

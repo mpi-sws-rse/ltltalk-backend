@@ -172,14 +172,11 @@ public class RoboWorld extends World<RoboBlock> {
   }
 
   @Override
-  public Set<Object> has(String rel, Set<Object> values) {
-//    if ("color".equals(rel)) {
-//      return values.stream()
-//          .map(i -> Color.BasicColor.fromString((String) i)).collect(Collectors.toSet());
-//    } 
+  public Set<? extends RoboBlock> has(String rel, Set<Object> values) {
     if ("color".equals(rel) || "type".equals(rel) || "field".equals(rel)) {
       return items.stream()
-          .filter(i -> values.contains(i.get(rel))).collect(Collectors.toSet());
+          .filter(i -> values.contains(i.get(rel)))
+          .collect(Collectors.toSet());
     }
     throw new RuntimeException("getting property " + rel + " is not supported.");
   }
@@ -281,11 +278,6 @@ public class RoboWorld extends World<RoboBlock> {
   }
   
   public void drop(int cardinality, Set<Item> blocks) {
-        System.out.println(
-            this.allItems().stream()
-//            .map(i -> i.point.toString())
-            .map(i -> i.toString())
-            .reduce("Items: ", (a1,a2) -> a1 + a2));
     if (cardinality == -1)
       cardinality = Integer.MAX_VALUE;
     boolean match = false;

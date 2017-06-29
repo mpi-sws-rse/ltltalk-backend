@@ -50,7 +50,7 @@
 #(rule $Situation (not $Situations) (lambda s (call ! (var s) )) (anchored 1))
 
 (rule $Situation ($Item at $Field) (lambda i (lambda f (and (var i) (field (var f))))) (anchored 1))
-(rule $Situation ($Item at $Area) (lambda i (lambda f (and (var a) (field (var a))))) (anchored 1))
+(rule $Situation ($Item at $Area) (lambda i (lambda a (and (var i) (field (var a))))) (anchored 1))
 
 # Location Rules
 
@@ -75,7 +75,8 @@
 (rule $FieldList ( $Field ) (IdentityFn) (anchored 1))
 (rule $FieldList ( $FieldList , $Field ) (lambda x ( lambda y (or (var x) (var y)))) (anchored 1))
 
-(rule $Area ($Area containing $Item) (lambda a (lambda i (and (field (var a)) (var i)))) (anchored 1))
+#(rule $Area ($Area containing $Item) (lambda a (lambda i (and (field (var a)) (var i)))) (anchored 1))
+(rule $Area ($Area containing $Item) (lambda a (lambda i (and (var a) ((reverse field) (var i))))) (anchored 1))
 
 # Item Rules
 
