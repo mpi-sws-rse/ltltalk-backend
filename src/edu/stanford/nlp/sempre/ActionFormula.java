@@ -33,7 +33,8 @@ public class ActionFormula extends Formula {
 
     block(":blk"), // start a block of code (like {}) with a new scope
     blockr(":blkr"), // also return a result after finishing the block
-    isolate(":isolate"), other(":?");
+    isolate(":isolate"),
+    other(":?");
 
     private final String value;
 

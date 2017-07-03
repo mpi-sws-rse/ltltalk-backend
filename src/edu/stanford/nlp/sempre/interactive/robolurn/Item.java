@@ -23,7 +23,7 @@ public class Item extends RoboBlock {
   
   public Item(Point point, Color.BasicColor color, boolean carried) {
     if (point == null)
-      this.point = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
+      this.point = new Point(0, 0);
     else
       this.point = point;
     this.color = color;
@@ -35,6 +35,8 @@ public class Item extends RoboBlock {
     Object propval;
     if (property.equals("color"))
       propval = this.color.toString();
+    else if (property.equals("carried"))
+      propval = this.carried;
     else if (property.equals("field"))
       propval = this.point;
     else

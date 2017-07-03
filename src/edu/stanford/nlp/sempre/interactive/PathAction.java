@@ -1,6 +1,7 @@
 package edu.stanford.nlp.sempre.interactive;
 
 import java.awt.Point;
+import java.util.List;
 
 /**
  * @author brendonboldt
@@ -20,6 +21,6 @@ public abstract class PathAction<A> {
   //public static PathAction fromJSONObject(List<Object> props);
 
   public abstract Object toJSON();
-
+  
   public abstract PathAction<A> clone();
 }

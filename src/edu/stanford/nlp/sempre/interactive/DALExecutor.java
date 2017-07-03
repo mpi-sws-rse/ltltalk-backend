@@ -6,10 +6,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.naming.OperationNotSupportedException;
@@ -62,7 +65,7 @@ public class DALExecutor extends Executor {
   }
 
   public static Options opts = new Options();
-
+  
   @Override
   public Response execute(Formula formula, ContextValue context) {
     // We can do beta reduction here since macro substitution preserves the
@@ -211,6 +214,7 @@ public class DALExecutor extends Executor {
 
   static class SpecialSets {
     static String World = "world";
+    static String AllItems = "allItems";
   };
 
   // a subset of lambda dcs. no types, and no marks
@@ -226,6 +230,9 @@ public class DALExecutor extends Executor {
         // Maybe add "items" and "walls" here?
         if (id.equals(SpecialSets.World))
           return world.getOpenFields();
+        // TODO Fix special set 
+        if (id.equals(SpecialSets.AllItems))
+          return world.items;
       }
       return toObject(((ValueFormula<?>) formula).value);
     }
@@ -308,12 +315,22 @@ public class DALExecutor extends Executor {
       // all actions takes a fixed set as argument
       return invoke(id, world, callFormula.args.stream().map(x -> processSetFormula(x, world)).toArray());
     }
+    
+    if (formula instanceof ApplyFormula) {
+      ApplyFormula applyFormula = (ApplyFormula) formula;
+      if (applyFormula.lambda instanceof LambdaFormula) {
+        Formula applied = Formulas.lambdaApply((LambdaFormula) applyFormula.lambda, applyFormula.arg);
+        return processSetFormula(applied, world);
+      } else
+        throw new RuntimeException("First argument of ApplyFormula must be a LambdaFormula");
+    }
+    
     if (formula instanceof SuperlativeFormula) {
       throw new RuntimeException("SuperlativeFormula is not implemented");
     }
     throw new RuntimeException("ActionExecutor does not handle this formula type: " + formula.getClass());
   }
-
+  
   private <T> Set<T> toMutable(SetView<T> intersection) {
     return new HashSet<>(intersection);
   }

@@ -48,32 +48,32 @@ public class RoboWorld extends World<RoboBlock> {
     return sb.toString();
   }
   
-  public String descriptionAnd(String str1, String str2) {
-    Set<String> colors1 = new HashSet<>(Arrays.asList(str1.split(",")));
-    Set<String> colors2 = new HashSet<>(Arrays.asList(str2.split(",")));
-    StringBuilder sb = new StringBuilder();
-    for (String c : colors1) {
-      if (colors2.contains(c)) {
-        if (sb.length() != 0)
-          sb.append(",");
-        sb.append(c.toString());
-      }
-    }
-    return sb.toString();
-  }
-  
-  public String descriptionOr(String str1, String str2) {
-    Set<String> colors1 = new HashSet<>(Arrays.asList(str1.split(",")));
-    List<String> colors2 = Arrays.asList(str2.split(","));
-    colors1.addAll(colors2);
-    StringBuilder sb = new StringBuilder();
-    for (String c : colors1) {
-      if (sb.length() != 0)
-        sb.append(",");
-      sb.append(c.toString());
-    }
-    return sb.toString();
-  }
+//  public String descriptionAnd(String str1, String str2) {
+//    Set<String> colors1 = new HashSet<>(Arrays.asList(str1.split(",")));
+//    Set<String> colors2 = new HashSet<>(Arrays.asList(str2.split(",")));
+//    StringBuilder sb = new StringBuilder();
+//    for (String c : colors1) {
+//      if (colors2.contains(c)) {
+//        if (sb.length() != 0)
+//          sb.append(",");
+//        sb.append(c.toString());
+//      }
+//    }
+//    return sb.toString();
+//  }
+//  
+//  public String descriptionOr(String str1, String str2) {
+//    Set<String> colors1 = new HashSet<>(Arrays.asList(str1.split(",")));
+//    List<String> colors2 = Arrays.asList(str2.split(","));
+//    colors1.addAll(colors2);
+//    StringBuilder sb = new StringBuilder();
+//    for (String c : colors1) {
+//      if (sb.length() != 0)
+//        sb.append(",");
+//      sb.append(c.toString());
+//    }
+//    return sb.toString();
+//  }
   
   public static Options opts = new Options();
 
@@ -173,7 +173,13 @@ public class RoboWorld extends World<RoboBlock> {
 
   @Override
   public Set<? extends RoboBlock> has(String rel, Set<Object> values) {
-    if ("color".equals(rel) || "type".equals(rel) || "field".equals(rel)) {
+    if ("color".equals(rel)
+        || "type".equals(rel)
+        || "carried".equals(rel)
+        || "field".equals(rel)) {
+//      System.out.println(items.stream()
+//          .filter(i -> values.contains(i.get(rel)))
+//          .collect(Collectors.toSet()));
       return items.stream()
           .filter(i -> values.contains(i.get(rel)))
           .collect(Collectors.toSet());
@@ -261,12 +267,10 @@ public class RoboWorld extends World<RoboBlock> {
       item = iter.next();
       if (item.isCarried())
         continue;
-      if (item.point.x == robot.point.x && item.point.y == robot.point.y && item.isIn(blocks)) {
+      if (item.isIn(blocks)) {
         match = true;
-//        robot.items.add(item);
         item.setCarried(true);
         pathActions.add(new RoboAction(robot.point, RoboAction.Action.PICKITEM, item.color, true));
-//        iter.remove();
         if (--cardinality == 0)
           break;
       }
@@ -278,6 +282,7 @@ public class RoboWorld extends World<RoboBlock> {
   }
   
   public void drop(int cardinality, Set<Item> blocks) {
+    System.out.println(blocks);
     if (cardinality == -1)
       cardinality = Integer.MAX_VALUE;
     boolean match = false;

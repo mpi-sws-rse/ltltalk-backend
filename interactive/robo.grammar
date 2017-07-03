@@ -21,8 +21,9 @@
 # Visit selected field (usually set by foreach); to be changed
 (rule $Action (visit) (ConstantFn (: @visit)) (anchored 1))
 
-(rule $Action (pick $Item) (lambda c (: @pick (number 1) (var c))) (anchored 1))
-(rule $Action (pick every $Item) (lambda c (: @pick (number -1) (var c))) (anchored 1))
+#(rule $Action (pick $Item) (lambda c (: @pick (number 1) (var c))) (anchored 1))
+(rule $Action (pick $LambdaItem) (lambda c (: @pick (number 1) (apply (var c) (call getRobotLocation)))) (anchored 1))
+(rule $Action (pick every $LambdaItem) (lambda c (: @pick (number -1) (apply (var c) (call getRobotLocation)))) (anchored 1))
 (rule $Action (drop $Item) (lambda c (: @drop (number 1) (var c))) (anchored 1))
 (rule $Action (drop every $Item) (lambda c (: @drop (number -1) (var c))) (anchored 1))
 
@@ -51,6 +52,9 @@
 
 (rule $Situation ($Item at $Field) (lambda i (lambda f (and (var i) (field (var f))))) (anchored 1))
 (rule $Situation ($Item at $Area) (lambda i (lambda a (and (var i) (field (var a))))) (anchored 1))
+(rule $Situation (robot has $Item) (lambda i (and (var i) (carried (boolean true)))) (anchored 1))
+(rule $Situation (robot at $Field) (lambda f (and (var f) (call getRobotLocation))) (anchored 1))
+(rule $Situation (robot at $Area) (lambda a (and (var a) (call getRobotLocation))) (anchored 1))
 
 # Location Rules
 
@@ -80,8 +84,11 @@
 
 # Item Rules
 
-(rule $Item (item) (ConstantFn (call allItems)) (anchored 1))
-(rule $Item (item $ColorSets) (IdentityFn) (anchored 1))
+(rule $Item ($LambdaItem) (lambda i (apply (var i) world)) (anchored 1))
+
+# These rules return lambdas so that locational filters can be applied at a later time
+(rule $LambdaItem (item) (ConstantFn (lambda l (and (field (var l)) (call allItems)))) (anchored 1))
+(rule $LambdaItem (item $ColorSets) (lambda c (lambda l (and (field (var l)) (var c)))) (anchored 1))
 
 (rule $ColorSet (has $Rel $Color) (lambda r (lambda c ((var r) (var c)))) (anchored 1))
 (rule $ColorSets ($ColorSet) (IdentityFn) (anchored 1))
