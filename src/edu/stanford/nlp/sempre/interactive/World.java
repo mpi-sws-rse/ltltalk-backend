@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import edu.stanford.nlp.sempre.ContextValue;
@@ -18,10 +19,10 @@ public abstract class World<B extends Block> {
   public Set<? extends B> items;
   public Set<? extends Point> open;
   
-  public Map<String, Point> variables;
+//  public Map<String, Point> variables;
   
-  // Should this be a set or a single Point?
-  public Point selectedField;
+  public Optional<Set<Point>> selectedArea;
+  public Optional<Point> selectedField;
 
   public static World<?> fromContext(String worldname, ContextValue context) {
     if (worldname.equals("RoboWorld"))
@@ -29,10 +30,6 @@ public abstract class World<B extends Block> {
     throw new RuntimeException("World does not exist: " + worldname);
   }
 
-  // there are some annoying issues with mutable objects.
-  // The current strategy is to keep allitems up to date on each mutable
-  // operation
-  // bboldt: ^ I wish I knew what those annoying issues were
   public abstract String toJSON();
 
   public abstract String getJSONPath();
@@ -70,16 +67,20 @@ public abstract class World<B extends Block> {
 
   public abstract Set<Object> get(String rel, Set<Block> subset);
 
-  public Object getNull() {
-    return null;
-  }
-  
-  public Set<Object> emptySet() {
-    return new HashSet<>();
-  }
-  
   //public abstract void update(String rel, Object value, Set<WorldBlock> selected);
   public abstract Set<? extends Object> universalSet(Object o);
+  
+  public Set<Point> getSelectedArea() {
+    if (!selectedArea.isPresent())
+      throw new RuntimeException("Selected area has not been set.");
+    return selectedArea.get();
+  }
+  
+  public Point getSelectedField() {
+    if (!selectedField.isPresent())
+      throw new RuntimeException("Selected field has not been set.");
+    return selectedField.get();
+  }
   
   public Point makePoint(int x, int y) {
     return new Point(x, y);
@@ -87,6 +88,32 @@ public abstract class World<B extends Block> {
   
   public Set<Point> makeArea() {
     return new HashSet<>();
+  }
+  
+  //public Set<Set<Point>> combineCollections(Set<Set<Point>> c1, Set<Set<Point>> c2) {
+  public Set<? extends Object> combineCollections(Set<Object> c1, Set<Object> c2) {
+    if (c1.isEmpty() && c2.isEmpty()) return new HashSet<>();
+    if (c1.isEmpty()) return c2;
+    if (c2.isEmpty()) return c1;
+    Class<?> c1Type = c1.iterator().next().getClass();
+    Class<?> c2Type = c1.iterator().next().getClass();
+    System.out.println(c1Type);
+    System.out.println(c2Type);
+    if (c1Type == Set.class && c2Type == Set.class) {
+      c1.addAll(c2);
+      return c1;
+    } else if (c1Type == Set.class) {
+      c1.add(c2);
+      return c1;
+    } else if (c2Type == Set.class) {
+      c2.add(c1);
+      return c2;
+    } else {
+      Set<Set<Object>> set = new HashSet<>();
+      set.add(c1);
+      set.add(c2);
+      return set;
+    }
   }
   
   public Point anyPoint(Set<Point> s) {

@@ -30,6 +30,8 @@ public abstract class Formulas {
         return new LambdaFormula(tree.child(1).value, fromLispTree(tree.child(2)));
       if (func.equals("apply"))
         return new ApplyFormula(fromLispTree(tree.child(1)), fromLispTree(tree.child(2)));
+      if (func.equals("limit"))
+        return new LimitFormula(fromLispTree(tree.child(1)), fromLispTree(tree.child(2)));
       if (func.equals("mark"))
         return new MarkFormula(tree.child(1).value, fromLispTree(tree.child(2)));
       if (func.equals("not"))

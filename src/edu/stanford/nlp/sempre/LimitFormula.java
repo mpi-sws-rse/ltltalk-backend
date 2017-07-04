@@ -6,36 +6,35 @@ import com.google.common.base.Function;
 
 import fig.basic.LispTree;
 
-public class ApplyFormula extends Formula {
+public class LimitFormula extends Formula {
 
-  public final Formula lambda;
-  public final Formula arg;
+  public final Formula number;
+  public final Formula set;
   
-  public ApplyFormula(Formula lambda, Formula arg) {
-    this.lambda = lambda;
-    this.arg = arg;
+  public LimitFormula(Formula number, Formula set) {
+    this.number = number;
+    this.set = set;
   }
-
+  
   @Override
   public LispTree toLispTree() {
     LispTree tree = LispTree.proto.newList();
-    tree.addChild("apply");
-    tree.addChild(lambda.toLispTree());
-    tree.addChild(arg.toLispTree());
+    tree.addChild("limit");
+    tree.addChild(number.toLispTree());
+    tree.addChild(set.toLispTree());
     return tree;
   }
 
   @Override
   public void forEach(Function<Formula, Boolean> func) {
     throw new RuntimeException("Not yet implemented");
-    // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public Formula map(Function<Formula, Formula> func) {
     Formula result = func.apply(this);
-    return result == null ? new ApplyFormula(lambda.map(func), arg/*.map(func)*/) : result;
+    return result == null ? new LimitFormula(number, set.map(func)) : result;
   }
 
   @Override
@@ -46,15 +45,14 @@ public class ApplyFormula extends Formula {
 
   @Override
   public boolean equals(Object o) {
-    throw new RuntimeException("Not yet implemented");
     // TODO Auto-generated method stub
+    throw new RuntimeException("Not yet implemented");
   }
 
   @Override
   public int computeHashCode() {
-    throw new RuntimeException("Not yet implemented");
     // TODO Auto-generated method stub
+    throw new RuntimeException("Not yet implemented");
   }
-
 
 }

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,46 +36,6 @@ public class RoboWorld extends World<RoboBlock> {
   private Point lowCorner;
   private Point highCorner;
   
-  public String descriptionNot(String str) {
-    Set<String> colors = new HashSet<>(Arrays.asList(str.split(",")));
-    StringBuilder sb = new StringBuilder();
-    for (Color.BasicColor c : Color.BasicColor.values()) {
-      if (!colors.contains(c.toString())) {
-        if (sb.length() != 0)
-          sb.append(",");
-        sb.append(c.toString());
-      }
-    }
-    return sb.toString();
-  }
-  
-//  public String descriptionAnd(String str1, String str2) {
-//    Set<String> colors1 = new HashSet<>(Arrays.asList(str1.split(",")));
-//    Set<String> colors2 = new HashSet<>(Arrays.asList(str2.split(",")));
-//    StringBuilder sb = new StringBuilder();
-//    for (String c : colors1) {
-//      if (colors2.contains(c)) {
-//        if (sb.length() != 0)
-//          sb.append(",");
-//        sb.append(c.toString());
-//      }
-//    }
-//    return sb.toString();
-//  }
-//  
-//  public String descriptionOr(String str1, String str2) {
-//    Set<String> colors1 = new HashSet<>(Arrays.asList(str1.split(",")));
-//    List<String> colors2 = Arrays.asList(str2.split(","));
-//    colors1.addAll(colors2);
-//    StringBuilder sb = new StringBuilder();
-//    for (String c : colors1) {
-//      if (sb.length() != 0)
-//        sb.append(",");
-//      sb.append(c.toString());
-//    }
-//    return sb.toString();
-//  }
-  
   public static Options opts = new Options();
 
   public static RoboWorld fromContext(ContextValue context) {
@@ -94,9 +55,9 @@ public class RoboWorld extends World<RoboBlock> {
     this.walls = walls;
     this.items = items;
     this.pathActions = new ArrayList<RoboAction>();
-    this.selectedField = new Point();
     this.findCorners();
-    this.variables = new HashMap<>();
+    this.selectedArea = Optional.empty();
+    this.selectedField = Optional.empty();
   }
 
   private void findCorners() {
@@ -173,23 +134,29 @@ public class RoboWorld extends World<RoboBlock> {
 
   @Override
   public Set<? extends RoboBlock> has(String rel, Set<Object> values) {
-    if ("color".equals(rel)
-        || "type".equals(rel)
-        || "carried".equals(rel)
-        || "field".equals(rel)) {
-//      System.out.println(items.stream()
-//          .filter(i -> values.contains(i.get(rel)))
-//          .collect(Collectors.toSet()));
-      return items.stream()
-          .filter(i -> values.contains(i.get(rel)))
-          .collect(Collectors.toSet());
+    String[] qualifiedRel = rel.split("\\?");
+    if (qualifiedRel.length < 2)
+      throw new RuntimeException(rel + " must be qualified with items?rel or walls?rel");
+
+    if ("items".equals(qualifiedRel[0])) {
+      if ("color".equals(qualifiedRel[1])
+          || "type".equals(qualifiedRel[1])
+          || "carried".equals(qualifiedRel[1])
+          || "field".equals(qualifiedRel[1])) {
+        return items.stream()
+            .filter(i -> values.contains(i.get(qualifiedRel[1])))
+            .collect(Collectors.toSet());
+      }
     }
     throw new RuntimeException("getting property " + rel + " is not supported.");
   }
 
   @Override
   public Set<Object> get(String rel, Set<Block> subset) {
-    return subset.stream().map(i -> i.get(rel)).collect(Collectors.toSet());
+    String[] qualifiedRel = rel.split("\\?");
+    if (qualifiedRel.length < 2)
+      throw new RuntimeException("'Rel' must be qualified with items?rel or walls?rel");
+    return subset.stream().map(i -> i.get(qualifiedRel[1])).collect(Collectors.toSet());
   }
   
   public Set<Item> allItems() {
@@ -221,23 +188,25 @@ public class RoboWorld extends World<RoboBlock> {
   }
   
   public void visit(Point p, Set<Point> avoidSet) {
-    if (p instanceof VariablePoint)
-      p = variables.get(((VariablePoint) p).name);
-    this.selectedField = p;
-    gotoSelectedField(avoidSet);
+//    if (p instanceof VariablePoint)
+//      p = variables.get(((VariablePoint) p).name);
+    gotoField(p, avoidSet);
   }
   
   public void visit(Point p) {
-    visit(p, new HashSet<>());
+    gotoField(p, new HashSet<>());
   }
   
   public void visit() {
-    gotoSelectedField(new HashSet<>());
+    if (selectedField.isPresent())
+      gotoField(selectedField.get(), new HashSet<>());
+    else
+      throw new RuntimeException("No field has been selected to visit.");
   }
   
-  private void gotoSelectedField(Set<Point> avoidSet) {
-    int x = selectedField.x;
-    int y = selectedField.y;
+  private void gotoField(Point field, Set<Point> avoidSet) {
+//    if (selectedFields.isEmpty())
+//      throw new RuntimeException("No field has been selected to visit.");
     
     avoidSet.addAll(walls.stream().map(w -> w.point).collect(Collectors.toList()));
     // Is this unclear? It is quite beautiful, though.
@@ -245,7 +214,7 @@ public class RoboWorld extends World<RoboBlock> {
         PathFinder.findPath(
             avoidSet,
             new Point(robot.point.x, robot.point.y),
-            new Point(x,y),
+            field,
             this.getLowCorner(),
             this.getHighCorner())
         .stream().map(p -> new RoboAction(p, RoboAction.Action.PATH))
@@ -282,7 +251,6 @@ public class RoboWorld extends World<RoboBlock> {
   }
   
   public void drop(int cardinality, Set<Item> blocks) {
-    System.out.println(blocks);
     if (cardinality == -1)
       cardinality = Integer.MAX_VALUE;
     boolean match = false;
@@ -292,12 +260,9 @@ public class RoboWorld extends World<RoboBlock> {
       if (!item.isCarried())
         continue;
       if (item.isIn(blocks)) {
-//      if (blocks.contains(item)) {
         match = true;
-//        item.point = robot.point;
         assert(robot.point != null);
         item.setCarried(false);
-//        items.add(item);
         pathActions.add(
             new RoboAction(robot.point, RoboAction.Action.DROPITEM, item.color, true));
         iter.remove();

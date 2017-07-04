@@ -1,17 +1,11 @@
 (include dal.grammar)
 
-# Robot action functions
+# Robot action functions (macors merely for formatting)
 (def @visit visit)
 (def @pick pick)
 (def @drop drop)
 
-# Color logic functions
-(def @dNot descriptionNot)
-(def @dOr descriptionOr)
-(def @dAnd descriptionAnd)
-
-
-# Action Rules
+### Action Rules ###
 
 (rule $Action (visit $Field) (lambda x (: @visit (var x))) (anchored 1))
 (rule $Action (visit $Area) (lambda a (: @visit (call anyPoint (var a)))) (anchored 1))
@@ -22,26 +16,46 @@
 (rule $Action (visit) (ConstantFn (: @visit)) (anchored 1))
 
 #(rule $Action (pick $Item) (lambda c (: @pick (number 1) (var c))) (anchored 1))
-(rule $Action (pick $LambdaItem) (lambda c (: @pick (number 1) (apply (var c) (call getRobotLocation)))) (anchored 1))
+(rule $Action (pick $LambdaItem) (lambda c
+    (: @pick (number 1) (apply (var c) (call getRobotLocation)))) (anchored 1))
 (rule $Action (pick every $LambdaItem) (lambda c (: @pick (number -1) (apply (var c) (call getRobotLocation)))) (anchored 1))
-(rule $Action (drop $Item) (lambda c (: @drop (number 1) (var c))) (anchored 1))
-(rule $Action (drop every $Item) (lambda c (: @drop (number -1) (var c))) (anchored 1))
+(rule $Action (drop $LambdaItem) (lambda c
+    (: @drop (number 1) (apply (var c) world))) (anchored 1))
+#(rule $Action (drop $LimitedItem) (lambda c
+    #(: @drop (number -1) (var c))) (anchored 1))
+(rule $Action (drop every $LambdaItem) (lambda c
+    (: @drop (number -1) (apply (var c) world))) (anchored 1))
 
-#(rule $Action (foreach $Set $Action ) (lambda s (lambda a (:foreach (var s) (var a)))) (anchored 1))
-(rule $Action (foreach $Variable in $Set $Action )
-    (lambda v (lambda s (lambda a (:foreach (var v) (var s) (var a))))) (anchored 1))
+#(rule $LimitedItem ($LambdaItem) (lambda i (limit (number 2) (apply (var i) world))) (anchored 1))
+#(rule $LimitedItem ($Item) (lambda i (limit (number 2) (var i))) (anchored 1))
+#(rule $LimitedItem ($Item) (IdentityFn) (anchored 1))
 
-# Variable Rules
+#(rule $Action (foreach $Variable in $Set $Action )
+    #(lambda v (lambda s (lambda a (:foreach (var v) (var s) (var a))))) (anchored 1))
+(rule $Action (foreach field in $Area $Action )
+    (lambda s (lambda a (:foreachField (var s) (var a)))) (anchored 1))
+(rule $Action (foreach area in $AreaCollection $Action )
+    (lambda s (lambda a (:foreachArea (var s) (var a)))) (anchored 1))
 
-(rule $Field ($FieldVariable) (IdentityFn) (anchored 1))
-(rule $Variable ($FieldVariable) (IdentityFn) (anchored 1))
+### Variable Rules ###
+
+(rule $Area (area) (ConstantFn (call getSelectedArea)) (anchored 1))
+(rule $Field (field) (ConstantFn (call getSelectedField)) (anchored 1))
+
+#(rule $Area ($AreaVariable) (IdentityFn) (anchored 1))
+#(rule $Variable ($AreaVariable) (IdentityFn) (anchored 1))
+#(rule $Field ($FieldVariable) (IdentityFn) (anchored 1))
+#(rule $Variable ($FieldVariable) (IdentityFn) (anchored 1))
 #(rule $Area ($Variable) (IdentityFn) (anchored 1))
 
-(for @var (field0 field1 field2)
-  (rule $FieldVariable (@var) (ConstantFn (call getVariable (string @var))) (anchored 1))
-)
+#(for @var (area0 area1 area2)
+  #(rule $AreaVariable (@var) (ConstantFn (call getVariable (string @var))) (anchored 1))
+#)
+#(for @var (field0 field1 field2)
+  #(rule $FieldVariable (@var) (ConstantFn (call getVariable (string @var))) (anchored 1))
+#)
 
-# Situation Rules
+### Situation Rules ###
 
 # These will be used only if the final language spec requires it
 #(rule $Situation ( { $Situations } ) (IdentityFn) (anchored 1))
@@ -50,18 +64,21 @@
 #(rule $Situations ($Situations and $Situation) (lambda s1 (lambda s2 (call && (var s1) (var s2)))) (anchored 1))
 #(rule $Situation (not $Situations) (lambda s (call ! (var s) )) (anchored 1))
 
-(rule $Situation ($Item at $Field) (lambda i (lambda f (and (var i) (field (var f))))) (anchored 1))
-(rule $Situation ($Item at $Area) (lambda i (lambda a (and (var i) (field (var a))))) (anchored 1))
-(rule $Situation (robot has $Item) (lambda i (and (var i) (carried (boolean true)))) (anchored 1))
+# JoinFn's must be qualified with items?rel in order to specify that the join should be done
+# on items as opposed to walls or open spaces.
+(rule $Situation ($Item at $Field) (lambda i (lambda f (and (var i) (items?field (var f))))) (anchored 1))
+(rule $Situation ($Item at $Area) (lambda i (lambda a (and (var i) (items?field (var a))))) (anchored 1))
+(rule $Situation (robot has $Item) (lambda i (and (var i) (items?carried (boolean true)))) (anchored 1))
 (rule $Situation (robot at $Field) (lambda f (and (var f) (call getRobotLocation))) (anchored 1))
 (rule $Situation (robot at $Area) (lambda a (and (var a) (call getRobotLocation))) (anchored 1))
 
-# Location Rules
+### Location Rules ###
 
 (rule $Set ($Area) (IdentityFn) (anchored 1))
+(rule $Set ($AreaCollection) (IdentityFn) (anchored 1))
 
 
-(rule $Collection ([ $AreaList ]) (IdentityFn) (anchored 1))
+(rule $AreaCollection ([ $AreaList ]) (IdentityFn) (anchored 1))
 
 (rule $Area (world) world (anchored 1))
 (rule $Area ([ $FieldList ]) (IdentityFn) (anchored 1))
@@ -71,7 +88,7 @@
 (rule $Areas ( $Areas * $Area ) (lambda a1 (lambda a2 (and (var a1) (var a2)))) (anchored 1))
 (rule $Areas ( $Areas - $Area ) (lambda a1 (lambda a2 (and (var a1) (not (var a2))))) (anchored 1))
 (rule $AreaList ( $Area ) (IdentityFn) (anchored 1))
-(rule $AreaList ( $AreaList , $Area ) (lambda x ( lambda y (or (var x) (var y)))) (anchored 1))
+(rule $AreaList ( $AreaList , $Area ) (lambda x ( lambda y (call combineCollections (var x) (var y)))) (anchored 1))
 
 (rule $Field (any $Area) (lambda x (call anyPoint (var x))) (anchored 1))
 (rule $Field ([ $Number , $Number ]) (lambda x (lambda y (call makePoint (var x) (var y)))) (anchored 1))
@@ -79,16 +96,19 @@
 (rule $FieldList ( $Field ) (IdentityFn) (anchored 1))
 (rule $FieldList ( $FieldList , $Field ) (lambda x ( lambda y (or (var x) (var y)))) (anchored 1))
 
-#(rule $Area ($Area containing $Item) (lambda a (lambda i (and (field (var a)) (var i)))) (anchored 1))
-(rule $Area ($Area containing $Item) (lambda a (lambda i (and (var a) ((reverse field) (var i))))) (anchored 1))
+# Read as: intersection between area (var a) and the fields of items which are carried and specified
+# by the item filter (var i)
+(rule $Area ($Area containing $Item) (lambda a (lambda i
+    (and (var a) ((reverse items?field) (and (items?carried (boolean false)) (var i)))))) (anchored 1))
 
-# Item Rules
+### Item Rules ###
 
 (rule $Item ($LambdaItem) (lambda i (apply (var i) world)) (anchored 1))
 
 # These rules return lambdas so that locational filters can be applied at a later time
-(rule $LambdaItem (item) (ConstantFn (lambda l (and (field (var l)) (call allItems)))) (anchored 1))
-(rule $LambdaItem (item $ColorSets) (lambda c (lambda l (and (field (var l)) (var c)))) (anchored 1))
+# TODO Will LambdaItems interfere with learning?
+(rule $LambdaItem (item) (ConstantFn (lambda l (items?field (var l)))) (anchored 1))
+(rule $LambdaItem (item $ColorSets) (lambda c (lambda l (and (items?field (var l)) (var c)))) (anchored 1))
 
 (rule $ColorSet (has $Rel $Color) (lambda r (lambda c ((var r) (var c)))) (anchored 1))
 (rule $ColorSets ($ColorSet) (IdentityFn) (anchored 1))
@@ -101,11 +121,11 @@
 (rule $ColorSets ($ColorSets || $ColorSet) (lambda s1 (lambda s2
 					(or (var s1) (var s2)))) (anchored 1))
 
-(rule $Rel (color) color (anchored 1))
+(rule $Rel (color) items?color (anchored 1))
 
 
 
-# Data type definitions
+### Data type definitions ###
 
 # TODO Find a better way to define these
 (for C (red orange yellow blue green purple brown pink)

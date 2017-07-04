@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -139,27 +140,27 @@ public class DALExecutor extends Executor {
         cond = toSet(processSetFormula(f.args.get(0), world)).iterator().hasNext();
       }
     } else if (f.mode == ActionFormula.Mode.forset) {
-      // mostly deprecated
-      //Set<Point> selected = toSet(processSetFormula(f.args.get(0), world));
-      //Set<Item> prevSelected = world.selected;
-
-      //world.selected = toItemSet(selected);
       performActions((ActionFormula) f.args.get(1), world);
-
-      //world.selected = prevSelected;
-      //world.merge();
-    } else if (f.mode == ActionFormula.Mode.foreach) {
-      //Set<Block<?>> selected = toItemSet(toSet(processSetFormula(f.args.get(0), world)));
-      List<Point> selected = toFieldList(toSet(processSetFormula(f.args.get(1), world)));
-      //Set<Item> prevSelected = world.selected;
-      // CopyOnWriteArraySet<Object> fixedset =
-      // Sets.newCopyOnWriteArraySet(selected);
+    } else if (f.mode == ActionFormula.Mode.foreachField) {
+      List<Point> selected = toFieldList(toSet(processSetFormula(f.args.get(0), world)));
       int[] order = PathFinder.getFieldOrder(selected);
-      VariablePoint vp = (VariablePoint) processSetFormula(f.args.get(0), world);
+//      VariablePoint vp = (VariablePoint) processSetFormula(f.args.get(0), world);
       for (int i = 0; i < order.length; ++i) {
-        world.variables.put(vp.name, selected.get(order[i]));
-        performActions((ActionFormula) f.args.get(2), world);
+        world.selectedField = Optional.of(selected.get(order[i]));
+        performActions((ActionFormula) f.args.get(1), world);
       }
+      world.selectedField = Optional.empty();
+    } else if (f.mode == ActionFormula.Mode.foreachArea) {
+      List<Set<Point>> selected = toAreaList(toSet(processSetFormula(f.args.get(0), world)));
+      int[] order = PathFinder.getFieldOrder(selected.stream()
+          .filter(a -> !a.isEmpty())
+          .map(a -> a.iterator().next()).collect(Collectors.toList()));
+//      VariablePoint vp = (VariablePoint) processSetFormula(f.args.get(0), world);
+      for (int i = 0; i < order.length; ++i) {
+        world.selectedArea = Optional.of(selected.get(order[i]));
+        performActions((ActionFormula) f.args.get(1), world);
+      }
+      world.selectedArea = Optional.empty();
     } 
   }
 
@@ -201,6 +202,16 @@ public class DALExecutor extends Executor {
     return fieldSet;
   }
 
+
+  private List<Set<Point>> toAreaList(Set<Object> maybeAreas) {
+    if (maybeAreas.isEmpty())
+      return new ArrayList<>();
+    List<Set<Point>> areaSet;
+//    if (maybeAreas.iterator().next() instanceof Set)
+    areaSet = maybeAreas.stream().map(i -> ((Set<Point>) i)).collect(Collectors.toList());
+    return areaSet;
+  }
+
   private List<Point> toFieldList(Set<Object> maybeFields) {
     if (maybeFields.isEmpty())
       return new ArrayList<>();
@@ -212,16 +223,18 @@ public class DALExecutor extends Executor {
     return fieldSet;
   }
 
+
   static class SpecialSets {
     static String World = "world";
-    static String AllItems = "allItems";
+    static String AllItems = "allItems"; // Currently unused
+    static String Current = "current"; // Also unused
   };
 
   // a subset of lambda dcs. no types, and no marks
   // if this gets any more complicated, you should consider the
   // LambdaDCSExecutor
   @SuppressWarnings("unchecked")
-  private Object processSetFormula(Formula formula, final World world) {
+  private Object processSetFormula(Formula formula, final World<?> world) {
     if (formula instanceof ValueFormula<?>) {
       Value v = ((ValueFormula<?>) formula).value;
       // special unary
@@ -323,6 +336,24 @@ public class DALExecutor extends Executor {
         return processSetFormula(applied, world);
       } else
         throw new RuntimeException("First argument of ApplyFormula must be a LambdaFormula");
+    }
+    
+    if (formula instanceof LimitFormula) {
+      LimitFormula limitFormula = (LimitFormula) formula;
+      Set<Object> arg = toSet(processSetFormula(limitFormula.number, world));
+      if (arg.size() > 1)
+        throw new RuntimeException("limit must take a single number");
+      int limit;
+      if (!opts.convertNumberValues)
+        limit = (int) ((NumberValue) arg.iterator().next()).value;
+      else
+        limit = (int) arg.iterator().next();
+//      if (limitFormula.number instanceof ValueFormula) {
+      Set<Object> fullSet = toSet(processSetFormula(limitFormula.set, world));
+      fullSet.removeIf(x -> fullSet.size() > limit);
+      return fullSet;
+//      } else
+//        throw new RuntimeException("First argument of ApplyFormula must be a LambdaFormula");
     }
     
     if (formula instanceof SuperlativeFormula) {
