@@ -114,7 +114,7 @@ public class PathFinder {
     return Math.sqrt(Math.pow((p1.x - p2.x), 2) + Math.pow((p1.y - p2.y), 2));
   }
 
-  public static int[] getFieldOrder(List<Point> points) {
+  public static int[] getPointOrder(List<Point> points) {
     if (points.size() == 1) {
       return new int[] {0};
     } else if (points.size() == 0) {

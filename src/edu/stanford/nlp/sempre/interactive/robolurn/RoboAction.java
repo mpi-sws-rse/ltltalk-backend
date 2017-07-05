@@ -38,9 +38,9 @@ public class RoboAction extends PathAction<RoboAction.Action> {
     }
   }
   
-  public Color.BasicColor spec;
+  public String spec;
 
-  public RoboAction(Point point, Action action, Color.BasicColor spec, boolean possible) {
+  public RoboAction(Point point, Action action, String spec, boolean possible) {
     this(point, action);
     this.spec = spec;
     this.possible = possible;
@@ -85,7 +85,8 @@ public class RoboAction extends PathAction<RoboAction.Action> {
     if (props.get(3) == null)
       act.spec = null;
     else
-      act.spec = Color.BasicColor.fromString((String) props.get(3));
+//      act.spec = Color.BasicColor.fromString((String) props.get(3));
+      act.spec = props.get(3).toString();
     return act;
   }
 

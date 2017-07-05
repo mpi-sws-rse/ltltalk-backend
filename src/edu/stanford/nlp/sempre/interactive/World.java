@@ -22,7 +22,7 @@ public abstract class World<B extends Block> {
 //  public Map<String, Point> variables;
   
   public Optional<Set<Point>> selectedArea;
-  public Optional<Point> selectedField;
+  public Optional<Point> selectedPoint;
 
   public static World<?> fromContext(String worldname, ContextValue context) {
     if (worldname.equals("RoboWorld"))
@@ -40,21 +40,21 @@ public abstract class World<B extends Block> {
   
   // Lazy eval for now. If the walls (they don't now) change, this will need to be updated.
   @SuppressWarnings("unchecked")
-  public Set<Point> getOpenFields() {
+  public Set<Point> getOpenPoints() {
     if (this.open != null)
       return (Set<Point>) this.open;
     Point lc = this.getLowCorner();
     Point hc = this.getHighCorner();
-    boolean[][] fields = new boolean[hc.y - lc.y + 1][hc.x - lc.x + 1];
+    boolean[][] points = new boolean[hc.y - lc.y + 1][hc.x - lc.x + 1];
     Point p; 
     for (Iterator<? extends B> iter = walls.iterator(); iter.hasNext(); ) {
       p = iter.next().point;
-      fields[p.y - lc.y][p.x - lc.x] = true;
+      points[p.y - lc.y][p.x - lc.x] = true;
     }
     Set<Point> open = new HashSet<>();
     for (int i = lc.x; i < hc.x; ++i) {
       for (int j = lc.y; j < hc.y; ++j) {
-        if (!fields[j - lc.y][i - lc.x]) {
+        if (!points[j - lc.y][i - lc.x]) {
           open.add(new Point(i, j));
         }
       }
@@ -70,16 +70,20 @@ public abstract class World<B extends Block> {
   //public abstract void update(String rel, Object value, Set<WorldBlock> selected);
   public abstract Set<? extends Object> universalSet(Object o);
   
+  public Set<? extends B> allItems() {
+    return items;
+  }
+    
   public Set<Point> getSelectedArea() {
     if (!selectedArea.isPresent())
       throw new RuntimeException("Selected area has not been set.");
     return selectedArea.get();
   }
   
-  public Point getSelectedField() {
-    if (!selectedField.isPresent())
-      throw new RuntimeException("Selected field has not been set.");
-    return selectedField.get();
+  public Point getSelectedPoint() {
+    if (!selectedPoint.isPresent())
+      throw new RuntimeException("Selected point has not been set.");
+    return selectedPoint.get();
   }
   
   public Point makePoint(int x, int y) {

@@ -9,19 +9,21 @@ import org.testng.collections.Lists;
 
 public class Item extends RoboBlock {
 
-  public final Color.BasicColor color;
+//  public final Color.BasicColor color;
+  public final String color;
   private boolean carried;
   
   public static Item fromJSONObject(List<Object> props) {
     Item i = new Item(
         new Point((Integer) props.get(0), (Integer) props.get(1)),
-        Color.BasicColor.fromString(props.get(3).toString()),
+//        Color.BasicColor.fromString(props.get(3).toString()),
+        props.get(3).toString(),
         false
     );
     return i;
   }
   
-  public Item(Point point, Color.BasicColor color, boolean carried) {
+  public Item(Point point, String color, boolean carried) {
     if (point == null)
       this.point = new Point(0, 0);
     else
@@ -37,7 +39,7 @@ public class Item extends RoboBlock {
       propval = this.color.toString();
     else if (property.equals("carried"))
       propval = this.carried;
-    else if (property.equals("field"))
+    else if (property.equals("point"))
       propval = this.point;
     else
       throw new RuntimeException("getting property " + property + " is not supported.");

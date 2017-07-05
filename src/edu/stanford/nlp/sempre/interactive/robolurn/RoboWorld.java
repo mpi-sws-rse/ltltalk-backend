@@ -57,7 +57,7 @@ public class RoboWorld extends World<RoboBlock> {
     this.pathActions = new ArrayList<RoboAction>();
     this.findCorners();
     this.selectedArea = Optional.empty();
-    this.selectedField = Optional.empty();
+    this.selectedPoint = Optional.empty();
   }
 
   private void findCorners() {
@@ -113,7 +113,7 @@ public class RoboWorld extends World<RoboBlock> {
     
     Point robotPoint = new Point((int) rawRobot.get(0), (int) rawRobot.get(1));
     Set<Item> robotItems = ((Collection<String>) rawRobot.get(2)).stream()
-        .map(c -> new Item(null, Color.BasicColor.fromString(c), true))
+        .map(c -> new Item(null, c, true))
         .collect(Collectors.toSet());
     
 //    Robot robot = new Robot(robotPoint, robotItems);
@@ -142,10 +142,11 @@ public class RoboWorld extends World<RoboBlock> {
       if ("color".equals(qualifiedRel[1])
           || "type".equals(qualifiedRel[1])
           || "carried".equals(qualifiedRel[1])
-          || "field".equals(qualifiedRel[1])) {
-        return items.stream()
+          || "point".equals(qualifiedRel[1])) {
+        Set<Item> set = items.stream()
             .filter(i -> values.contains(i.get(qualifiedRel[1])))
             .collect(Collectors.toSet());
+        return new ItemSet(set);
       }
     }
     throw new RuntimeException("getting property " + rel + " is not supported.");
@@ -158,28 +159,70 @@ public class RoboWorld extends World<RoboBlock> {
       throw new RuntimeException("'Rel' must be qualified with items?rel or walls?rel");
     return subset.stream().map(i -> i.get(qualifiedRel[1])).collect(Collectors.toSet());
   }
-  
-  public Set<Item> allItems() {
-    return this.items;
-  }
 
-  @SuppressWarnings("unchecked")
-  public Set<Color.BasicColor> allColors() {
-    return (Set<Color.BasicColor>) universalSet(Color.BasicColor.class);
+  public ItemSet allItems() {
+    return new ItemSet(items);
   }
   
-  @Override
+ @Override
   public Set<? extends Object> universalSet(Object o) {
     if (o instanceof Item) {
       return this.items;
     } else if (o instanceof Wall) {
       return this.walls;
     }  else if (o instanceof Point) {
-      return this.getOpenFields();
+      return this.getOpenPoints();
     }
     return new HashSet<>();
   }
 
+  public ItemSet setLocationFilter(Point p, Set<Item> s) {
+    ItemSet is;
+    if (s instanceof ItemSet)
+      is = (ItemSet) s;
+    else
+      is = new ItemSet(s);
+    return setLocationFilter(new HashSet<>(Arrays.asList(p)), is);
+  }
+  
+  public ItemSet setLocationFilter(Set<Point> filter, Set<Item> s) {
+    ItemSet is;
+    if (s instanceof ItemSet)
+      is = (ItemSet) s;
+    else
+      is = new ItemSet(s);
+    is.locFilter = Optional.of(filter);
+    return is;
+  }
+  
+  public ItemSet setLimit(int limit, Set<Item> s) {
+    ItemSet is;
+    if (s instanceof ItemSet)
+      is = (ItemSet) s;
+    else
+      is = new ItemSet(s);
+
+    if (limit < 0)
+      is.limit = Optional.empty();
+    else
+      is.limit = Optional.of(limit);
+    return is;
+  }
+
+  
+  public void setIsCarried(int isCarried, ItemSet is) {
+    if (isCarried < 0)
+      is.isCarried = Optional.empty();
+    else if (isCarried == 0)
+      is.isCarried = Optional.of(false);
+    else
+      is.isCarried = Optional.of(true);
+  }
+
+  public void setIsCarried(boolean isCarried, ItemSet is) {
+    setIsCarried(isCarried ? 1 : 0, is);
+  }
+  
   public Point getRobotLocation() {
     return new Point(robot.point.x, robot.point.y);
   }
@@ -190,21 +233,24 @@ public class RoboWorld extends World<RoboBlock> {
   public void visit(Point p, Set<Point> avoidSet) {
 //    if (p instanceof VariablePoint)
 //      p = variables.get(((VariablePoint) p).name);
-    gotoField(p, avoidSet);
+    gotoPoint(p, avoidSet);
   }
+  
   
   public void visit(Point p) {
-    gotoField(p, new HashSet<>());
+    gotoPoint(p, new HashSet<>());
   }
+
   
   public void visit() {
-    if (selectedField.isPresent())
-      gotoField(selectedField.get(), new HashSet<>());
+    if (selectedPoint.isPresent())
+      gotoPoint(selectedPoint.get(), new HashSet<>());
     else
-      throw new RuntimeException("No field has been selected to visit.");
+      throw new RuntimeException("No point has been selected to visit.");
   }
   
-  private void gotoField(Point field, Set<Point> avoidSet) {
+  
+  private void gotoPoint(Point point, Set<Point> avoidSet) {
 //    if (selectedFields.isEmpty())
 //      throw new RuntimeException("No field has been selected to visit.");
     
@@ -214,7 +260,7 @@ public class RoboWorld extends World<RoboBlock> {
         PathFinder.findPath(
             avoidSet,
             new Point(robot.point.x, robot.point.y),
-            field,
+            point,
             this.getLowCorner(),
             this.getHighCorner())
         .stream().map(p -> new RoboAction(p, RoboAction.Action.PATH))
@@ -226,51 +272,39 @@ public class RoboWorld extends World<RoboBlock> {
       robot.point = last.point;
     }
   }
+
   
-  public void pick(int cardinality, Set<Item> blocks) {
-    if (cardinality == -1)
-      cardinality = Integer.MAX_VALUE;
-    boolean match = false;
+  public void pick(ItemSet is) {
+    is.isCarried = Optional.of(false);
+    is.locFilter = Optional.of(new HashSet<>(Arrays.asList(robot.point)));
+    Set<Item> restricted = is.eval();
     Item item;
-    for (Iterator<Item> iter = items.iterator(); iter.hasNext(); ) {
+    // Since items are passed by reference, the items in the restricted set reference the same
+    // items that are stored in the world.
+    for (Iterator<Item> iter = restricted.iterator(); iter.hasNext(); ) {
       item = iter.next();
-      if (item.isCarried())
-        continue;
-      if (item.isIn(blocks)) {
-        match = true;
-        item.setCarried(true);
-        pathActions.add(new RoboAction(robot.point, RoboAction.Action.PICKITEM, item.color, true));
-        if (--cardinality == 0)
-          break;
-      }
+      item.setCarried(true);
+      pathActions.add(new RoboAction(robot.point, RoboAction.Action.PICKITEM, item.color, true));
     }
-    if (!match) {
+    if (restricted.isEmpty()) {
       pathActions.add(new RoboAction(robot.point, RoboAction.Action.PICKITEM, null, false));
     }
     keyConsistency();
   }
   
-  public void drop(int cardinality, Set<Item> blocks) {
-    if (cardinality == -1)
-      cardinality = Integer.MAX_VALUE;
-    boolean match = false;
+  public void drop(ItemSet is) {
+    System.out.println(is);
+    is.isCarried = Optional.of(true);
+    is.locFilter = Optional.empty();
+    Set<Item> restricted = is.eval();
+    System.out.println(restricted);
     Item item;
-    for (Iterator<Item> iter =  blocks.iterator(); iter.hasNext(); ) {
+    for (Iterator<Item> iter = restricted.iterator(); iter.hasNext(); ) {
       item = iter.next();
-      if (!item.isCarried())
-        continue;
-      if (item.isIn(blocks)) {
-        match = true;
-        assert(robot.point != null);
-        item.setCarried(false);
-        pathActions.add(
-            new RoboAction(robot.point, RoboAction.Action.DROPITEM, item.color, true));
-        iter.remove();
-        if (--cardinality == 0)
-          break;
-      }
+      item.setCarried(false);
+      pathActions.add(new RoboAction(robot.point, RoboAction.Action.DROPITEM, item.color, true));
     }
-    if (!match) {
+    if (restricted.isEmpty()) {
       pathActions.add(new RoboAction(robot.point, RoboAction.Action.DROPITEM, null, false));
     }
     keyConsistency();
@@ -285,6 +319,7 @@ public class RoboWorld extends World<RoboBlock> {
     set.clear();
     set.addAll(s);
   }
+
 
   private void keyConsistency() {
     refreshSet(walls);

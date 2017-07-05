@@ -19,7 +19,7 @@ public class Wall extends RoboBlock {
   @Override
   public Object get(String property) {
     Object propval;
-    if (property.equals("field"))
+    if (property.equals("point"))
       propval = this.point;
     else
       throw new RuntimeException("getting property " + property + " is not supported.");

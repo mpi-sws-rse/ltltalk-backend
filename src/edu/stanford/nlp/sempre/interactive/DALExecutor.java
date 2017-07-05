@@ -141,27 +141,32 @@ public class DALExecutor extends Executor {
       }
     } else if (f.mode == ActionFormula.Mode.forset) {
       performActions((ActionFormula) f.args.get(1), world);
-    } else if (f.mode == ActionFormula.Mode.foreachField) {
-      List<Point> selected = toFieldList(toSet(processSetFormula(f.args.get(0), world)));
-      int[] order = PathFinder.getFieldOrder(selected);
-//      VariablePoint vp = (VariablePoint) processSetFormula(f.args.get(0), world);
-      for (int i = 0; i < order.length; ++i) {
-        world.selectedField = Optional.of(selected.get(order[i]));
-        performActions((ActionFormula) f.args.get(1), world);
+    } else if (f.mode == ActionFormula.Mode.foreach) {
+      if ("point".equals(f.args.get(0).toString())) {
+        List<Point> selected = toPointList(toSet(processSetFormula(f.args.get(1), world)));
+        int[] order = PathFinder.getPointOrder(selected);
+  //      VariablePoint vp = (VariablePoint) processSetFormula(f.args.get(0), world);
+        for (int i = 0; i < order.length; ++i) {
+          world.selectedPoint = Optional.of(selected.get(order[i]));
+          performActions((ActionFormula) f.args.get(2), world);
+        }
+        world.selectedPoint = Optional.empty();
+        
+      } else if ("area".equals(f.args.get(0).toString())) {
+        List<Set<Point>> selected = toAreaList(toSet(processSetFormula(f.args.get(1), world)));
+        int[] order = PathFinder.getPointOrder(selected.stream()
+            .filter(a -> !a.isEmpty())
+            .map(a -> a.iterator().next()).collect(Collectors.toList()));
+  //      VariablePoint vp = (VariablePoint) processSetFormula(f.args.get(0), world);
+        for (int i = 0; i < order.length; ++i) {
+          world.selectedArea = Optional.of(selected.get(order[i]));
+          performActions((ActionFormula) f.args.get(2), world);
+        }
+        world.selectedArea = Optional.empty();
+      } else {
+        throw new RuntimeException(":foreach cannot be used with \"" + f.args.get(0) + "\", only with \"point\" and \"area\".");
       }
-      world.selectedField = Optional.empty();
-    } else if (f.mode == ActionFormula.Mode.foreachArea) {
-      List<Set<Point>> selected = toAreaList(toSet(processSetFormula(f.args.get(0), world)));
-      int[] order = PathFinder.getFieldOrder(selected.stream()
-          .filter(a -> !a.isEmpty())
-          .map(a -> a.iterator().next()).collect(Collectors.toList()));
-//      VariablePoint vp = (VariablePoint) processSetFormula(f.args.get(0), world);
-      for (int i = 0; i < order.length; ++i) {
-        world.selectedArea = Optional.of(selected.get(order[i]));
-        performActions((ActionFormula) f.args.get(1), world);
-      }
-      world.selectedArea = Optional.empty();
-    } 
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -191,15 +196,15 @@ public class DALExecutor extends Executor {
     return itemset;
   }
 
-  private Set<Point> toFieldSet(Set<Object> maybeFields) {
-    if (maybeFields.isEmpty())
+  private Set<Point> toPointSet(Set<Object> maybePoints) {
+    if (maybePoints.isEmpty())
       return new HashSet<>();
-    Set<Point> fieldSet;
-    if (maybeFields.iterator().next() instanceof Block)
-      fieldSet = maybeFields.stream().map(i -> ((Block) i).point).collect(Collectors.toSet());
+    Set<Point> pointSet;
+    if (maybePoints.iterator().next() instanceof Block)
+      pointSet = maybePoints.stream().map(i -> ((Block) i).point).collect(Collectors.toSet());
     else
-      fieldSet = maybeFields.stream().map(i -> (Point) i).collect(Collectors.toSet());
-    return fieldSet;
+      pointSet = maybePoints.stream().map(i -> (Point) i).collect(Collectors.toSet());
+    return pointSet;
   }
 
 
@@ -212,15 +217,15 @@ public class DALExecutor extends Executor {
     return areaSet;
   }
 
-  private List<Point> toFieldList(Set<Object> maybeFields) {
-    if (maybeFields.isEmpty())
+  private List<Point> toPointList(Set<Object> maybePoints) {
+    if (maybePoints.isEmpty())
       return new ArrayList<>();
-    List<Point> fieldSet;
-    if (maybeFields.iterator().next() instanceof Block)
-      fieldSet = maybeFields.stream().map(i -> ((Block) i).point).collect(Collectors.toList());
+    List<Point> pointSet;
+    if (maybePoints.iterator().next() instanceof Block)
+      pointSet = maybePoints.stream().map(i -> ((Block) i).point).collect(Collectors.toList());
     else
-      fieldSet = maybeFields.stream().map(i -> (Point) i).collect(Collectors.toList());
-    return fieldSet;
+      pointSet = maybePoints.stream().map(i -> (Point) i).collect(Collectors.toList());
+    return pointSet;
   }
 
 
@@ -242,7 +247,7 @@ public class DALExecutor extends Executor {
         String id = ((NameValue) v).id;
         // Maybe add "items" and "walls" here?
         if (id.equals(SpecialSets.World))
-          return world.getOpenFields();
+          return world.getOpenPoints();
         // TODO Fix special set 
         if (id.equals(SpecialSets.AllItems))
           return world.items;

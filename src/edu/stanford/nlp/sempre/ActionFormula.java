@@ -25,8 +25,7 @@ public class ActionFormula extends Formula {
     whileloop(":while"), // (:while (count (has color green)) (: add red top))
     forset(":for"), // (:for (and this (color red)) (:s (: add red top) (: add
                     // yellow top) (: remove)))
-    foreachField(":foreachField"), // (:foreach * (add ((reverse color) this) top))
-    foreachArea(":foreachArea"), 
+    foreach(":foreach"), 
 
     // primitives for declaring variables
     // let(":let"), // (:let X *),
