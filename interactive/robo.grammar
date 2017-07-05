@@ -105,8 +105,6 @@
 
 ### Data type definitions ###
 
-# TODO Find a better way to define these
-(for C (red orange yellow blue green purple brown pink)
-  (rule $Color (C) (ConstantFn C) (anchored 1)))
+(rule $Color ($TOKEN) (SimpleLexiconFn (type color)) (anchored 1))
 
 (rule $Number ($TOKEN) (NumberFn) (anchored 1))
