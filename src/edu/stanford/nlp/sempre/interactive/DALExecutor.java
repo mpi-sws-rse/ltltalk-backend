@@ -278,9 +278,6 @@ public class DALExecutor extends Executor {
       Set<Object> set1 = toSet(processSetFormula(mergeFormula.child1, world));
       Set<Object> set2 = toSet(processSetFormula(mergeFormula.child2, world));
 
-//      System.out.println(set1.stream().reduce((a,b) -> a.toString() + ", " + b.toString()));
-//      System.out.println(set2.stream().reduce((a,b) -> a.toString() + ", " + b.toString()));
-
       if (mode == MergeFormula.Mode.or)
         return toMutable(Sets.union(set1, set2));
       if (mode == MergeFormula.Mode.and)

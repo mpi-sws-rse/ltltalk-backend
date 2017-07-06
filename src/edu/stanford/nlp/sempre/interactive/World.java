@@ -1,6 +1,7 @@
 package edu.stanford.nlp.sempre.interactive;
 
 import java.awt.Point;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -96,23 +97,33 @@ public abstract class World<B extends Block> {
   
   //public Set<Set<Point>> combineCollections(Set<Set<Point>> c1, Set<Set<Point>> c2) {
   public Set<? extends Object> combineCollections(Set<Object> c1, Set<Object> c2) {
+    Object c1Elem;
+    Object c2Elem;
     if (c1.isEmpty() && c2.isEmpty()) return new HashSet<>();
-    if (c1.isEmpty()) return c2;
-    if (c2.isEmpty()) return c1;
-    Class<?> c1Type = c1.iterator().next().getClass();
-    Class<?> c2Type = c1.iterator().next().getClass();
-    System.out.println(c1Type);
-    System.out.println(c2Type);
-    if (c1Type == Set.class && c2Type == Set.class) {
+    if (c1.isEmpty()) {
+      c2Elem = c2.iterator().next();
+      if (c2Elem instanceof Set) return c2;
+      else if (c2Elem instanceof Point) return new HashSet<>(Arrays.asList(c2));
+      else throw new RuntimeException("Collection 2 of unknown type");
+    }
+    if (c2.isEmpty()) {
+      c1Elem = c1.iterator().next();
+      if (c1Elem instanceof Set) return c1;
+      else if (c1Elem instanceof Point) return new HashSet<>(Arrays.asList(c1));
+      else throw new RuntimeException("Collection 1 of unknown type");
+    }
+    c1Elem = c1.iterator().next();
+    c2Elem = c2.iterator().next();
+    if (c1Elem instanceof Set && c2Elem instanceof Set) {
       c1.addAll(c2);
       return c1;
-    } else if (c1Type == Set.class) {
+    } else if (c1Elem instanceof Set) {
       c1.add(c2);
       return c1;
-    } else if (c2Type == Set.class) {
+    } else if (c2Elem instanceof Set) {
       c2.add(c1);
       return c2;
-    } else {
+    } else { // If c1 and c2 are both sets of points
       Set<Set<Object>> set = new HashSet<>();
       set.add(c1);
       set.add(c2);

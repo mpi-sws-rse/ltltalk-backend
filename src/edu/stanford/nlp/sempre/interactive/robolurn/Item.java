@@ -9,14 +9,12 @@ import org.testng.collections.Lists;
 
 public class Item extends RoboBlock {
 
-//  public final Color.BasicColor color;
   public final String color;
   private boolean carried;
   
   public static Item fromJSONObject(List<Object> props) {
     Item i = new Item(
         new Point((Integer) props.get(0), (Integer) props.get(1)),
-//        Color.BasicColor.fromString(props.get(3).toString()),
         props.get(3).toString(),
         false
     );

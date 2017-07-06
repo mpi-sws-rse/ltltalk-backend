@@ -12,6 +12,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Sets;
+
 import edu.stanford.nlp.sempre.ContextValue;
 import edu.stanford.nlp.sempre.Json;
 import edu.stanford.nlp.sempre.NaiveKnowledgeGraph;
@@ -209,6 +211,21 @@ public class RoboWorld extends World<RoboBlock> {
     return is;
   }
 
+  public Set<Point> filterArea(Set<Point> area, Set<Item> itemSet) {
+    Set<Point> itemArea = itemSet.stream()
+        .filter(i -> ! i.isCarried())
+        .map(i -> i.point).collect(Collectors.toSet());
+    return Sets.intersection(area, itemArea);
+  }
+  
+  public Set<Set<Point>> filterCollection(Set<Set<Point>> collection, Set<Item> itemSet) {
+    Set<Point> itemArea = itemSet.stream()
+        .filter(i -> ! i.isCarried())
+        .map(i -> i.point).collect(Collectors.toSet());
+    return collection.stream()
+        .filter(a -> ! Sets.intersection(a, itemArea).isEmpty()).collect(Collectors.toSet());
+  }
+  
   
   public void setIsCarried(int isCarried, ItemSet is) {
     if (isCarried < 0)
@@ -293,11 +310,9 @@ public class RoboWorld extends World<RoboBlock> {
   }
   
   public void drop(ItemSet is) {
-    System.out.println(is);
     is.isCarried = Optional.of(true);
     is.locFilter = Optional.empty();
     Set<Item> restricted = is.eval();
-    System.out.println(restricted);
     Item item;
     for (Iterator<Item> iter = restricted.iterator(); iter.hasNext(); ) {
       item = iter.next();

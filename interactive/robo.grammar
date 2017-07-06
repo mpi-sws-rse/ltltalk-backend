@@ -1,6 +1,4 @@
-(include dal.grammar)
-
-# Robot action functions (macors merely for formatting)
+# Robot action functions (macros merely for formatting)
 (def @visit visit)
 (def @pick pick)
 (def @drop drop)
@@ -12,21 +10,10 @@
 (rule $Action (visit $Point while avoiding $Area) (lambda f  (lambda a (: @visit (var f) (var a)))) (anchored 1))
 (rule $Action (visit $Area while avoiding $Area)
     (lambda a1 (lambda a2 (: @visit (call anyPoint (var a1)) (var a2)))) (anchored 1))
-# Visit selected field (usually set by foreach); to be changed
-(rule $Action (visit) (ConstantFn (: @visit)) (anchored 1))
 
-#(rule $Action (pick $Item) (lambda c (: @pick (number 1) (var c))) (anchored 1))
-(rule $Action (pick $ActionItem) (lambda c
-    (: @pick (var c))) (anchored 1))
-(rule $Action (drop $ActionItem) (lambda c
-    (: @drop (var c))) (anchored 1))
+(rule $Action (pick $ActionItem) (lambda c (: @pick (var c))) (anchored 1))
+(rule $Action (drop $ActionItem) (lambda c (: @drop (var c))) (anchored 1))
 
-#(rule $LimitedItem ($LambdaItem) (lambda i (limit (number 2) (apply (var i) world))) (anchored 1))
-#(rule $LimitedItem ($Item) (lambda i (limit (number 2) (var i))) (anchored 1))
-#(rule $LimitedItem ($Item) (IdentityFn) (anchored 1))
-
-#(rule $Action (foreach $Variable in $Set $Action )
-    #(lambda v (lambda s (lambda a (:foreach (var v) (var s) (var a))))) (anchored 1))
 (rule $Action (foreach point in $Area $Action )
     (lambda s (lambda a (:foreach point (var s) (var a)))) (anchored 1))
 (rule $Action (foreach area in $AreaCollection $Action )
@@ -71,16 +58,16 @@
 (rule $AreaList ( $Area ) (IdentityFn) (anchored 1))
 (rule $AreaList ( $AreaList , $Area ) (lambda x ( lambda y (call combineCollections (var x) (var y)))) (anchored 1))
 
-(rule $Point (any $Area) (lambda x (call anyPoint (var x))) (anchored 1))
-(rule $Point ([ $Number , $Number ]) (lambda x (lambda y (call makePoint (var x) (var y)))) (anchored 1))
+(rule $Point (any point in $Area) (lambda x (call anyPoint (var x))) (anchored 1))
+(rule $Point ([ $Numbers , $Numbers ]) (lambda x (lambda y (call makePoint (var x) (var y)))) (anchored 1))
 (rule $Point (current) (ConstantFn (call getRobotLocation)) (anchored 1))
 (rule $PointList ( $Point ) (IdentityFn) (anchored 1))
 (rule $PointList ( $PointList , $Point ) (lambda x ( lambda y (or (var x) (var y)))) (anchored 1))
 
-# Read as: intersection between area (var a) and the fields of items which are carried and specified
-# by the item filter (var i)
 (rule $Area ($Area containing $Item) (lambda a (lambda i
-    (and (var a) ((reverse items?point) (and (items?carried (boolean false)) (var i)))))) (anchored 1))
+    (call filterArea (var a) (var i)))) (anchored 1))
+(rule $AreaCollection ($AreaCollection containing $Item) (lambda c (lambda i
+    (call filterCollection (var c) (var i)))) (anchored 1))
 
 ### Item Rules ###
 
@@ -107,4 +94,26 @@
 
 (rule $Color ($TOKEN) (SimpleLexiconFn (type color)) (anchored 1))
 
+### Remnants of DAL grammar ###
+
+(rule $ROOT ($Actions) (IdentityFn) (anchored 1))
+
+(rule $Actions ($Actions ; $Action) (lambda a1 (lambda a2 (:s (var a1) (var a2)))) (anchored 1))
+(rule $Actions ($Action) (IdentityFn) (anchored 1))
+(rule $Action ({ $Actions }) (IdentityFn) (anchored 1))
+(rule $Action ($Action ;) (IdentityFn) (anchored 1))
+
+(rule $Action (repeat $Numbers times $Action) (lambda n (lambda a (:loop (var n) (var a)))) (anchored 1))
+#(rule $Action (if $ValueSets $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored 1))
+#(rule $Action (if $Sets $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored 1))
+(rule $Action (if $Situations then $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored 1))
+
+############### Arithmetic
+(for @op (+ -)
+(rule $Numbers ($Numbers @op $Number) (lambda n1  (lambda n2
+(@op (var n1) (var n2)))) (anchored 1))
+)
+
 (rule $Number ($TOKEN) (NumberFn) (anchored 1))
+(rule $Number ({ $Numbers }) (IdentityFn) (anchored 1))
+(rule $Numbers ( $Number ) (IdentityFn) (anchored 1))
