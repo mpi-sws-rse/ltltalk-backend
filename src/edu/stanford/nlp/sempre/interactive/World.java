@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import edu.stanford.nlp.sempre.ContextValue;
 import edu.stanford.nlp.sempre.interactive.robolurn.RoboWorld;
@@ -93,6 +94,16 @@ public abstract class World<B extends Block> {
   
   public Set<Point> makeArea() {
     return new HashSet<>();
+  }
+  
+  public Set<Point> getAreaWithCorners(Point p1, Point p2) {
+    int xHigh = Math.max(p1.x, p2.x);
+    int xLow = Math.min(p1.x, p2.x);
+    int yHigh = Math.max(p1.y, p2.y);
+    int yLow = Math.min(p1.y, p2.y);
+    return getOpenPoints().stream()
+        .filter(p -> p.x >= xLow && p.x <= xHigh && p.y >= yLow && p.y <= yHigh)
+        .collect(Collectors.toSet());
   }
   
   //public Set<Set<Point>> combineCollections(Set<Set<Point>> c1, Set<Set<Point>> c2) {
