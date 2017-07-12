@@ -28,7 +28,6 @@ import edu.stanford.nlp.sempre.ParserState;
 import edu.stanford.nlp.sempre.Rule;
 import edu.stanford.nlp.sempre.SemanticFn;
 import edu.stanford.nlp.sempre.Trie;
-import fig.basic.Evaluation;
 import fig.basic.IOUtils;
 import fig.basic.IntRef;
 import fig.basic.LogInfo;

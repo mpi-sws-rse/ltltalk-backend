@@ -173,6 +173,7 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('Params.initWeightsRandomly', false),
   o('Grammar.binarizeRules', false),
   o('Grammar.useApplyFn', 'interactive.ApplyFn'),
+  o('Grammar.ruleRecoveryPaths', './int-output/grammar.log.json'),
 
   o('LanguageAnalyzer.lowerCaseTokens', true),
 
@@ -186,7 +187,15 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('ParserState.customExpectedCounts', 'None'),
 
   selo(0, 'InteractiveBeamParser.floatStrategy', 'Never', 'NoParse', 'Always'),
-  o('InteractiveBeamParser.trackedCats', 'Number', 'Numbers', 'Color',  'Direction', 'Set', 'Sets', 'Action', 'Actions'),
+  #o('InteractiveBeamParser.trackedCats', 'Number', 'Numbers', 'Color',  'Direction', 'Set', 'Sets', 'Action', 'Actions'),
+  # Appears unused in Java
+  o('InteractiveBeamParser.trackedCats',
+    'Number', 'Numbers',
+    'Color',
+    'Item',
+    'Action', 'Actions',
+    'Situation', 'Situations'
+   ),
 
   o('Derivation.derivComparator', 'AnchorPriorityScoreComparator'),
   o('Params.l1Reg', 'nonlazy'),
@@ -204,11 +213,17 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('InteractiveMaster.onlyInteractive', true),
   o('InteractiveUtils.citationPath', './int-output/citation/'),
 
-  o('InteractiveMaster.useAligner', false),
   o('InteractiveMaster.maxSequence', 20),
   o('InteractiveMaster.maxChars', 200),
 
+  #o('InteractiveMaster.useAligner', false),
+  o('InteractiveMaster.useAligner', true),
   o('DefinitionAligner.strategies', 'ExactExclusion'),
+  o('DefinitionAligner.verbose', 2),
+  # It does not appear that this used in the Java code
+  o('DefinitionAligner.alignedCats',
+    '$Item', '$ColorSet'
+   ),
 
   o('InteractiveServer.numThreads', 16),
   o('InteractiveServer.maxCandidates', 50),
@@ -217,8 +232,10 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('InteractiveServer.port', 8410),
 
   o('GrammarInducer.useBestPacking', true),
-  o('GrammarInducer.useSimplePacking', true),
+  #o('GrammarInducer.useSimplePacking', true),
+  o('GrammarInducer.useSimplePacking', false),
   o('GrammarInducer.maxNonterminals', 3),
+  o('GrammarInducer.simpleCats', 'Item'),
 
   o('Derivation.showTypes', false),
   o('Derivation.showValues', false),

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,11 +33,13 @@ public class RoboWorld extends World<RoboBlock> {
     public int maxBlocks = 1024 ^ 2;
   }
   
-  public Set<Item> items;
-  public Set<Wall> walls;
+//  public Set<Item> items;
+//  public Set<Wall> walls;
   
   private Point lowCorner;
   private Point highCorner;
+  
+  private Map<String, Set<Point>> rooms;
   
   public static Options opts = new Options();
 
@@ -52,10 +55,16 @@ public class RoboWorld extends World<RoboBlock> {
   private List<RoboAction> pathActions;
   private Robot robot;
 
+  
   public RoboWorld(Set<Wall> walls, Set<Item> items) {
+    this(walls, items, new HashMap<>());
+  }
+  
+  public RoboWorld(Set<Wall> walls, Set<Item> items, Map<String, Set<Point>> rooms) {
     super();
     this.walls = walls;
     this.items = items;
+    this.rooms = rooms;
     this.pathActions = new ArrayList<RoboAction>();
     this.findCorners();
     this.selectedArea = Optional.empty();
@@ -64,7 +73,7 @@ public class RoboWorld extends World<RoboBlock> {
 
   private void findCorners() {
     int maxX = 0, maxY = 0, minX = 0, minY = 0;
-    for (Wall w : walls) {
+    for (RoboBlock w : walls) {
       if (w.point.x > maxX)
         maxX = w.point.x;
       else if (w.point.x < minX)
@@ -126,8 +135,10 @@ public class RoboWorld extends World<RoboBlock> {
       RoboBlock rb = RoboBlock.fromJSONObject(c);
       if (rb instanceof Item)
         items.add((Item) rb);
-      else
+      else if (rb instanceof Wall)
         walls.add((Wall) rb);
+//      else if (rb instanceof Point)
+//        rooms.add((Wall) rb);
     });
     RoboWorld world = new RoboWorld(walls, items);
     world.robot = robot;
@@ -145,7 +156,7 @@ public class RoboWorld extends World<RoboBlock> {
           || "type".equals(qualifiedRel[1])
           || "carried".equals(qualifiedRel[1])
           || "point".equals(qualifiedRel[1])) {
-        Set<Item> set = items.stream()
+        Set<Item> set = (Set<Item>) items.stream()
             .filter(i -> values.contains(i.get(qualifiedRel[1])))
             .collect(Collectors.toSet());
         return new ItemSet(set);
@@ -163,7 +174,7 @@ public class RoboWorld extends World<RoboBlock> {
   }
 
   public ItemSet allItems() {
-    return new ItemSet(items);
+    return new ItemSet((Set<Item>) items);
   }
   
  @Override

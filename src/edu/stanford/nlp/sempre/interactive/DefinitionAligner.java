@@ -128,7 +128,7 @@ public class DefinitionAligner {
   }
 
   void recursiveMatch(Derivation def) {
-    // LogInfo.logs("Considering (%d,%d): %s", def.start, def.end, def);
+     LogInfo.logs("Considering (%d,%d): %s", def.start, def.end, def);
     for (int start = 0; start < headTokens.size(); start++) {
       for (int end = headTokens.size(); end > start; end--) {
         // LogInfo.logs("Testing (%d,%d)", start, end);
@@ -139,7 +139,7 @@ public class DefinitionAligner {
             LogInfo.logs("Matched head(%d,%d)=%s with deriv(%d,%d)=%s: %s", start, end, headTokens.subList(start, end),
                 def.start, def.end, defTokens.subList(def.start, def.end), def);
           allMatches.add(new Match(def, start, end));
-          return;
+//          return;
         }
       }
     }
@@ -206,8 +206,8 @@ public class DefinitionAligner {
         .equals(window(def.start - opts.windowSize, def.start, defTokens));
     boolean sufixEq = window(end, end + opts.windowSize, headTokens)
         .equals(window(def.end, def.end + opts.windowSize, defTokens));
-    if (opts.verbose > 0)
-      LogInfo.logs("%b : %b", prefixEq, sufixEq);
+//    if (opts.verbose > 0)
+//      LogInfo.logs("%b : %b", prefixEq, sufixEq);
     if (opts.verbose > 0)
       LogInfo.logs("(%d,%d)-head(%d,%d): %b %b %s %s", def.start, def.end, start, end, prefixEq, sufixEq,
           window(end, end + opts.windowSize, headTokens), window(def.end, def.end + opts.windowSize, defTokens));

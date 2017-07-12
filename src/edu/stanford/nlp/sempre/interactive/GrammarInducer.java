@@ -69,7 +69,7 @@ public class GrammarInducer {
       def.grammarInfo.end = headTokens.size();
       allHead = true;
     }
-
+    
     // dont want weird cat unary rules with strange semantics
     if (headTokens == null || headTokens.isEmpty()) {
       throw new RuntimeException("The head is empty, refusing to define.");
@@ -191,6 +191,7 @@ public class GrammarInducer {
 
   static private String getNormalCat(Derivation def) {
     // return def.cat;
+    // TODO : this seems like a very naive thing to do
     String cat = def.getCat();
     if (cat.endsWith("s"))
       return cat.substring(0, cat.length() - 1);

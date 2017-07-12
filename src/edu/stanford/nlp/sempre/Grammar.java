@@ -1,5 +1,6 @@
 package edu.stanford.nlp.sempre;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -37,6 +38,8 @@ public class Grammar {
     @Option public boolean binarizeRules = true;
     @Option(gloss = "Specifiy which ApplyFn to use: defaults to JoinFn when null")
     public String useApplyFn = null;
+    @Option(gloss = "Re-add JSON-formatted rules saved in the specified paths")
+    public List<String> ruleRecoveryPaths = new ArrayList<>();
   }
 
   public static Options opts = new Options();
@@ -56,6 +59,7 @@ public class Grammar {
   public void read() {
     LogInfo.begin_track("Grammar.read");
     read(opts.inPaths);
+    readFromJson(opts.ruleRecoveryPaths);
     LogInfo.logs("%s rules", rules.size());
     LogInfo.end_track();
   }
@@ -67,6 +71,30 @@ public class Grammar {
     verifyValid();
   }
 
+  public void readFromJson(List<String> paths) {
+    List<String> jsonStrings = new ArrayList<>();
+    for (String path : paths) {
+      // Note that each JSON string must be its own line
+      jsonStrings.addAll(IOUtils.readLinesHard(path));
+    }
+    List<Object> jsons = new ArrayList<>();
+    TypeReference<HashMap<String,Object>> typeRef = new TypeReference<HashMap<String,Object>>() {};
+    for (String string : jsonStrings) {
+      Map<String, Object> json = Json.readValueHard(string, typeRef);
+      StringBuilder treeString = new StringBuilder();
+      treeString.append("(rule ");
+      treeString.append(json.get("lhs"));
+      StringBuilder rhs = new StringBuilder(((List<String>)json.get("rhs")).stream()
+          .reduce("", (a,b) -> a + " " + b));
+      treeString.append(" (");
+      treeString.append(rhs);
+      treeString.append(") ");
+      treeString.append(json.get("sem"));
+      treeString.append(")");
+      interpret("", LispTree.proto.parseFromString(treeString.toString()), new HashSet<>());
+    }
+  }
+  
   private void verifyValid() {
     // Make sure that all the categories which are used are actually defined.
     Set<String> defined = new HashSet<>();

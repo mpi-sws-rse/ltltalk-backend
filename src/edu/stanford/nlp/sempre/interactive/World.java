@@ -45,10 +45,12 @@ public abstract class World<B extends Block> {
   public Set<Point> getOpenPoints() {
     if (this.open != null)
       return (Set<Point>) this.open;
+    // TODO : this may not handle a non-enclosed space
     Point lc = this.getLowCorner();
     Point hc = this.getHighCorner();
     boolean[][] points = new boolean[hc.y - lc.y + 1][hc.x - lc.x + 1];
     Point p; 
+    System.out.println(walls.size());
     for (Iterator<? extends B> iter = walls.iterator(); iter.hasNext(); ) {
       p = iter.next().point;
       points[p.y - lc.y][p.x - lc.x] = true;
@@ -56,6 +58,7 @@ public abstract class World<B extends Block> {
     Set<Point> open = new HashSet<>();
     for (int i = lc.x; i < hc.x; ++i) {
       for (int j = lc.y; j < hc.y; ++j) {
+//        System.out.println(!points[j - lc.y][i - lc.x]);
         if (!points[j - lc.y][i - lc.x]) {
           open.add(new Point(i, j));
         }
@@ -98,9 +101,13 @@ public abstract class World<B extends Block> {
   
   public Set<Point> getAreaWithCorners(Point p1, Point p2) {
     int xHigh = Math.max(p1.x, p2.x);
-    int xLow = Math.min(p1.x, p2.x);
+    int xLow  = Math.min(p1.x, p2.x);
     int yHigh = Math.max(p1.y, p2.y);
-    int yLow = Math.min(p1.y, p2.y);
+    int yLow  = Math.min(p1.y, p2.y);
+    System.out.println(getOpenPoints().stream()
+        .filter(p -> p.x >= xLow && p.x <= xHigh && p.y >= yLow && p.y <= yHigh)
+        .count());
+//        .collect(Collectors.toSet()));
     return getOpenPoints().stream()
         .filter(p -> p.x >= xLow && p.x <= xHigh && p.y >= yLow && p.y <= yHigh)
         .collect(Collectors.toSet());

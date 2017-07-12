@@ -292,6 +292,8 @@ public class InteractiveMaster extends Master {
       refResponse.value.ex = exHead;
     }
 
+    System.out.println("bodyDeriv: " + bodyDeriv.toRecursiveString());
+    
     List<Rule> inducedRules = new ArrayList<>();
     GrammarInducer grammarInducer = new GrammarInducer(exHead.getTokens(), bodyDeriv, state.chartList);
     inducedRules.addAll(grammarInducer.getRules());
