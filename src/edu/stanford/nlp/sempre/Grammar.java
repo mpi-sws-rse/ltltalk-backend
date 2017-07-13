@@ -75,7 +75,7 @@ public class Grammar {
     List<String> jsonStrings = new ArrayList<>();
     for (String path : paths) {
       // Note that each JSON string must be its own line
-      jsonStrings.addAll(IOUtils.readLinesHard(path));
+      jsonStrings.addAll(IOUtils.readLinesEasy(path));
     }
     List<Object> jsons = new ArrayList<>();
     TypeReference<HashMap<String,Object>> typeRef = new TypeReference<HashMap<String,Object>>() {};
