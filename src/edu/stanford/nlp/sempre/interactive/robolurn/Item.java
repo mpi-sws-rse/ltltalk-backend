@@ -71,9 +71,8 @@ public class Item extends RoboBlock {
   }
   
   @Override
-  public RoboBlock clone() {
-    RoboBlock c = new Item(new Point(point.x, point.y), color, carried);
-    return c;
+  public Item clone() {
+    return new Item(new Point(point.x, point.y), color, carried);
   }
 
   /*

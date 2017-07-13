@@ -9,4 +9,6 @@ public abstract class Block {
   public abstract String toString();
 
   public abstract Object get(String property);
+  
+  public abstract Block clone();
 }

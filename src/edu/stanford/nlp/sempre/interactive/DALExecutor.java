@@ -90,8 +90,9 @@ public class DALExecutor extends Executor {
     }
   }
 
+  // Return whether that action was able to be realized
   @SuppressWarnings("rawtypes")
-  private void performActions(ActionFormula f, World<?> world) {
+  private boolean performActions(ActionFormula f, final World<?> world) {
     if (opts.verbose >= 1) {
       LogInfo.begin_track("DALExecutor.performActions");
       LogInfo.logs("Executing: %s", f);
@@ -106,12 +107,22 @@ public class DALExecutor extends Executor {
       Value method = ((ValueFormula) f.args.get(0)).value;
       String id = ((NameValue) method).id;
       // all actions takes a fixed set as argument
-      invoke(id, world, f.args.subList(1, f.args.size()).stream().map(x -> processSetFormula(x, world)).toArray());
+      Object resultObj = invoke(
+          id,
+          world,
+          f.args.subList(1, f.args.size()).stream().map(x -> processSetFormula(x, world)).toArray());
+      try {
+        return (boolean) resultObj;
+      } catch (ClassCastException e) {
+        throw new RuntimeException("Action methods must return boolean type. Got " + resultObj.getClass());
+      }
       //world.merge();
     } else if (f.mode == ActionFormula.Mode.sequential) {
+      boolean result = true;
       for (Formula child : f.args) {
-        performActions((ActionFormula) child, world);
+        result &= performActions((ActionFormula) child, world);
       }
+      return result;
     } else if (f.mode == ActionFormula.Mode.repeat) {
       Set<Object> arg = toSet(processSetFormula(f.args.get(0), world));
       if (arg.size() > 1)
@@ -122,50 +133,68 @@ public class DALExecutor extends Executor {
       else
         times = (int) arg.iterator().next();
 
+      boolean result = true;
       for (int i = 0; i < times; i++)
-        performActions((ActionFormula) f.args.get(1), world);
+        result &= performActions((ActionFormula) f.args.get(1), world);
+      return result;
     } else if (f.mode == ActionFormula.Mode.conditional) {
       // using the empty set to represent false
       boolean cond = toSet(processSetFormula(f.args.get(0), world)).iterator().hasNext();
+      boolean result = true;
       if (cond)
-        performActions((ActionFormula) f.args.get(1), world);
+        result &= performActions((ActionFormula) f.args.get(1), world);
+      return result;
     } else if (f.mode == ActionFormula.Mode.whileloop) {
       // using the empty set to represent false
       boolean cond = toSet(processSetFormula(f.args.get(0), world)).iterator().hasNext();
+      boolean result = true;
       for (int i = 0; i < opts.maxWhile; i++) {
         if (cond)
-          performActions((ActionFormula) f.args.get(1), world);
+          result &= performActions((ActionFormula) f.args.get(1), world);
         else
           break;
         cond = toSet(processSetFormula(f.args.get(0), world)).iterator().hasNext();
       }
+      return result;
     } else if (f.mode == ActionFormula.Mode.forset) {
-      performActions((ActionFormula) f.args.get(1), world);
+      return performActions((ActionFormula) f.args.get(1), world);
     } else if (f.mode == ActionFormula.Mode.foreach) {
       if ("point".equals(f.args.get(0).toString())) {
         List<Point> selected = toPointList(toSet(processSetFormula(f.args.get(1), world)));
         int[] order = PathFinder.getPointOrder(selected);
-  //      VariablePoint vp = (VariablePoint) processSetFormula(f.args.get(0), world);
+        boolean result = true;
         for (int i = 0; i < order.length; ++i) {
           world.selectedPoint = Optional.of(selected.get(order[i]));
-          performActions((ActionFormula) f.args.get(2), world);
+          result &= performActions((ActionFormula) f.args.get(2), world);
         }
         world.selectedPoint = Optional.empty();
+        return result;
         
       } else if ("area".equals(f.args.get(0).toString())) {
         List<Set<Point>> selected = toAreaList(toSet(processSetFormula(f.args.get(1), world)));
         int[] order = PathFinder.getPointOrder(selected.stream()
             .filter(a -> !a.isEmpty())
             .map(a -> a.iterator().next()).collect(Collectors.toList()));
-  //      VariablePoint vp = (VariablePoint) processSetFormula(f.args.get(0), world);
+        boolean result = true;
         for (int i = 0; i < order.length; ++i) {
           world.selectedArea = Optional.of(selected.get(order[i]));
-          performActions((ActionFormula) f.args.get(2), world);
+          result &= performActions((ActionFormula) f.args.get(2), world);
         }
         world.selectedArea = Optional.empty();
+        return result;
       } else {
         throw new RuntimeException(":foreach cannot be used with \"" + f.args.get(0) + "\", only with \"point\" and \"area\".");
       }
+    } else if (f.mode == ActionFormula.Mode.strict) {
+      // The full extend of this clone is not yet tested
+      World<?> newWorld = world.clone();
+      boolean result = performActions((ActionFormula) f.args.get(0), newWorld);
+      if (result) {
+        result = performActions((ActionFormula) f.args.get(0), world);
+      }
+      return result;
+    } else {
+      throw new RuntimeException("Unknown action.");
     }
   }
 
@@ -206,7 +235,6 @@ public class DALExecutor extends Executor {
       pointSet = maybePoints.stream().map(i -> (Point) i).collect(Collectors.toSet());
     return pointSet;
   }
-
 
   private List<Set<Point>> toAreaList(Set<Object> maybeAreas) {
     if (maybeAreas.isEmpty())
@@ -356,6 +384,18 @@ public class DALExecutor extends Executor {
       return fullSet;
 //      } else
 //        throw new RuntimeException("First argument of ApplyFormula must be a LambdaFormula");
+    }
+    
+    if (formula instanceof ActionFormula) {
+      ActionFormula actionFormula = (ActionFormula) formula;
+      if (actionFormula.mode == ActionFormula.Mode.realizable) {
+        if (performActions((ActionFormula) actionFormula.args.get(0), world.clone()))
+          return Sets.newHashSet(new Object());
+        else
+          return Sets.newHashSet();
+      } else {
+        throw new RuntimeException(actionFormula + " cannot be treated as a set.");
+      }
     }
     
     if (formula instanceof SuperlativeFormula) {

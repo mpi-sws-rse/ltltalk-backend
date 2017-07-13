@@ -20,11 +20,10 @@ import edu.stanford.nlp.sempre.Json;
 import edu.stanford.nlp.sempre.NaiveKnowledgeGraph;
 import edu.stanford.nlp.sempre.StringValue;
 import edu.stanford.nlp.sempre.interactive.Block;
-import edu.stanford.nlp.sempre.interactive.PathAction;
 import edu.stanford.nlp.sempre.interactive.VariablePoint;
 import edu.stanford.nlp.sempre.interactive.World;
+import edu.stanford.nlp.sempre.interactive.annotations.ActionMethod;
 import edu.stanford.nlp.sempre.interactive.planner.PathFinder;
-import fig.basic.LogInfo;
 import fig.basic.Option;
 
 public class RoboWorld extends World<RoboBlock> {
@@ -56,12 +55,13 @@ public class RoboWorld extends World<RoboBlock> {
   private Robot robot;
 
   
-  public RoboWorld(Set<Wall> walls, Set<Item> items) {
-    this(walls, items, new HashMap<>());
+  public RoboWorld(Robot robot, Set<Wall> walls, Set<Item> items) {
+    this(robot, walls, items, new HashMap<>());
   }
   
-  public RoboWorld(Set<Wall> walls, Set<Item> items, Map<String, Set<Point>> rooms) {
+  public RoboWorld(Robot robot, Set<Wall> walls, Set<Item> items, Map<String, Set<Point>> rooms) {
     super();
+    this.robot = robot;
     this.walls = walls;
     this.items = items;
     this.rooms = rooms;
@@ -71,6 +71,18 @@ public class RoboWorld extends World<RoboBlock> {
     this.selectedPoint = Optional.empty();
   }
 
+  @SuppressWarnings("unchecked")
+  public RoboWorld clone() {
+    Set<Wall> newWalls = walls.stream().map(w -> (Wall) w.clone()).collect(Collectors.toSet());
+    Set<Item> newItems = items.stream().map(i -> (Item) i.clone()).collect(Collectors.toSet());
+    return new RoboWorld(
+         robot.clone(),
+         newWalls,
+         newItems,
+         new HashMap<>(rooms)
+    );
+  }
+  
   private void findCorners() {
     int maxX = 0, maxY = 0, minX = 0, minY = 0;
     for (RoboBlock w : walls) {
@@ -140,8 +152,8 @@ public class RoboWorld extends World<RoboBlock> {
 //      else if (rb instanceof Point)
 //        rooms.add((Wall) rb);
     });
-    RoboWorld world = new RoboWorld(walls, items);
-    world.robot = robot;
+    RoboWorld world = new RoboWorld(robot, walls, items);
+    //world.robot = robot;
     return world;
   }
 
@@ -255,57 +267,64 @@ public class RoboWorld extends World<RoboBlock> {
     return new Point(robot.point.x, robot.point.y);
   }
   
-  public void noop() {
+  @ActionMethod
+  public boolean noop() {
+    return true;
   }
   
-  public void visit(Point p, Set<Point> avoidSet) {
-//    if (p instanceof VariablePoint)
-//      p = variables.get(((VariablePoint) p).name);
-    gotoPoint(p, avoidSet);
+  /** All action methods return whether the action was successfully completed or not
+   */
+  @ActionMethod
+  public boolean visit(Point p, Set<Point> avoidSet) {
+    return gotoPoint(p, avoidSet);
   }
   
-  
-  public void visit(Point p) {
-    gotoPoint(p, new HashSet<>());
+  @ActionMethod
+  public boolean visit(Point p) {
+    return gotoPoint(p, new HashSet<>());
   }
-
   
-  public void visit() {
+  @ActionMethod
+  public boolean visit() {
     if (selectedPoint.isPresent())
-      gotoPoint(selectedPoint.get(), new HashSet<>());
+      return gotoPoint(selectedPoint.get(), new HashSet<>());
     else
       throw new RuntimeException("No point has been selected to visit.");
   }
   
-  
-  private void gotoPoint(Point point, Set<Point> avoidSet) {
-//    if (selectedFields.isEmpty())
-//      throw new RuntimeException("No field has been selected to visit.");
-    
+  private boolean gotoPoint(Point point, Set<Point> avoidSet) {
     avoidSet.addAll(walls.stream().map(w -> w.point).collect(Collectors.toList()));
-    // Is this unclear? It is quite beautiful, though.
-    pathActions.addAll(
-        PathFinder.findPath(
+    List<RoboAction> path = PathFinder.findPath(
             avoidSet,
             new Point(robot.point.x, robot.point.y),
-            point,
+            new Point(point),
             this.getLowCorner(),
             this.getHighCorner())
         .stream().map(p -> new RoboAction(p, RoboAction.Action.PATH))
-        .collect(Collectors.toList())
-    );
-    if (pathActions.size() > 0) {
-      RoboAction last = pathActions.get(pathActions.size() - 1);
+        .collect(Collectors.toList());
+    if (path.size() > 0) {
+      RoboAction last = path.get(path.size() - 1);
       last.action = RoboAction.Action.DESTINATION;
       robot.point = last.point;
-    }
+      if (robot.point.equals(point)) {
+        pathActions.addAll(path);
+        return true;
+      } else {
+        return false;
+      }
+    } else 
+      return false;
   }
-
   
-  public void pick(ItemSet is) {
+  @ActionMethod
+  public boolean pick(ItemSet is) {
     is.isCarried = Optional.of(false);
     is.locFilter = Optional.of(new HashSet<>(Arrays.asList(robot.point)));
     Set<Item> restricted = is.eval();
+    if (restricted.isEmpty()) {
+      pathActions.add(new RoboAction(robot.point, RoboAction.Action.PICKITEM, null, false));
+      return false;
+    }
     Item item;
     // Since items are passed by reference, the items in the restricted set reference the same
     // items that are stored in the world.
@@ -314,26 +333,27 @@ public class RoboWorld extends World<RoboBlock> {
       item.setCarried(true);
       pathActions.add(new RoboAction(robot.point, RoboAction.Action.PICKITEM, item.color, true));
     }
-    if (restricted.isEmpty()) {
-      pathActions.add(new RoboAction(robot.point, RoboAction.Action.PICKITEM, null, false));
-    }
     keyConsistency();
+    return true;
   }
   
-  public void drop(ItemSet is) {
+  @ActionMethod
+  public boolean drop(ItemSet is) {
     is.isCarried = Optional.of(true);
     is.locFilter = Optional.empty();
     Set<Item> restricted = is.eval();
+    if (restricted.isEmpty()) {
+      pathActions.add(new RoboAction(robot.point, RoboAction.Action.DROPITEM, null, false));
+      return false;
+    }
     Item item;
     for (Iterator<Item> iter = restricted.iterator(); iter.hasNext(); ) {
       item = iter.next();
       item.setCarried(false);
       pathActions.add(new RoboAction(robot.point, RoboAction.Action.DROPITEM, item.color, true));
     }
-    if (restricted.isEmpty()) {
-      pathActions.add(new RoboAction(robot.point, RoboAction.Action.DROPITEM, null, false));
-    }
     keyConsistency();
+    return true;
   }
 
   public VariablePoint getVariable(String name) {

@@ -5,6 +5,8 @@
 
 ### Action Rules ###
 
+(rule $Action (strict $Action) (lambda a (:strict (var a))) (anchored 1))
+
 (rule $Action (visit $Point) (lambda x (: @visit (var x))) (anchored 1))
 (rule $Action (visit $Area) (lambda a (: @visit (call anyPoint (var a)))) (anchored 1))
 (rule $Action (visit $Point while avoiding $Area) (lambda f  (lambda a (: @visit (var f) (var a)))) (anchored 1))
@@ -40,6 +42,8 @@
 (rule $Situation (robot has $Item) (lambda i (and (var i) (items?carried (boolean true)))) (anchored 1))
 (rule $Situation (robot at $Point) (lambda f (and (var f) (call getRobotLocation))) (anchored 1))
 (rule $Situation (robot at $Area) (lambda a (and (var a) (call getRobotLocation))) (anchored 1))
+(rule $Situation (realizable $Action) (lambda a (:realizable (var a))) (anchored 1))
+
 
 ### Location Rules ###
 

@@ -32,9 +32,8 @@ public class Wall extends RoboBlock {
   }
 
   @Override
-  public RoboBlock clone() {
-    RoboBlock c = new Wall(new Point(point.x, point.y));
-    return c;
+  public Wall clone() {
+    return  new Wall(new Point(point.x, point.y));
   }
 
   @Override

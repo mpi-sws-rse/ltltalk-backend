@@ -26,6 +26,8 @@ public class ActionFormula extends Formula {
     forset(":for"), // (:for (and this (color red)) (:s (: add red top) (: add
                     // yellow top) (: remove)))
     foreach(":foreach"), 
+    realizable(":realizable"), 
+    strict(":strict"), 
 
     // primitives for declaring variables
     // let(":let"), // (:let X *),
