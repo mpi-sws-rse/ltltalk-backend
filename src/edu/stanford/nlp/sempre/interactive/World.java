@@ -9,8 +9,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Sets;
+
 import edu.stanford.nlp.sempre.ContextValue;
 import edu.stanford.nlp.sempre.interactive.robolurn.RoboWorld;
+import fig.basic.LogInfo;
 
 /**
  * @param <B> Represents block type
@@ -79,15 +82,21 @@ public abstract class World<B extends Block> {
     return items;
   }
     
-  public Set<Point> getSelectedArea() {
-    if (!selectedArea.isPresent())
-      throw new RuntimeException("Selected area has not been set.");
+  public Set<Point> getSelectedArea() throws UnsetSelectionException {
+    if (!selectedArea.isPresent()) { // Should this fail silently?
+//      LogInfo.log("WARNING: Selected area has not been set by foreach loop");
+      throw new UnsetSelectionException();
+//      return null;
+    }
     return selectedArea.get();
   }
   
-  public Point getSelectedPoint() {
-    if (!selectedPoint.isPresent())
-      throw new RuntimeException("Selected point has not been set.");
+  public Point getSelectedPoint() throws UnsetSelectionException {
+    if (!selectedPoint.isPresent()) {
+//      LogInfo.log("WARNING: Selected point has not been set by foreach loop");
+      throw new UnsetSelectionException();
+//      return null;
+    }
     return selectedPoint.get();
   }
   

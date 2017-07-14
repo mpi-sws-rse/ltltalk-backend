@@ -334,7 +334,7 @@ public class Grammar {
       if (!item.isLeaf() && item.children.size() != 2)
         throw new RuntimeException("Invalid key-value pair: " + item);
       try {
-        rule.addInfo(item.child(0).value, Double.parseDouble(item.child(1).value));
+        rule.addInfo(item.child(0).value, item.child(1).value);
       } catch (NumberFormatException e) {
         throw new RuntimeException("Invalid key-value pair: " + item);
       }

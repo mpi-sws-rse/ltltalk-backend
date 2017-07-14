@@ -29,7 +29,8 @@ public class Rule {
   public final String lhs;  // Left-hand side: category.
   public final List<String> rhs;  // Right-hand side: sequence of categories (have $ prefix) and tokens.
   public final SemanticFn sem;  // Takes derivations corresponding to RHS categories and produces a set of derivations corresponding to LHS.
-  public List<Pair<String, Double>> info;  // Extra info
+  //public List<Pair<String, Double>> info;  // Extra info
+  public List<Pair<String, String>> info;  // Extra info
   public RuleSource source = null; // for tracking where the rule comes from when they are induced
   
   // Cache the semanticRepn
@@ -61,7 +62,7 @@ public class Rule {
   private String stringRepn;  // Cache toString()
 
   // Get/set info
-  public void addInfo(String key, double value) {
+  public void addInfo(String key, String value) {
     if (info == null) info = Lists.newArrayList();
     info.add(Pair.newPair(key, value));
   }
@@ -100,7 +101,7 @@ public class Rule {
     tree.addChild(LispTree.proto.newList(rhs));
     tree.addChild(sem.toLispTree());
     if (info != null) {
-      for (Pair<String, Double> p : info)
+      for (Pair<String, String> p : info)
         tree.addChild(LispTree.proto.newList(p.getFirst(), "" + p.getSecond()));
     }
     if (source != null)
@@ -109,41 +110,40 @@ public class Rule {
   }
 
   /* Extract tag info */
-  public double getInfoTag(String infoTag) {
+  public String getInfoTag(String infoTag) {
     if (info != null) {
-      for (Pair<String, Double> p : info) {
+      for (Pair<String, String> p : info) {
         if (p.getFirst().equals(infoTag)) return p.getSecond();
       }
     }
-    return -1.0;
+    return "";
   }
 
   public boolean isFloating() {
-    double f = getInfoTag("floating");
-    double a = getInfoTag("anchored");
-    if (f == 1.0)
+    String f = getInfoTag("floating");
+    String a = getInfoTag("anchored");
+    if ("true".equals(f))
       return true;
-    else if (f == 0.0)
+    else if ("false".equals(f))
       return false;
     else
-      return a == 1.0 ? false : FloatingParser.opts.defaultIsFloating;
+      return "anchored".equals(a) ? false : FloatingParser.opts.defaultIsFloating;
   }
 
   public boolean isAnchored() {
-    double f = getInfoTag("floating");
-    double a = getInfoTag("anchored");
-    if (a == 1.0)
+    String f = getInfoTag("floating");
+    String a = getInfoTag("anchored");
+    if ("true".equals(a))
       return true;
-    else if (a == 0.0)
+    else if ("false".equals(a))
       return false;
     else
-      return f == 1.0 ? false : !FloatingParser.opts.defaultIsFloating;
+      return "true".equals(f) ? false : !FloatingParser.opts.defaultIsFloating;
   }
   
   public boolean isInduced() {
-    double a = getInfoTag("induced");
-    if (a == 1.0) return true;
-    return false;
+    String a = getInfoTag("induced");
+    return "true".equals(a);
   }
   
   @Override
@@ -164,7 +164,7 @@ public class Rule {
       jsonMap.put("source", source);
     }
     if (info != null) {
-      for (Pair<String, Double> p : info)
+      for (Pair<String, String> p : info)
         jsonMap.put(p.getFirst(), p.getSecond());
     }
     jsonMap.put("sem", sem.toString());

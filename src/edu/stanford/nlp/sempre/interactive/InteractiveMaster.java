@@ -115,6 +115,7 @@ public class InteractiveMaster extends Master {
       }
 
       builder.parser.parse(builder.params, ex, false);
+      
 
       stats.size(ex.predDerivations != null ? ex.predDerivations.size() : 0);
       stats.status(InteractiveUtils.getParseStatus(ex));

@@ -121,7 +121,7 @@ public class DALFeatureComputer implements FeatureComputer {
         else
           deriv.addFeature(":stats", "no_align");
 
-        if (deriv.rule.getInfoTag("simple_packing") != -1.0)
+        if (!"false".equals(deriv.rule.getInfoTag("simple_packing")))
           deriv.addFeature(":stats", "simple_packing");
         else
           deriv.addFeature(":stats", "no_simple_packing");

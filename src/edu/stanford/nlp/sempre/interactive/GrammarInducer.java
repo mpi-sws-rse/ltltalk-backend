@@ -105,7 +105,7 @@ public class GrammarInducer {
       buildFormula(def, formulaToCat);
       List<Rule> simpleInduced = induceRules(packing, def);
       for (Rule rule : simpleInduced) {
-        rule.addInfo("simple_packing", 1.0);
+        rule.addInfo("simple_packing", "true");
         filterRule(rule);
       }
 
@@ -297,8 +297,8 @@ public class GrammarInducer {
     SemanticFn sem = getSemantics(defDeriv, packings);
     String cat = getNormalCat(defDeriv);
     Rule inducedRule = new Rule(cat, RHS, sem);
-    inducedRule.addInfo("induced", 1.0);
-    inducedRule.addInfo("anchored", 1.0);
+    inducedRule.addInfo("induced", "true");
+    inducedRule.addInfo("anchored", "true");
     List<Rule> inducedRules = new ArrayList<>();
     if (!inducedRule.isCatUnary()) {
       inducedRules.add(inducedRule);

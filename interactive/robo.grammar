@@ -5,122 +5,124 @@
 
 ### Action Rules ###
 
-(rule $Action (strict $Action) (lambda a (:strict (var a))) (anchored 1))
+(rule $Action (strict $Action) (lambda a (:strict (var a))) (anchored true))
 
-(rule $Action (visit $Point) (lambda x (: @visit (var x))) (anchored 1))
-(rule $Action (visit $Area) (lambda a (: @visit (call anyPoint (var a)))) (anchored 1))
-(rule $Action (visit $Point while avoiding $Area) (lambda f  (lambda a (: @visit (var f) (var a)))) (anchored 1))
+(rule $Action (visit $Point) (lambda x (: @visit (var x))) (anchored true))
+(rule $Action (visit $Area) (lambda a (: @visit (call anyPoint (var a)))) (anchored true))
+(rule $Action (visit $Point while avoiding $Area) (lambda f  (lambda a (: @visit (var f) (var a)))) (anchored true))
 (rule $Action (visit $Area while avoiding $Area)
-    (lambda a1 (lambda a2 (: @visit (call anyPoint (var a1)) (var a2)))) (anchored 1))
+    (lambda a1 (lambda a2 (: @visit (call anyPoint (var a1)) (var a2)))) (anchored true))
 
-(rule $Action (pick $ActionItem) (lambda c (: @pick (var c))) (anchored 1))
-(rule $Action (drop $ActionItem) (lambda c (: @drop (var c))) (anchored 1))
+(rule $Action (pick $ActionItem) (lambda c (: @pick (var c))) (anchored true))
+(rule $Action (drop $ActionItem) (lambda c (: @drop (var c))) (anchored true))
 
+# foreach "defines" the point variable
 (rule $Action (foreach point in $Area $Action )
-    (lambda s (lambda a (:foreach point (var s) (var a)))) (anchored 1))
+    (lambda s (lambda a (:foreach point (var s) (var a)))) (defines point) (anchored true))
 (rule $Action (foreach area in $AreaCollection $Action )
-    (lambda s (lambda a (:foreach area (var s) (var a)))) (anchored 1))
+    (lambda s (lambda a (:foreach area (var s) (var a)))) (defines area) (anchored true))
 
 ### Variable Rules ###
 
-(rule $Area (area) (ConstantFn (call getSelectedArea)) (anchored 1))
-(rule $Point (point) (ConstantFn (call getSelectedPoint)) (anchored 1))
+# point variable must be defined before it can be used
+(rule $Point (point) (ConstantFn (call getSelectedPoint)) (requires point) (anchored true))
+(rule $Area (area) (ConstantFn (call getSelectedArea)) (requires area) (anchored true))
 
 ### Situation Rules ###
 
 # These will be used only if the final language spec requires it
-#(rule $Situation ( { $Situations } ) (IdentityFn) (anchored 1))
-(rule $Situations ($Situation) (IdentityFn) (anchored 1))
-#(rule $Situations ($Situations or $Situation) (lambda s1 (lambda s2 (call || (var s1) (var s2)))) (anchored 1))
-#(rule $Situations ($Situations and $Situation) (lambda s1 (lambda s2 (call && (var s1) (var s2)))) (anchored 1))
-#(rule $Situation (not $Situations) (lambda s (call ! (var s) )) (anchored 1))
+#(rule $Situation ( { $Situations } ) (IdentityFn) (anchored true))
+(rule $Situations ($Situation) (IdentityFn) (anchored true))
+#(rule $Situations ($Situations or $Situation) (lambda s1 (lambda s2 (call || (var s1) (var s2)))) (anchored true))
+#(rule $Situations ($Situations and $Situation) (lambda s1 (lambda s2 (call && (var s1) (var s2)))) (anchored true))
+#(rule $Situation (not $Situations) (lambda s (call ! (var s) )) (anchored true))
 
 # JoinFn's must be qualified with items?rel in order to specify that the join should be done
 # on items as opposed to walls or open spaces.
-(rule $Situation ($Item at $Point) (lambda i (lambda f (and (var i) (items?point (var f))))) (anchored 1))
-(rule $Situation ($Item at $Area) (lambda i (lambda a (and (var i) (items?point (var a))))) (anchored 1))
-(rule $Situation (robot has $Item) (lambda i (and (var i) (items?carried (boolean true)))) (anchored 1))
-(rule $Situation (robot at $Point) (lambda f (and (var f) (call getRobotLocation))) (anchored 1))
-(rule $Situation (robot at $Area) (lambda a (and (var a) (call getRobotLocation))) (anchored 1))
-(rule $Situation (realizable $Action) (lambda a (:realizable (var a))) (anchored 1))
+(rule $Situation ($Item at $Point) (lambda i (lambda f (and (var i) (items?point (var f))))) (anchored true))
+(rule $Situation ($Item at $Area) (lambda i (lambda a (and (var i) (items?point (var a))))) (anchored true))
+(rule $Situation (robot has $Item) (lambda i (and (var i) (items?carried (boolean true)))) (anchored true))
+(rule $Situation (robot at $Point) (lambda f (and (var f) (call getRobotLocation))) (anchored true))
+(rule $Situation (robot at $Area) (lambda a (and (var a) (call getRobotLocation))) (anchored true))
+(rule $Situation (realizable $Action) (lambda a (:realizable (var a))) (anchored true))
 
 
 ### Location Rules ###
 
-(rule $Set ($Area) (IdentityFn) (anchored 1))
-(rule $Set ($AreaCollection) (IdentityFn) (anchored 1))
+(rule $Set ($Area) (IdentityFn) (anchored true))
+(rule $Set ($AreaCollection) (IdentityFn) (anchored true))
 
-(rule $AreaCollection ([ $AreaList ]) (IdentityFn) (anchored 1))
+(rule $AreaCollection ([ $AreaList ]) (IdentityFn) (anchored true))
 
-(rule $Area (world) world (anchored 1))
-(rule $Area ([ $PointList ]) (IdentityFn) (anchored 1))
+(rule $Area (world) world (anchored true))
+(rule $Area ([ $PointList ]) (IdentityFn) (anchored true))
 (rule $Area (area with corners $Point and $Point) (lambda p1 (lambda p2
-    (call getAreaWithCorners (var p1) (var p2)))) (anchored 1))
+    (call getAreaWithCorners (var p1) (var p2)))) (anchored true))
 
-#(rule $Area ( not $Areas ) (lambda a1 (not (var a1))) (anchored 1))
-(rule $Areas ( $Area ) (IdentityFn) (anchored 1))
-(rule $Areas ( $Areas + $Area ) (lambda a1 (lambda a2 (or (var a1) (var a2)))) (anchored 1))
-(rule $Areas ( $Areas * $Area ) (lambda a1 (lambda a2 (and (var a1) (var a2)))) (anchored 1))
-(rule $Areas ( $Areas - $Area ) (lambda a1 (lambda a2 (and (var a1) (not (var a2))))) (anchored 1))
-(rule $AreaList ( $Area ) (IdentityFn) (anchored 1))
-(rule $AreaList ( $AreaList , $Area ) (lambda x ( lambda y (call combineCollections (var x) (var y)))) (anchored 1))
+#(rule $Area ( not $Areas ) (lambda a1 (not (var a1))) (anchored true))
+(rule $Areas ( $Area ) (IdentityFn) (anchored true))
+(rule $Areas ( $Areas + $Area ) (lambda a1 (lambda a2 (or (var a1) (var a2)))) (anchored true))
+(rule $Areas ( $Areas * $Area ) (lambda a1 (lambda a2 (and (var a1) (var a2)))) (anchored true))
+(rule $Areas ( $Areas - $Area ) (lambda a1 (lambda a2 (and (var a1) (not (var a2))))) (anchored true))
+(rule $AreaList ( $Area ) (IdentityFn) (anchored true))
+(rule $AreaList ( $AreaList , $Area ) (lambda x ( lambda y (call combineCollections (var x) (var y)))) (anchored true))
 
-(rule $Point (any point in $Area) (lambda x (call anyPoint (var x))) (anchored 1))
-(rule $Point ([ $Numbers , $Numbers ]) (lambda x (lambda y (call makePoint (var x) (var y)))) (anchored 1))
-(rule $Point (current) (ConstantFn (call getRobotLocation)) (anchored 1))
-(rule $PointList ( $Point ) (IdentityFn) (anchored 1))
-(rule $PointList ( $PointList , $Point ) (lambda x ( lambda y (or (var x) (var y)))) (anchored 1))
+(rule $Point (any point in $Area) (lambda x (call anyPoint (var x))) (anchored true))
+(rule $Point ([ $Numbers , $Numbers ]) (lambda x (lambda y (call makePoint (var x) (var y)))) (anchored true))
+(rule $Point (current) (ConstantFn (call getRobotLocation)) (anchored true))
+(rule $PointList ( $Point ) (IdentityFn) (anchored true))
+(rule $PointList ( $PointList , $Point ) (lambda x ( lambda y (or (var x) (var y)))) (anchored true))
 
 (rule $Area ($Area containing $Item) (lambda a (lambda i
-    (call filterArea (var a) (var i)))) (anchored 1))
+    (call filterArea (var a) (var i)))) (anchored true))
 (rule $AreaCollection ($AreaCollection containing $Item) (lambda c (lambda i
-    (call filterCollection (var c) (var i)))) (anchored 1))
+    (call filterCollection (var c) (var i)))) (anchored true))
 
 ### Item Rules ###
 
-(rule $ActionItem ($Item) (lambda i (call setLimit (number 1) (var i))) (anchored 1))
-(rule $ActionItem (every $Item) (lambda i (call setLimit (number -1) (var i))) (anchored 1))
+(rule $ActionItem ($Item) (lambda i (call setLimit (number 1) (var i))) (anchored true))
+(rule $ActionItem (every $Item) (lambda i (call setLimit (number -1) (var i))) (anchored true))
 
-(rule $Item (item) (ConstantFn (call allItems)) (anchored 1))
-(rule $Item (item $ColorSets) (IdentityFn) (anchored 1))
+(rule $Item (item) (ConstantFn (call allItems)) (anchored true))
+(rule $Item (item $ColorSets) (IdentityFn) (anchored true))
 
-(rule $ColorSet (has $Rel $Color) (lambda r (lambda c ((var r) (var c)))) (anchored 1))
-(rule $ColorSets ($ColorSet) (IdentityFn) (anchored 1))
-(rule $ColorSet ( { $ColorSets } ) (IdentityFn) (anchored 1))
-(rule $ColorSet (! $ColorSets) (lambda x (not (var x))) (anchored 1))
+(rule $ColorSet (has $Rel $Color) (lambda r (lambda c ((var r) (var c)))) (anchored true))
+(rule $ColorSets ($ColorSet) (IdentityFn) (anchored true))
+(rule $ColorSet ( { $ColorSets } ) (IdentityFn) (anchored true))
+(rule $ColorSet (! $ColorSets) (lambda x (not (var x))) (anchored true))
 (rule $ColorSets ($ColorSets && $ColorSet) (lambda s1 (lambda s2
-					(and (var s1) (var s2)))) (anchored 1))
+					(and (var s1) (var s2)))) (anchored true))
 (rule $ColorSets ($ColorSets || $ColorSet) (lambda s1 (lambda s2
-					(or (var s1) (var s2)))) (anchored 1))
+					(or (var s1) (var s2)))) (anchored true))
 
-(rule $Rel (color) items?color (anchored 1))
+(rule $Rel (color) items?color (anchored true))
 
 
 
 ### Data type definitions ###
 
-(rule $Color ($TOKEN) (SimpleLexiconFn (type color)) (anchored 1))
+(rule $Color ($TOKEN) (SimpleLexiconFn (type color)) (anchored true))
 
 ### Remnants of DAL grammar ###
 
-(rule $ROOT ($Actions) (IdentityFn) (anchored 1))
+(rule $ROOT ($Actions) (IdentityFn) (anchored true))
 
-(rule $Actions ($Actions ; $Action) (lambda a1 (lambda a2 (:s (var a1) (var a2)))) (anchored 1))
-(rule $Actions ($Action) (IdentityFn) (anchored 1))
-(rule $Action ({ $Actions }) (IdentityFn) (anchored 1))
-(rule $Action ($Action ;) (IdentityFn) (anchored 1))
+(rule $Actions ($Actions ; $Action) (lambda a1 (lambda a2 (:s (var a1) (var a2)))) (anchored true))
+(rule $Actions ($Action) (IdentityFn) (anchored true))
+(rule $Action ({ $Actions }) (IdentityFn) (anchored true))
+(rule $Action ($Action ;) (IdentityFn) (anchored true))
 
-(rule $Action (repeat $Numbers times $Action) (lambda n (lambda a (:loop (var n) (var a)))) (anchored 1))
-#(rule $Action (if $ValueSets $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored 1))
-#(rule $Action (if $Sets $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored 1))
-(rule $Action (if $Situations then $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored 1))
+(rule $Action (repeat $Numbers times $Action) (lambda n (lambda a (:loop (var n) (var a)))) (anchored true))
+#(rule $Action (if $ValueSets $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored true))
+#(rule $Action (if $Sets $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored true))
+(rule $Action (if $Situations then $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored true))
 
 ############### Arithmetic
 (for @op (+ -)
 (rule $Numbers ($Numbers @op $Number) (lambda n1  (lambda n2
-(@op (var n1) (var n2)))) (anchored 1))
+(@op (var n1) (var n2)))) (anchored true))
 )
 
-(rule $Number ($TOKEN) (NumberFn) (anchored 1))
-(rule $Number ({ $Numbers }) (IdentityFn) (anchored 1))
-(rule $Numbers ( $Number ) (IdentityFn) (anchored 1))
+(rule $Number ($TOKEN) (NumberFn) (anchored true))
+(rule $Number ({ $Numbers }) (IdentityFn) (anchored true))
+(rule $Numbers ( $Number ) (IdentityFn) (anchored true))
