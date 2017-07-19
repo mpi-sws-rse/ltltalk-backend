@@ -214,7 +214,7 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('InteractiveUtils.citationPath', './int-output/citation/'),
 
   o('InteractiveMaster.maxSequence', 20),
-  o('InteractiveMaster.maxChars', 200),
+  o('InteractiveMaster.maxChars', 2000),
 
   #o('InteractiveMaster.useAligner', false),
   o('InteractiveMaster.useAligner', true),

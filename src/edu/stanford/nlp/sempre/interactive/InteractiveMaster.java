@@ -319,11 +319,12 @@ public class InteractiveMaster extends Master {
 
   private static boolean isNonsense(Example exHead) {
     List<String> tokens = exHead.getTokens();
-    if (tokens.size() > 10)
-      return true;
+//    if (tokens.size() > 10)
+//      return true;
     if (tokens.size() == 0)
       return true;
-    return tokens.stream().anyMatch(s -> s.length() > 15);
+//    return tokens.stream().anyMatch(s -> s.length() > 15);
+    return false;
   }
 
   private boolean utteranceAllowed(Example ex, Response response) {
