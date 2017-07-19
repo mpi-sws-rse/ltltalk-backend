@@ -8,16 +8,16 @@
 (rule $Action (strict $Action) (lambda a (:strict (var a))) (anchored true))
 
 (rule $Action (visit $Point) (lambda x (: @visit (var x))) (anchored true))
-(rule $Action (visit $Area) (lambda a (: @visit (call anyPoint (var a)))) (anchored true))
-(rule $Action (visit $Point while avoiding $Area) (lambda f  (lambda a (: @visit (var f) (var a)))) (anchored true))
-(rule $Action (visit $Area while avoiding $Area)
+(rule $Action (visit $Areas) (lambda a (: @visit (call anyPoint (var a)))) (anchored true))
+(rule $Action (visit $Point while avoiding $Areas) (lambda f  (lambda a (: @visit (var f) (var a)))) (anchored true))
+(rule $Action (visit $Areas while avoiding $Areas)
     (lambda a1 (lambda a2 (: @visit (call anyPoint (var a1)) (var a2)))) (anchored true))
 
 (rule $Action (pick $ActionItem) (lambda c (: @pick (var c))) (anchored true))
 (rule $Action (drop $ActionItem) (lambda c (: @drop (var c))) (anchored true))
 
 # foreach "defines" the point variable
-(rule $Action (foreach point in $Area $Action )
+(rule $Action (foreach point in $Areas $Action )
     (lambda s (lambda a (:foreach point (var s) (var a)))) (defines point) (anchored true))
 (rule $Action (foreach area in $AreaCollection $Action )
     (lambda s (lambda a (:foreach area (var s) (var a)))) (defines area) (anchored true))
@@ -44,12 +44,12 @@
 (rule $Situation (robot has $Item) (lambda i (and (var i) (items?carried (boolean true)))) (anchored true))
 (rule $Situation (robot at $Point) (lambda f (and (var f) (call getRobotLocation))) (anchored true))
 (rule $Situation (robot at $Area) (lambda a (and (var a) (call getRobotLocation))) (anchored true))
-(rule $Situation (realizable $Action) (lambda a (:realizable (var a))) (anchored true))
+(rule $Situation (possible $Action) (lambda a (:realizable (var a))) (anchored true))
 
 
 ### Location Rules ###
 
-(rule $Set ($Area) (IdentityFn) (anchored true))
+(rule $Set ($Areas) (IdentityFn) (anchored true))
 (rule $Set ($AreaCollection) (IdentityFn) (anchored true))
 
 (rule $AreaCollection ([ $AreaList ]) (IdentityFn) (anchored true))
@@ -59,6 +59,7 @@
 (rule $Area (area with corners $Point and $Point) (lambda p1 (lambda p2
     (call getAreaWithCorners (var p1) (var p2)))) (anchored true))
 
+(rule $ROOT ( $Areas ) areaaaa (anchored true))
 #(rule $Area ( not $Areas ) (lambda a1 (not (var a1))) (anchored true))
 (rule $Areas ( $Area ) (IdentityFn) (anchored true))
 (rule $Areas ( $Areas + $Area ) (lambda a1 (lambda a2 (or (var a1) (var a2)))) (anchored true))
@@ -67,13 +68,13 @@
 (rule $AreaList ( $Area ) (IdentityFn) (anchored true))
 (rule $AreaList ( $AreaList , $Area ) (lambda x ( lambda y (call combineCollections (var x) (var y)))) (anchored true))
 
-(rule $Point (any point in $Area) (lambda x (call anyPoint (var x))) (anchored true))
+(rule $Point (any point in $Areas) (lambda x (call anyPoint (var x))) (anchored true))
 (rule $Point ([ $Numbers , $Numbers ]) (lambda x (lambda y (call makePoint (var x) (var y)))) (anchored true))
 (rule $Point (current) (ConstantFn (call getRobotLocation)) (anchored true))
 (rule $PointList ( $Point ) (IdentityFn) (anchored true))
 (rule $PointList ( $PointList , $Point ) (lambda x ( lambda y (or (var x) (var y)))) (anchored true))
 
-(rule $Area ($Area containing $Item) (lambda a (lambda i
+(rule $Area ($Areas containing $Item) (lambda a (lambda i
     (call filterArea (var a) (var i)))) (anchored true))
 (rule $AreaCollection ($AreaCollection containing $Item) (lambda c (lambda i
     (call filterCollection (var c) (var i)))) (anchored true))
