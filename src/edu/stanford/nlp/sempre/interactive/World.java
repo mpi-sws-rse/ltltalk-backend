@@ -75,6 +75,15 @@ public abstract class World<B extends Block> {
 
   public abstract Set<Object> get(String rel, Set<Block> subset);
 
+  public Set<? extends Object> getSpecialSet(String name) {
+    if ("world".equals(name)) {
+      return getOpenPoints();
+    } else if ("items".equals(name)) {
+      return allItems();
+    }
+    return null;
+  }
+  
   //public abstract void update(String rel, Object value, Set<WorldBlock> selected);
   public abstract Set<? extends Object> universalSet(Object o);
   

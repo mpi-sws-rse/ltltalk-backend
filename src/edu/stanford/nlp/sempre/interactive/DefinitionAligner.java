@@ -86,10 +86,6 @@ public class DefinitionAligner {
 
     for (int i = 0; i < aligner.allMatches.size() && i <= opts.maxMatches; i++) {
       Match match = aligner.allMatches.get(i);
-      
-      System.out.println(match.deriv.cat);
-      if ("$TOKEN".equals(match.deriv.cat))
-        continue;
 
       List<Derivation> filteredList = chartList.stream()
           .filter(d -> d.start >= match.deriv.start && d.end <= match.deriv.end).collect(Collectors.toList());

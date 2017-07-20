@@ -258,9 +258,9 @@ public class DALExecutor extends Executor {
 
 
   static class SpecialSets {
-    static String World = "world";
-    static String AllItems = "allItems"; // Currently unused
-    static String Current = "current"; // Also unused
+//    static String World = "world";
+//    static String AllItems = "allItems"; // Currently unused
+//    static String Current = "current"; // Also unused
   };
 
   // a subset of lambda dcs. no types, and no marks
@@ -273,12 +273,14 @@ public class DALExecutor extends Executor {
       // special unary
       if (v instanceof NameValue) {
         String id = ((NameValue) v).id;
+        Set<? extends Object> set = world.getSpecialSet(id);
+        if (set != null) // How should an undefined set be handled?
+          return set;
+//        else
+//          return Sets.newHashSet();
         // Maybe add "items" and "walls" here?
-        if (id.equals(SpecialSets.World))
-          return world.getOpenPoints();
-        // TODO Fix special set 
-        if (id.equals(SpecialSets.AllItems))
-          return world.items;
+//        if (id.equals(specialsets.world))
+//          return world.getspecialset("world");
       }
       return toObject(((ValueFormula<?>) formula).value);
     }

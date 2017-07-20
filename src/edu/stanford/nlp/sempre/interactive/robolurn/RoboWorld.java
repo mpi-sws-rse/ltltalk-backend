@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,8 +33,7 @@ public class RoboWorld extends World<RoboBlock> {
     public int maxBlocks = 1024 ^ 2;
   }
   
-//  public Set<Item> items;
-//  public Set<Wall> walls;
+
   
   private Point lowCorner;
   private Point highCorner;
@@ -53,7 +53,6 @@ public class RoboWorld extends World<RoboBlock> {
 
   private List<RoboAction> pathActions;
   private Robot robot;
-
   
   public RoboWorld(Robot robot, Set<Wall> walls, Set<Item> items) {
     this(robot, walls, items, new HashMap<>());
@@ -129,10 +128,12 @@ public class RoboWorld extends World<RoboBlock> {
     return sb.toString().replace(" ","");
   }
 
-  private static RoboWorld fromJSON(String wallString) {
-    @SuppressWarnings("unchecked")
-    List<List<Object>> blockstr = Json.readValueHard(wallString, List.class);
-    List<Object> rawRobot = blockstr.get(0);
+  @SuppressWarnings("unchecked")
+  private static RoboWorld fromJSON(String jsonString) {
+    //List<List<Object>> blockstr = Json.readValueHard(jsonString, List.class);
+    Map<String, Object> ctxMap = Json.readValueHard(jsonString, Map.class);
+    //List<Object> rawRobot = blockstr.get(0);
+    List<Object> rawRobot = (List<Object>) ctxMap.get("robot");
     
     Point robotPoint = new Point((int) rawRobot.get(0), (int) rawRobot.get(1));
     Set<Item> robotItems = ((Collection<String>) rawRobot.get(2)).stream()
@@ -143,8 +144,9 @@ public class RoboWorld extends World<RoboBlock> {
     Robot robot = new Robot(robotPoint);
     Set<Wall> walls = new HashSet<>();
     Set<Item> items = robotItems;
-    blockstr.subList(1, blockstr.size()).stream().forEach(c -> {
-      RoboBlock rb = RoboBlock.fromJSONObject(c);
+    //blockstr.subList(1, blockstr.size()).stream().forEach(c -> {
+    ((List<Object>) ctxMap.get("world")).stream().forEach(c -> {
+      RoboBlock rb = RoboBlock.fromJSONObject((List<Object>) c);
       if (rb instanceof Item)
         items.add((Item) rb);
       else if (rb instanceof Wall)
@@ -153,7 +155,13 @@ public class RoboWorld extends World<RoboBlock> {
 //        rooms.add((Wall) rb);
     });
     RoboWorld world = new RoboWorld(robot, walls, items);
-    //world.robot = robot;
+    
+    Set<Point> points;
+    for (Entry<String, List<List<Integer>>> entry : ((Map<String, List<List<Integer>>>) ctxMap.get("rooms")).entrySet()) {
+      points = entry.getValue().stream().map(p -> new Point(p.get(0), p.get(1))).collect(Collectors.toSet());
+      world.rooms.put(entry.getKey(), points);
+    }
+    
     return world;
   }
 
@@ -185,6 +193,17 @@ public class RoboWorld extends World<RoboBlock> {
     return subset.stream().map(i -> i.get(qualifiedRel[1])).collect(Collectors.toSet());
   }
 
+  public Set<? extends Object> getSpecialSet(String name) {
+    if ("world".equals(name)) {
+      return getOpenPoints();
+    } else if ("items".equals(name)) {
+      return allItems();
+    } else if (rooms.containsKey(name)) {
+      return rooms.get(name);
+    }
+    return null;
+  }
+  
   public ItemSet allItems() {
     return new ItemSet((Set<Item>) items);
   }

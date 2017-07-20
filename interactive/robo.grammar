@@ -55,6 +55,11 @@
 (rule $AreaCollection ([ $AreaList ]) (IdentityFn) (anchored true))
 
 (rule $Area (world) world (anchored true))
+(for @name (room1 room2 room3 room4 room5 room6 room7 room8 room9)
+  (rule $Area (@name) @name (anchored true))
+)
+
+
 (rule $Area ([ $PointList ]) (IdentityFn) (anchored true))
 (rule $Area (area with corners $Point and $Point) (lambda p1 (lambda p2
     (call getAreaWithCorners (var p1) (var p2)))) (anchored true))
@@ -120,8 +125,8 @@
 
 ############### Arithmetic
 (for @op (+ -)
-(rule $Numbers ($Numbers @op $Number) (lambda n1  (lambda n2
-(@op (var n1) (var n2)))) (anchored true))
+  (rule $Numbers ($Numbers @op $Number) (lambda n1  (lambda n2
+  (@op (var n1) (var n2)))) (anchored true))
 )
 
 (rule $Number ($TOKEN) (NumberFn) (anchored true))
