@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
@@ -23,7 +24,6 @@ import edu.stanford.nlp.sempre.StringValue;
 import edu.stanford.nlp.sempre.interactive.Block;
 import edu.stanford.nlp.sempre.interactive.VariablePoint;
 import edu.stanford.nlp.sempre.interactive.World;
-import edu.stanford.nlp.sempre.interactive.annotations.ActionMethod;
 import edu.stanford.nlp.sempre.interactive.planner.PathFinder;
 import fig.basic.Option;
 
@@ -39,6 +39,7 @@ public class RoboWorld extends World<RoboBlock> {
   private Point highCorner;
   
   private Map<String, Set<Point>> rooms;
+  private Map<String, Function<ItemSet, Boolean>> itemActions;
   
   public static Options opts = new Options();
 
@@ -68,6 +69,11 @@ public class RoboWorld extends World<RoboBlock> {
     this.findCorners();
     this.selectedArea = Optional.empty();
     this.selectedPoint = Optional.empty();
+    
+    
+    itemActions = new HashMap<>();
+    itemActions.put("pick", (x) -> pick(x));
+    itemActions.put("drop", (x) -> drop(x));
   }
 
   @SuppressWarnings("unchecked")
@@ -268,7 +274,6 @@ public class RoboWorld extends World<RoboBlock> {
         .filter(a -> ! Sets.intersection(a, itemArea).isEmpty()).collect(Collectors.toSet());
   }
   
-  
   public void setIsCarried(int isCarried, ItemSet is) {
     if (isCarried < 0)
       is.isCarried = Optional.empty();
@@ -286,24 +291,20 @@ public class RoboWorld extends World<RoboBlock> {
     return new Point(robot.point.x, robot.point.y);
   }
   
-  @ActionMethod
   public boolean noop() {
     return true;
   }
   
   /** All action methods return whether the action was successfully completed or not
    */
-  @ActionMethod
   public boolean visit(Point p, Set<Point> avoidSet) {
     return gotoPoint(p, avoidSet);
   }
   
-  @ActionMethod
   public boolean visit(Point p) {
     return gotoPoint(p, new HashSet<>());
   }
   
-  @ActionMethod
   public boolean visit() {
     if (selectedPoint.isPresent())
       return gotoPoint(selectedPoint.get(), new HashSet<>());
@@ -335,8 +336,11 @@ public class RoboWorld extends World<RoboBlock> {
       return false;
   }
   
-  @ActionMethod
-  public boolean pick(ItemSet is) {
+  public boolean itemActionHandler(String act, ItemSet is) {
+    return itemActions.get(act).apply(is);
+  }
+  
+  private boolean pick(ItemSet is) {
     is.isCarried = Optional.of(false);
     is.locFilter = Optional.of(new HashSet<>(Arrays.asList(robot.point)));
     Set<Item> restricted = is.eval();
@@ -356,8 +360,7 @@ public class RoboWorld extends World<RoboBlock> {
     return true;
   }
   
-  @ActionMethod
-  public boolean drop(ItemSet is) {
+  private boolean drop(ItemSet is) {
     is.isCarried = Optional.of(true);
     is.locFilter = Optional.empty();
     Set<Item> restricted = is.eval();

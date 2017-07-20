@@ -218,14 +218,11 @@ class InteractiveBeamParserState extends ChartParserState {
     else
       parseFloat = false;
 
-    System.out.println(predDerivations);
     for (Iterator<Derivation> iter = predDerivations.iterator(); iter.hasNext();) {
       Derivation d = iter.next();
       if (!SemanticAnalyzer.checkVariables(d))
         iter.remove();
     }
-
-    System.out.println(predDerivations);
 
     if (mode == Mode.full) {
       // Compute gradient with respect to the predicted derivations

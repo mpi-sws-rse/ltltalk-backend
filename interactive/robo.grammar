@@ -1,11 +1,11 @@
 # Robot action functions (macros merely for formatting)
 (def @visit visit)
-(def @pick pick)
-(def @drop drop)
+(def @itemAct itemActionHandler)
 
 ### Action Rules ###
 
 (rule $Action (strict $Action) (lambda a (:strict (var a))) (anchored true))
+
 
 (rule $Action (visit $Point) (lambda x (: @visit (var x))) (anchored true))
 (rule $Action (visit $Areas) (lambda a (: @visit (call anyPoint (var a)))) (anchored true))
@@ -13,8 +13,9 @@
 (rule $Action (visit $Areas while avoiding $Areas)
     (lambda a1 (lambda a2 (: @visit (call anyPoint (var a1)) (var a2)))) (anchored true))
 
-(rule $Action (pick $ActionItem) (lambda c (: @pick (var c))) (anchored true))
-(rule $Action (drop $ActionItem) (lambda c (: @drop (var c))) (anchored true))
+(rule $Action ($ItemActionFragment $CountedItem) (lambda f (lambda i (: @itemAct (var f) (var i)))) (anchored true))
+(rule $ItemActionFragment (pick) pick (anchored true))
+(rule $ItemActionFragment (drop) drop (anchored true))
 
 # foreach "defines" the point variable
 (rule $Action (foreach point in $Areas $Action )
@@ -67,9 +68,9 @@
 (rule $ROOT ( $Areas ) areaaaa (anchored true))
 #(rule $Area ( not $Areas ) (lambda a1 (not (var a1))) (anchored true))
 (rule $Areas ( $Area ) (IdentityFn) (anchored true))
-(rule $Areas ( $Areas + $Area ) (lambda a1 (lambda a2 (or (var a1) (var a2)))) (anchored true))
-(rule $Areas ( $Areas * $Area ) (lambda a1 (lambda a2 (and (var a1) (var a2)))) (anchored true))
-(rule $Areas ( $Areas - $Area ) (lambda a1 (lambda a2 (and (var a1) (not (var a2))))) (anchored true))
+(rule $Areas ( $Areas union $Area ) (lambda a1 (lambda a2 (or (var a1) (var a2)))) (anchored true))
+(rule $Areas ( $Areas intersect $Area ) (lambda a1 (lambda a2 (and (var a1) (var a2)))) (anchored true))
+(rule $Areas ( $Areas minus $Area ) (lambda a1 (lambda a2 (and (var a1) (not (var a2))))) (anchored true))
 (rule $AreaList ( $Area ) (IdentityFn) (anchored true))
 (rule $AreaList ( $AreaList , $Area ) (lambda x ( lambda y (call combineCollections (var x) (var y)))) (anchored true))
 
@@ -86,8 +87,8 @@
 
 ### Item Rules ###
 
-(rule $ActionItem ($Item) (lambda i (call setLimit (number 1) (var i))) (anchored true))
-(rule $ActionItem (every $Item) (lambda i (call setLimit (number -1) (var i))) (anchored true))
+(rule $CountedItem ($Item) (lambda i (call setLimit (number 1) (var i))) (anchored true))
+(rule $CountedItem (every $Item) (lambda i (call setLimit (number -1) (var i))) (anchored true))
 
 (rule $Item (item) (ConstantFn (call allItems)) (anchored true))
 (rule $Item (item $ColorSets) (IdentityFn) (anchored true))
@@ -96,9 +97,9 @@
 (rule $ColorSets ($ColorSet) (IdentityFn) (anchored true))
 (rule $ColorSet ( { $ColorSets } ) (IdentityFn) (anchored true))
 (rule $ColorSet (! $ColorSets) (lambda x (not (var x))) (anchored true))
-(rule $ColorSets ($ColorSets && $ColorSet) (lambda s1 (lambda s2
+(rule $ColorSets ($ColorSets and $ColorSet) (lambda s1 (lambda s2
 					(and (var s1) (var s2)))) (anchored true))
-(rule $ColorSets ($ColorSets || $ColorSet) (lambda s1 (lambda s2
+(rule $ColorSets ($ColorSets or $ColorSet) (lambda s1 (lambda s2
 					(or (var s1) (var s2)))) (anchored true))
 
 (rule $Rel (color) items?color (anchored true))
@@ -119,8 +120,6 @@
 (rule $Action ($Action ;) (IdentityFn) (anchored true))
 
 (rule $Action (repeat $Numbers times $Action) (lambda n (lambda a (:loop (var n) (var a)))) (anchored true))
-#(rule $Action (if $ValueSets $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored true))
-#(rule $Action (if $Sets $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored true))
 (rule $Action (if $Situations then $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored true))
 
 ############### Arithmetic
