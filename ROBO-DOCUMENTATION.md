@@ -1,17 +1,20 @@
 # Robo Specific Documentation
 
 Files are contained under `src/edu/stanford/nlp/sempre/interactive`.
-Grammar files are contained under `interactive`. The grammar with commands specific to robot-world is [my.grammar](/interactive/my.grammar) and general rules can be 
-found in the file [dal.grammar](/interactive/dal.grammar)
+Grammar files are contained under `interactive`. The formal grammar can be
+found in [robo.grammar](/interactive/robo.grammar).
 
 ## Planner
 
 The `Planner` package contains the class `PathFinder` which is responsible for
 planning the motion of the robot. The pathing is done by nondeterministically
-selecting an A\*-optimal path (A\* implemented as part of the
-[Hipster library](https://github.com/citiususc/hipster)).
+selecting an efficient path using A\* (A\* implemented as part of the
+[Hipster library](https://github.com/citiususc/hipster)). When visiting
+multiple points in a nondeterministic order, the Christofides algorithm is
+used as a heuristic to determine an efficient order in which to visit the
+points.
 
-## Robolurn (final name TBD)
+## Robolurn Package (final name TBD)
 
 The `Robolurn` package contains classes that directly relate to visual world
 that is displayed on the front end. `RoboAction` describes individual actions
@@ -24,8 +27,3 @@ of `RoboAction`s that are converted into JSON in order to be sent to the front
 end. This class also contains all logic related to core language functions (e.g.,
 `visit`, `pick`, `drop`).
 
-## Running SEMPRE
-
-To run SEMPRE with the proper settings for the robot world use
-`./interactive/run @mode=voxelurn -interactive false -server true` (the `true`
-and `false` can be switched in order to use the server with a CLI).
