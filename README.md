@@ -68,3 +68,7 @@ Here are some general tips for troubleshooting:
 - If the server throws an error during use with the browser client
 	- Open an issue detailing the server-side error and the client-side input
 
+# Browser Client
+
+The corresponding browser-based client to this project can be found
+[here](https://gitlab.mpi-sws.org/gavran/naturalizing-robotic-language).
