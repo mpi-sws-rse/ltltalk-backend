@@ -1,5 +1,6 @@
 # Robot action functions (macros merely for formatting)
 (def @visit visit)
+(def @move move)
 (def @itemAct itemActionHandler)
 
 ### Action Rules ###
@@ -12,6 +13,7 @@
 (rule $Action (visit $Point while avoiding $Areas) (lambda f  (lambda a (: @visit (var f) (var a)))) (anchored true))
 (rule $Action (visit $Areas while avoiding $Areas)
     (lambda a1 (lambda a2 (: @visit (call anyPoint (var a1)) (var a2)))) (anchored true))
+(rule $Action (move $Direction) (lambda d (: @move (var d))) (anchored true))
 
 (rule $Action ($ItemActionFragment $CountedItem) (lambda f (lambda i (: @itemAct (var f) (var i)))) (anchored true))
 (rule $ItemActionFragment (pick) pick (anchored true))
@@ -109,6 +111,9 @@
 ### Data type definitions ###
 
 (rule $Color ($TOKEN) (SimpleLexiconFn (type color)) (anchored true))
+(for @dir (up down left right)
+  (rule $Direction (@dir) @dir (anchored true))
+)
 
 ### Remnants of DAL grammar ###
 

@@ -112,7 +112,12 @@ public class DALExecutor extends Executor {
           world,
           f.args.subList(1, f.args.size()).stream().map(x -> processSetFormula(x, world)).toArray());
       try {
-        return (boolean) resultObj;
+        boolean result = (boolean) resultObj;
+        if (!result) {
+          System.out.println("The following action could not be completed: " + f.toLispTree());
+          throw new RuntimeException();
+        }
+        return result;
       } catch (ClassCastException e) {
         throw new RuntimeException("Action methods must return boolean type. Got " + resultObj.getClass());
       }

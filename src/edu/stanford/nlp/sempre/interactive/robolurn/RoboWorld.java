@@ -294,7 +294,22 @@ public class RoboWorld extends World<RoboBlock> {
   public boolean noop() {
     return true;
   }
-  
+
+  public boolean move(String dir) {
+    Point p = new Point(robot.point.x, robot.point.y);
+    if ("up".equals(dir))
+      p.y += 1;
+    else if ("down".equals(dir))
+      p.y -= 1;
+    else if ("right".equals(dir))
+      p.x += 1;
+    else if ("left".equals(dir))
+      p.x -= 1;
+    else
+      throw new RuntimeException("Unknown direction " + dir);
+    return gotoPoint(p, new HashSet<>());
+  }
+
   /** All action methods return whether the action was successfully completed or not
    */
   public boolean visit(Point p, Set<Point> avoidSet) {
@@ -322,10 +337,15 @@ public class RoboWorld extends World<RoboBlock> {
             this.getHighCorner())
         .stream().map(p -> new RoboAction(p, RoboAction.Action.PATH))
         .collect(Collectors.toList());
+    if (pathActions.size() > 0 && path.size() > 1) {
+      path.remove(0);
+    }
+    
     if (path.size() > 0) {
       RoboAction last = path.get(path.size() - 1);
       last.action = RoboAction.Action.DESTINATION;
       robot.point = last.point;
+      
       if (robot.point.equals(point)) {
         pathActions.addAll(path);
         return true;
