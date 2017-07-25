@@ -139,7 +139,8 @@ public class DefinitionAligner {
             LogInfo.logs("Matched head(%d,%d)=%s with deriv(%d,%d)=%s: %s", start, end, headTokens.subList(start, end),
                 def.start, def.end, defTokens.subList(def.start, def.end), def);
           allMatches.add(new Match(def, start, end));
-//          return;
+          // Removing this return allows the aligner to detect all potential alignments
+          //return;
         }
       }
     }

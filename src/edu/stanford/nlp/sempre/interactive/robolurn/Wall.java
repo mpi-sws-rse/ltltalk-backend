@@ -46,10 +46,6 @@ public class Wall extends RoboBlock {
     return result;
   }
 
-  /**
-   * Two different cubes can be "equal" since multiple cubes of the same type
-   * can be in the same location.
-   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)

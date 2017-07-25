@@ -22,7 +22,6 @@ import edu.stanford.nlp.sempre.Json;
 import edu.stanford.nlp.sempre.NaiveKnowledgeGraph;
 import edu.stanford.nlp.sempre.StringValue;
 import edu.stanford.nlp.sempre.interactive.Block;
-import edu.stanford.nlp.sempre.interactive.VariablePoint;
 import edu.stanford.nlp.sempre.interactive.World;
 import edu.stanford.nlp.sempre.interactive.planner.PathFinder;
 import fig.basic.Option;
@@ -33,25 +32,26 @@ public class RoboWorld extends World<RoboBlock> {
     public int maxBlocks = 1024 ^ 2;
   }
   
-
-  
   private Point lowCorner;
   private Point highCorner;
   
   private Map<String, Set<Point>> rooms;
+  // Store functions in a map so they do not need to be accessed via reflection.
   private Map<String, Function<ItemSet, Boolean>> itemActions;
   
   public static Options opts = new Options();
 
   public static RoboWorld fromContext(ContextValue context) {
     if (context == null || context.graph == null) {
-      return fromJSON("[[0,0,[]],[1,1,\"wall\",null]]");
+      //return fromJSON("[[0,0,[]],[1,1,\"wall\",null]]");
+      return null;
     }
     NaiveKnowledgeGraph graph = (NaiveKnowledgeGraph) context.graph;
     String wallString = ((StringValue) graph.triples.get(0).e1).value;
     return fromJSON(wallString);
   }
 
+  // The list of actions that will be sent as a response to the browser client
   private List<RoboAction> pathActions;
   private Robot robot;
   
@@ -76,7 +76,10 @@ public class RoboWorld extends World<RoboBlock> {
     itemActions.put("drop", (x) -> drop(x));
   }
 
-  @SuppressWarnings("unchecked")
+  /**
+   * Create a deep copy of the world
+   * This is necessary for the `strict` and `possible` constructs.
+   */
   public RoboWorld clone() {
     Set<Wall> newWalls = walls.stream().map(w -> (Wall) w.clone()).collect(Collectors.toSet());
     Set<Item> newItems = items.stream().map(i -> (Item) i.clone()).collect(Collectors.toSet());
@@ -88,6 +91,9 @@ public class RoboWorld extends World<RoboBlock> {
     );
   }
   
+  /**
+   * Calculate the dimensions of the map from the context
+   */
   private void findCorners() {
     int maxX = 0, maxY = 0, minX = 0, minY = 0;
     for (RoboBlock w : walls) {
@@ -136,41 +142,42 @@ public class RoboWorld extends World<RoboBlock> {
 
   @SuppressWarnings("unchecked")
   private static RoboWorld fromJSON(String jsonString) {
-    //List<List<Object>> blockstr = Json.readValueHard(jsonString, List.class);
     Map<String, Object> ctxMap = Json.readValueHard(jsonString, Map.class);
-    //List<Object> rawRobot = blockstr.get(0);
     List<Object> rawRobot = (List<Object>) ctxMap.get("robot");
     
     Point robotPoint = new Point((int) rawRobot.get(0), (int) rawRobot.get(1));
+    // Items held by the robot are listed as part of the robot state in the JSON
     Set<Item> robotItems = ((Collection<String>) rawRobot.get(2)).stream()
         .map(c -> new Item(null, c, true))
         .collect(Collectors.toSet());
     
-//    Robot robot = new Robot(robotPoint, robotItems);
     Robot robot = new Robot(robotPoint);
     Set<Wall> walls = new HashSet<>();
     Set<Item> items = robotItems;
-    //blockstr.subList(1, blockstr.size()).stream().forEach(c -> {
     ((List<Object>) ctxMap.get("world")).stream().forEach(c -> {
       RoboBlock rb = RoboBlock.fromJSONObject((List<Object>) c);
       if (rb instanceof Item)
         items.add((Item) rb);
       else if (rb instanceof Wall)
         walls.add((Wall) rb);
-//      else if (rb instanceof Point)
-//        rooms.add((Wall) rb);
     });
     RoboWorld world = new RoboWorld(robot, walls, items);
     
+    // Load the room definitions as specified by the client
     Set<Point> points;
-    for (Entry<String, List<List<Integer>>> entry : ((Map<String, List<List<Integer>>>) ctxMap.get("rooms")).entrySet()) {
-      points = entry.getValue().stream().map(p -> new Point(p.get(0), p.get(1))).collect(Collectors.toSet());
+    for (Entry<String, List<List<Integer>>> entry
+        : ((Map<String, List<List<Integer>>>) ctxMap.get("rooms")).entrySet()) {
+      points = entry.getValue().stream()
+          .map(p -> new Point(p.get(0), p.get(1))).collect(Collectors.toSet());
       world.rooms.put(entry.getKey(), points);
     }
     
     return world;
   }
 
+  /**
+   * Return the set of objects filtered by the specified `rel` and `values`
+   */
   @Override
   public Set<? extends RoboBlock> has(String rel, Set<Object> values) {
     String[] qualifiedRel = rel.split("\\?");
@@ -182,6 +189,7 @@ public class RoboWorld extends World<RoboBlock> {
           || "type".equals(qualifiedRel[1])
           || "carried".equals(qualifiedRel[1])
           || "point".equals(qualifiedRel[1])) {
+        @SuppressWarnings("unchecked")
         Set<Item> set = (Set<Item>) items.stream()
             .filter(i -> values.contains(i.get(qualifiedRel[1])))
             .collect(Collectors.toSet());
@@ -191,11 +199,14 @@ public class RoboWorld extends World<RoboBlock> {
     throw new RuntimeException("getting property " + rel + " is not supported.");
   }
 
+  /**
+   * Return values of `rel` present in `subset`
+   */
   @Override
   public Set<Object> get(String rel, Set<Block> subset) {
     String[] qualifiedRel = rel.split("\\?");
     if (qualifiedRel.length < 2)
-      throw new RuntimeException("'Rel' must be qualified with items?rel or walls?rel");
+      throw new RuntimeException("'rel' must be qualified with items?rel or walls?rel");
     return subset.stream().map(i -> i.get(qualifiedRel[1])).collect(Collectors.toSet());
   }
 
@@ -209,12 +220,8 @@ public class RoboWorld extends World<RoboBlock> {
     }
     return null;
   }
-  
-  public ItemSet allItems() {
-    return new ItemSet((Set<Item>) items);
-  }
-  
- @Override
+
+  @Override
   public Set<? extends Object> universalSet(Object o) {
     if (o instanceof Item) {
       return this.items;
@@ -224,6 +231,11 @@ public class RoboWorld extends World<RoboBlock> {
       return this.getOpenPoints();
     }
     return new HashSet<>();
+  }
+  
+  @SuppressWarnings("unchecked")
+  public ItemSet allItems() {
+    return new ItemSet((Set<Item>) items);
   }
 
   public ItemSet setLocationFilter(Point p, Set<Item> s) {
@@ -235,6 +247,9 @@ public class RoboWorld extends World<RoboBlock> {
     return setLocationFilter(new HashSet<>(Arrays.asList(p)), is);
   }
   
+  /**
+   * Specify a filter that will be applied when the item set is evaluated
+   */
   public ItemSet setLocationFilter(Set<Point> filter, Set<Item> s) {
     ItemSet is;
     if (s instanceof ItemSet)
@@ -245,6 +260,9 @@ public class RoboWorld extends World<RoboBlock> {
     return is;
   }
   
+  /**
+   * Limit the number of items a set will contain when evaluated 
+   */
   public ItemSet setLimit(int limit, Set<Item> s) {
     ItemSet is;
     if (s instanceof ItemSet)
@@ -274,6 +292,9 @@ public class RoboWorld extends World<RoboBlock> {
         .filter(a -> ! Sets.intersection(a, itemArea).isEmpty()).collect(Collectors.toSet());
   }
   
+  /**
+   * Specify how to filter items based on their being carried by the robot
+   */
   public void setIsCarried(int isCarried, ItemSet is) {
     if (isCarried < 0)
       is.isCarried = Optional.empty();
@@ -295,6 +316,9 @@ public class RoboWorld extends World<RoboBlock> {
     return true;
   }
 
+  /**
+   * Move relative to the current position of the robot 
+   */
   public boolean move(String dir) {
     Point p = new Point(robot.point.x, robot.point.y);
     if ("up".equals(dir))
@@ -310,7 +334,8 @@ public class RoboWorld extends World<RoboBlock> {
     return gotoPoint(p, new HashSet<>());
   }
 
-  /** All action methods return whether the action was successfully completed or not
+  /**
+   * All action methods return whether the action was successfully completed or not
    */
   public boolean visit(Point p, Set<Point> avoidSet) {
     return gotoPoint(p, avoidSet);
@@ -318,13 +343,6 @@ public class RoboWorld extends World<RoboBlock> {
   
   public boolean visit(Point p) {
     return gotoPoint(p, new HashSet<>());
-  }
-  
-  public boolean visit() {
-    if (selectedPoint.isPresent())
-      return gotoPoint(selectedPoint.get(), new HashSet<>());
-    else
-      throw new RuntimeException("No point has been selected to visit.");
   }
   
   private boolean gotoPoint(Point point, Set<Point> avoidSet) {
@@ -342,10 +360,13 @@ public class RoboWorld extends World<RoboBlock> {
     }
     
     if (path.size() > 0) {
+      // Remove the last point to avoid the destination of the previous action
+      // being duplicated in the list of path actions
       RoboAction last = path.get(path.size() - 1);
       last.action = RoboAction.Action.DESTINATION;
       robot.point = last.point;
       
+      // The action is successful iff the robot is now at the specified point
       if (robot.point.equals(point)) {
         pathActions.addAll(path);
         return true;
@@ -398,17 +419,15 @@ public class RoboWorld extends World<RoboBlock> {
     return true;
   }
 
-  public VariablePoint getVariable(String name) {
-    return new VariablePoint(0, 0, name);
-  }
-
   private <T> void refreshSet(Set<T> set) {
     List<T> s = new ArrayList<>(set);
     set.clear();
     set.addAll(s);
   }
 
-
+  /**
+   * If the item states have changed, the hash set must be updated
+   */
   private void keyConsistency() {
     refreshSet(walls);
     refreshSet(items);

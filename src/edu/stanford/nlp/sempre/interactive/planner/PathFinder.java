@@ -1,7 +1,6 @@
 package edu.stanford.nlp.sempre.interactive.planner;
 
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -63,6 +62,7 @@ public class PathFinder {
     Maze2D maze = new Maze2D(charMap);
     // LogInfo.logs(maze.toString());
 
+    @SuppressWarnings("rawtypes")
     SearchProblem problem = ProblemBuilder.create().initialState(start).defineProblemWithExplicitActions()
         .useTransitionFunction(new StateTransitionFunction<Point>() {
           @Override
@@ -94,9 +94,11 @@ public class PathFinder {
           }
         }).build();
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     SearchResult result = Hipster.createAStar(problem).search(goal);
 
     // Readjust coordinates
+    @SuppressWarnings("unchecked")
     List<Point> path = (List<Point>) result.getOptimalPaths().get(0);
     List<Point> transformed = path.stream().map(p -> {
       p.x += lowCorner.x;
@@ -114,6 +116,10 @@ public class PathFinder {
     return Math.sqrt(Math.pow((p1.x - p2.x), 2) + Math.pow((p1.y - p2.y), 2));
   }
 
+  /**
+   * Get the order in which to traverse a given set of points
+   * This implemented with the Christofides algorithm
+   */
   public static int[] getPointOrder(List<Point> points) {
     if (points.size() == 1) {
       return new int[] {0};

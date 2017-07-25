@@ -16,7 +16,6 @@ public class SemanticAnalyzer {
     return helper(d, new HashSet<>());
   }
   
-  // TODO probably bug here; undefine 
   private static boolean helper(Derivation d, Set<String> variables) {
     String define = d.rule.getInfoTag("defines");
     String require =  d.rule.getInfoTag("requires");

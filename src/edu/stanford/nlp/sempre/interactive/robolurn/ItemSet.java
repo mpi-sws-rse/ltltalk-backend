@@ -7,8 +7,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import edu.stanford.nlp.sempre.interactive.Block;
-
+/**
+ * Defines a set of items which can have filters specified without the filters
+ * being immediately evaluated. This is important in situations where filters
+ * need to be evaluated in a different order than they are specified
+ */
+@SuppressWarnings("serial")
 public class ItemSet extends HashSet<Item> {
 
   public Optional<Boolean> isCarried;

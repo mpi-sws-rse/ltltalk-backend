@@ -6,27 +6,42 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.naming.OperationNotSupportedException;
-
 import com.google.common.collect.Lists;
-import com.google.common.collect.ObjectArrays;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
-import edu.stanford.nlp.sempre.*;
+import edu.stanford.nlp.sempre.ActionFormula;
+import edu.stanford.nlp.sempre.AggregateFormula;
+import edu.stanford.nlp.sempre.ApplyFormula;
+import edu.stanford.nlp.sempre.ArithmeticFormula;
+import edu.stanford.nlp.sempre.BooleanValue;
+import edu.stanford.nlp.sempre.CallFormula;
+import edu.stanford.nlp.sempre.ContextValue;
+import edu.stanford.nlp.sempre.ErrorValue;
+import edu.stanford.nlp.sempre.Executor;
+import edu.stanford.nlp.sempre.Formula;
+import edu.stanford.nlp.sempre.Formulas;
+import edu.stanford.nlp.sempre.JoinFormula;
+import edu.stanford.nlp.sempre.LambdaFormula;
+import edu.stanford.nlp.sempre.LimitFormula;
+import edu.stanford.nlp.sempre.ListValue;
+import edu.stanford.nlp.sempre.MergeFormula;
+import edu.stanford.nlp.sempre.NameValue;
+import edu.stanford.nlp.sempre.NotFormula;
+import edu.stanford.nlp.sempre.NumberValue;
+import edu.stanford.nlp.sempre.ReverseFormula;
+import edu.stanford.nlp.sempre.StringValue;
+import edu.stanford.nlp.sempre.SuperlativeFormula;
+import edu.stanford.nlp.sempre.Value;
+import edu.stanford.nlp.sempre.ValueFormula;
 import edu.stanford.nlp.sempre.interactive.planner.PathFinder;
-import edu.stanford.nlp.sempre.interactive.robolurn.RoboBlock;
-import edu.stanford.nlp.sempre.interactive.robolurn.RoboWorld;
 import fig.basic.LogInfo;
 import fig.basic.Option;
 
@@ -97,9 +112,6 @@ public class DALExecutor extends Executor {
       LogInfo.begin_track("DALExecutor.performActions");
       LogInfo.logs("Executing: %s", f);
       LogInfo.logs("World: %s", world.toJSON());
-      //LogInfo.logs("allItems: %s", world.all());
-      //LogInfo.logs("selected: %s", world.selected());
-      //LogInfo.logs("previous: %s", world.previous());
       LogInfo.end_track();
     }
     if (f.mode == ActionFormula.Mode.primitive) {
@@ -112,22 +124,23 @@ public class DALExecutor extends Executor {
           world,
           f.args.subList(1, f.args.size()).stream().map(x -> processSetFormula(x, world)).toArray());
       try {
-        boolean result = (boolean) resultObj;
-        if (!result) {
+        boolean successful = (boolean) resultObj;
+        if (!successful) {
+          // Eventually, this information will be returned to the browser client
           System.out.println("The following action could not be completed: " + f.toLispTree());
           throw new RuntimeException();
         }
-        return result;
+        return successful;
       } catch (ClassCastException e) {
         throw new RuntimeException("Action methods must return boolean type. Got " + resultObj.getClass());
       }
       //world.merge();
     } else if (f.mode == ActionFormula.Mode.sequential) {
-      boolean result = true;
+      boolean successful = true;
       for (Formula child : f.args) {
-        result &= performActions((ActionFormula) child, world);
+        successful &= performActions((ActionFormula) child, world);
       }
-      return result;
+      return successful;
     } else if (f.mode == ActionFormula.Mode.repeat) {
       Set<Object> arg = toSet(processSetFormula(f.args.get(0), world));
       if (arg.size() > 1)
@@ -138,66 +151,66 @@ public class DALExecutor extends Executor {
       else
         times = (int) arg.iterator().next();
 
-      boolean result = true;
+      boolean successful = true;
       for (int i = 0; i < times; i++)
-        result &= performActions((ActionFormula) f.args.get(1), world);
-      return result;
+        successful &= performActions((ActionFormula) f.args.get(1), world);
+      return successful;
     } else if (f.mode == ActionFormula.Mode.conditional) {
       // using the empty set to represent false
       boolean cond = toSet(processSetFormula(f.args.get(0), world)).iterator().hasNext();
-      boolean result = true;
+      boolean successful = true;
       if (cond)
-        result &= performActions((ActionFormula) f.args.get(1), world);
-      return result;
+        successful &= performActions((ActionFormula) f.args.get(1), world);
+      return successful;
     } else if (f.mode == ActionFormula.Mode.whileloop) {
       // using the empty set to represent false
       boolean cond = toSet(processSetFormula(f.args.get(0), world)).iterator().hasNext();
-      boolean result = true;
+      boolean successful = true;
       for (int i = 0; i < opts.maxWhile; i++) {
         if (cond)
-          result &= performActions((ActionFormula) f.args.get(1), world);
+          successful &= performActions((ActionFormula) f.args.get(1), world);
         else
           break;
         cond = toSet(processSetFormula(f.args.get(0), world)).iterator().hasNext();
       }
-      return result;
+      return successful;
     } else if (f.mode == ActionFormula.Mode.forset) {
       return performActions((ActionFormula) f.args.get(1), world);
     } else if (f.mode == ActionFormula.Mode.foreach) {
+      // Check whether the loop variable is `point` or `area`
       if ("point".equals(f.args.get(0).toString())) {
         List<Point> selected = toPointList(toSet(processSetFormula(f.args.get(1), world)));
         int[] order = PathFinder.getPointOrder(selected);
-        boolean result = true;
+        boolean successful = true;
         for (int i = 0; i < order.length; ++i) {
           world.selectedPoint = Optional.of(selected.get(order[i]));
-          result &= performActions((ActionFormula) f.args.get(2), world);
+          successful &= performActions((ActionFormula) f.args.get(2), world);
         }
         world.selectedPoint = Optional.empty();
-        return result;
+        return successful;
         
       } else if ("area".equals(f.args.get(0).toString())) {
         List<Set<Point>> selected = toAreaList(toSet(processSetFormula(f.args.get(1), world)));
         int[] order = PathFinder.getPointOrder(selected.stream()
             .filter(a -> !a.isEmpty())
             .map(a -> a.iterator().next()).collect(Collectors.toList()));
-        boolean result = true;
+        boolean successful = true;
         for (int i = 0; i < order.length; ++i) {
           world.selectedArea = Optional.of(selected.get(order[i]));
-          result &= performActions((ActionFormula) f.args.get(2), world);
+          successful &= performActions((ActionFormula) f.args.get(2), world);
         }
         world.selectedArea = Optional.empty();
-        return result;
+        return successful;
       } else {
         throw new RuntimeException(":foreach cannot be used with \"" + f.args.get(0) + "\", only with \"point\" and \"area\".");
       }
     } else if (f.mode == ActionFormula.Mode.strict) {
-      // The full extend of this clone is not yet tested
       World<?> newWorld = world.clone();
-      boolean result = performActions((ActionFormula) f.args.get(0), newWorld);
-      if (result) {
-        result = performActions((ActionFormula) f.args.get(0), world);
+      boolean successful = performActions((ActionFormula) f.args.get(0), newWorld);
+      if (successful) {
+        successful = performActions((ActionFormula) f.args.get(0), world);
       }
-      return result;
+      return successful;
     } else {
       throw new RuntimeException("Unknown action.");
     }
@@ -211,6 +224,7 @@ public class DALExecutor extends Executor {
       return Sets.newHashSet(maybeSet);
   }
 
+  @SuppressWarnings("unused")
   private Point toPoint(int[] args) {
     Point p = new Point();
     p.x = args[0];
@@ -230,6 +244,7 @@ public class DALExecutor extends Executor {
     return itemset;
   }
 
+  @SuppressWarnings("unused")
   private Set<Point> toPointSet(Set<Object> maybePoints) {
     if (maybePoints.isEmpty())
       return new HashSet<>();
@@ -241,11 +256,11 @@ public class DALExecutor extends Executor {
     return pointSet;
   }
 
+  @SuppressWarnings("unchecked")
   private List<Set<Point>> toAreaList(Set<Object> maybeAreas) {
     if (maybeAreas.isEmpty())
       return new ArrayList<>();
     List<Set<Point>> areaSet;
-//    if (maybeAreas.iterator().next() instanceof Set)
     areaSet = maybeAreas.stream().map(i -> ((Set<Point>) i)).collect(Collectors.toList());
     return areaSet;
   }
@@ -281,11 +296,6 @@ public class DALExecutor extends Executor {
         Set<? extends Object> set = world.getSpecialSet(id);
         if (set != null) // How should an undefined set be handled?
           return set;
-//        else
-//          return Sets.newHashSet();
-        // Maybe add "items" and "walls" here?
-//        if (id.equals(specialsets.world))
-//          return world.getspecialset("world");
       }
       return toObject(((ValueFormula<?>) formula).value);
     }
@@ -385,12 +395,9 @@ public class DALExecutor extends Executor {
         limit = (int) ((NumberValue) arg.iterator().next()).value;
       else
         limit = (int) arg.iterator().next();
-//      if (limitFormula.number instanceof ValueFormula) {
       Set<Object> fullSet = toSet(processSetFormula(limitFormula.set, world));
       fullSet.removeIf(x -> fullSet.size() > limit);
       return fullSet;
-//      } else
-//        throw new RuntimeException("First argument of ApplyFormula must be a LambdaFormula");
     }
     
     if (formula instanceof ActionFormula) {
@@ -417,7 +424,7 @@ public class DALExecutor extends Executor {
 
   // Example: id = "Math.cos". similar to JavaExecutor's invoke,
   // but matches arg by building singleton set as needed
-  private Object invoke(String id, World thisObj, Object... args) {
+  private Object invoke(String id, World<?> thisObj, Object... args) {
     Method[] methods;
     Class<?> cls;
     String methodName;
@@ -456,12 +463,6 @@ public class DALExecutor extends Executor {
         continue;
       int cost = typeCastCost(m.getParameterTypes(), args);
 
-      // append optional selected parameter when needed:
-      //if (cost == INVALID_TYPE_COST && args.length + 1 == m.getParameterCount()) {
-        //args = ObjectArrays.concat(args, thisObj.selected);
-        //cost = typeCastCost(m.getParameterTypes(), args);
-      //}
-
       if (cost < bestCost) {
         bestCost = cost;
         bestMethod = m;
@@ -484,7 +485,8 @@ public class DALExecutor extends Executor {
         + Arrays.asList(args) + " having types " + types + "; candidates: " + nameMatches);
   }
 
-  private int typeCastCost(Class[] types, Object[] args) {
+  @SuppressWarnings("unchecked")
+  private int typeCastCost(Class<?>[] types, Object[] args) {
     if (types.length != args.length)
       return INVALID_TYPE_COST;
     int cost = 0;

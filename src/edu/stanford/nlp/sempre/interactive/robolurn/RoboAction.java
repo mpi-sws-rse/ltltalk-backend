@@ -85,7 +85,6 @@ public class RoboAction extends PathAction<RoboAction.Action> {
     if (props.get(3) == null)
       act.spec = null;
     else
-//      act.spec = Color.BasicColor.fromString((String) props.get(3));
       act.spec = props.get(3).toString();
     return act;
   }
@@ -103,39 +102,6 @@ public class RoboAction extends PathAction<RoboAction.Action> {
     RoboAction c = new RoboAction(new Point(point.x, point.y), this.action, this.spec, this.possible);
     return c;
   }
-
-  /*
-  public int hashCode() {
-    final int prime = 19;
-    int result = 1;
-    result = prime * result + point.x;
-    result = prime * result + point.y;
-    result = prime * result + action.hashCode();
-
-    return result;
-  }
-
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    RoboAction other = (RoboAction) obj;
-
-    if (x != other.x)
-      return false;
-    if (y != other.y)
-      return false;
-    if (action != other.action)
-      return false;
-    if (!spec.equals(other.spec))
-      return false;
-
-    return true;
-  }
-   */
 
   @Override
   public String toString() {

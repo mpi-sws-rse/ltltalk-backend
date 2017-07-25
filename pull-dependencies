@@ -187,109 +187,16 @@ addModule('corenlp-3.2.0', 'Stanford CoreNLP 3.2.0 (for backward reproducibility
   }
 })
 
-addModule('freebase', 'Freebase: need to construct Freebase schemas', lambda {
-  # Freebase schema
-  pull('/u/nlp/data/semparse/scr/freebase/state/execs/93.exec/schema2.ttl', 'fb_data/93.exec')
-
-  # Lucene libraries
-  pull('/u/nlp/data/semparse/resources/lucene-core-4.4.0.jar')
-  pull('/u/nlp/data/semparse/resources/lucene-analyzers-common-4.4.0.jar')
-  pull('/u/nlp/data/semparse/resources/lucene-queryparser-4.4.0.jar')
-
-  # Freebase data (for lexicon)
-  pull('/u/nlp/data/semparse/scr/fb_data/7', 'fb_data')
-
-  # WebQuestions dataset
-  pull('/u/nlp/data/semparse/webquestions/dataset_11/webquestions.examples.train.json', 'data/webquestions/dataset_11')
-  pull('/u/nlp/data/semparse/webquestions/dataset_11/webquestions.examples.test.json', 'data/webquestions/dataset_11')
-})
-
-
-
 addModule('virtuoso', 'Virtuoso: if want to run own SPARQL server locally', lambda {
   updateGit('https://github.com/openlink/virtuoso-opensource')
   # Run this command to compile:
   #system "cd virtuoso-opensource && ./autogen.sh && ./configure --prefix=$PWD/install && make && make install" or exit 1
 })
 
-addModule('fullfreebase-ttl', 'Freebase (ttl file)', lambda {
-  # This is just for your reference.  It is not directly used by SEMPRE.
-  pull('/u/nlp/data/semparse/scr/freebase/state/execs/93.exec/0.ttl.bz2', 'fb_data/93.exec', {:symlink => true})
-})
-
-addModule('fullfreebase-vdb', 'Freebase (Virtuoso database)', lambda {
-  # Virtuoso index of 0.ttl above.  This is read (and written) by Virtuoso.
-  pull('/u/nlp/data/semparse/scr/freebase/state/execs/93.exec/vdb.tar.bz2', 'fb_data/93.exec', {:symlink => true})
-  # You need to unzip this yourself and move these files to the right place.
-})
-
-addModule('fullfreebase-types', 'Freebase types', lambda {
-  # Map from mid (e.g., fb:m.02mjmr) to id (e.g., fb:en.barack_obama) (used to link external things like Freebase API search with our internal Freebase)
-  pull('/u/nlp/data/semparse/scr/freebase/freebase-rdf-2013-06-09-00-00.canonical-id-map.gz', 'fb_data', {:symlink => true})
-  # Map from id to types (used to do type inference on internal entities)
-  pull('/u/nlp/data/semparse/scr/freebase/freebase-rdf-2013-06-09-00-00.canonicalized.en-types.gz', 'fb_data', {:symlink => true})
-  # You need to unzip these yourself and move these files to the right place.
-})
-
-addModule('tables', 'Semantic parsing with execution on tables', lambda {
-  # CSV reader
-  pull('/u/nlp/data/semparse/resources/opencsv-3.0.jar')
-})
-
-addModule('tables-data', 'Data for semantic parsing with execution on tables', lambda {
-  pull('/u/nlp/data/semparse/wikitable/data', 'data/tables/', {:symlink => true})
-  pull('/u/nlp/data/semparse/wikitable/mturk-trivia-data/csv', 'data/tables/', {:symlink => true})
-})
-
-
-addModule('overnight', 'Creating a parser for multiple domains', lambda {
-  # Geo evaluation
-  pull('/u/nlp/data/semparse/overnight/geo880.db', 'data/overnight/', {:symlink => true})
-  pull('/u/nlp/data/semparse/overnight/geo880/geo880-train.examples', 'data/overnight/', {:symlink => true})
-  pull('/u/nlp/data/semparse/overnight/geo880/geo880-test.examples', 'data/overnight/', {:symlink => true})
-
-
-  # Cache for turking
-  pull('/u/nlp/data/semparse/overnight/cache/', 'data/overnight/', {:symlink => true})
-  pull('/u/nlp/data/semparse/overnight/layouts/', 'data/overnight/', {:symlink => true})
-
-  # Pull testing code
-  pull('/u/nlp/data/semparse/overnight/test/', 'data/overnight/', {:symlink => true})
-
-  # Pull geo880
-  pull('/u/nlp/data/semparse/overnight/geo880/geo880.paraphrases.train.superlatives.examples', 'data/overnight/', {:symlink => true})
-  pull('/u/nlp/data/semparse/overnight/geo880/geo880.paraphrases.train.superlatives2.examples', 'data/overnight/', {:symlink => true})
-  pull('/u/nlp/data/semparse/overnight/geo880/geo880.lexicon', 'data/overnight/', {:symlink => true})
-  pull('/u/nlp/data/semparse/overnight/geo880/geo880.predicate.dict', 'data/overnight/', {:symlink => true})
-
-  # Pull dependencies for everything else
-  domains = ['geo880', 'regex', 'publications', 'socialnetwork', 'restaurants', 'blocks', 'calendar', 'housing', 'basketball', 'recipes', 'calendarplus']
-  domains.each do |domain|
-    pull('/u/nlp/data/semparse/overnight/' + domain + '/' + domain + '.paraphrases.train.examples', 'data/overnight/', {:symlink => true})
-    pull('/u/nlp/data/semparse/overnight/' + domain + '/' + domain + '.paraphrases.test.examples', 'data/overnight/', {:symlink => true})
-    pull('/u/nlp/data/semparse/overnight/' + domain + '/' + domain + '.paraphrases.groups', 'data/overnight/', {:symlink => true})
-    pull('/u/nlp/data/semparse/overnight/' + domain + '/' + domain + '.word_alignments.berkeley', 'data/overnight/', {:symlink => true})
-    pull('/u/nlp/data/semparse/overnight/' + domain + '/' + domain + '.phrase_alignments', 'data/overnight/', {:symlink => true})
-    pull('/u/nlp/data/semparse/overnight/' + domain + '/' + domain + '-ppdb.txt', 'data/overnight/', {:symlink => true})
-  end
-
-  # Pull the independent sets for calendar
-  pull('/u/nlp/data/semparse/overnight/calendar/eval/calendar.test.turk.examples', 'data/overnight/', {:symlink => true})
-})
-
 addModule('esslli_2016', 'Data for ESSLLI 2016 semantic parsing class', lambda {
   pull('/u/nlp/data/semparse/esslli_2016', 'data/esslli_2016/', {:symlink => true})
 })
 
-addModule('geo880', 'Data, lexicon, grammars and KB for geo880', lambda {
-  pull('/u/nlp/data/semparse/geo880/geo880-test.examples', 'data/geo880', {:symlink => true})
-  pull('/u/nlp/data/semparse/geo880/geo880-test.preprocessed.examples', 'data/geo880', {:symlink => true})
-  pull('/u/nlp/data/semparse/geo880/geo880-train.preprocessed.examples', 'data/geo880', {:symlink => true})
-  pull('/u/nlp/data/semparse/geo880/geo880.grammar', 'data/geo880', {:symlink => true})
-  pull('/u/nlp/data/semparse/geo880/geo880.lexicon', 'data/geo880', {:symlink => true})
-  pull('/u/nlp/data/semparse/geo880/geo880.kg', 'data/geo880', {:symlink => true})
-  pull('/u/nlp/data/semparse/geo880/geo880.type_hierarchy', 'data/geo880', {:symlink => true})
-})
 ############################################################
 
 if ARGV.size == 0

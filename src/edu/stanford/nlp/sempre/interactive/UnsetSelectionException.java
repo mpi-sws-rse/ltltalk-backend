@@ -1,5 +1,10 @@
 package edu.stanford.nlp.sempre.interactive;
 
+/**
+ * Throw this exception when a variable is accessed without it first being set.
+ * @author brendonboldt
+ *
+ */
 @SuppressWarnings("serial")
 public class UnsetSelectionException extends Exception {
 

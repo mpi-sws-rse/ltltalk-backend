@@ -24,8 +24,6 @@ public abstract class World<B extends Block> {
   public Set<? extends B> items;
   public Set<? extends Point> open;
   
-//  public Map<String, Point> variables;
-  
   public Optional<Set<Point>> selectedArea;
   public Optional<Point> selectedPoint;
 
@@ -75,6 +73,8 @@ public abstract class World<B extends Block> {
 
   public abstract Set<Object> get(String rel, Set<Block> subset);
 
+  public abstract Set<? extends Object> universalSet(Object o);
+
   public Set<? extends Object> getSpecialSet(String name) {
     if ("world".equals(name)) {
       return getOpenPoints();
@@ -84,27 +84,20 @@ public abstract class World<B extends Block> {
     return null;
   }
   
-  //public abstract void update(String rel, Object value, Set<WorldBlock> selected);
-  public abstract Set<? extends Object> universalSet(Object o);
-  
   public Set<? extends B> allItems() {
     return items;
   }
     
   public Set<Point> getSelectedArea() throws UnsetSelectionException {
-    if (!selectedArea.isPresent()) { // Should this fail silently?
-//      LogInfo.log("WARNING: Selected area has not been set by foreach loop");
+    if (!selectedArea.isPresent()) {
       throw new UnsetSelectionException();
-//      return null;
     }
     return selectedArea.get();
   }
   
   public Point getSelectedPoint() throws UnsetSelectionException {
     if (!selectedPoint.isPresent()) {
-//      LogInfo.log("WARNING: Selected point has not been set by foreach loop");
       throw new UnsetSelectionException();
-//      return null;
     }
     return selectedPoint.get();
   }
@@ -127,7 +120,6 @@ public abstract class World<B extends Block> {
         .collect(Collectors.toSet());
   }
   
-  //public Set<Set<Point>> combineCollections(Set<Set<Point>> c1, Set<Set<Point>> c2) {
   public Set<? extends Object> combineCollections(Set<Object> c1, Set<Object> c2) {
     Object c1Elem;
     Object c2Elem;

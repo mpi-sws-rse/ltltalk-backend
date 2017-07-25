@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * @author brendonboldt
- * Generic type A represents and action type
+ * Generic type A represents an action type
  * @param <A>
  */
 public abstract class PathAction<A> {
@@ -15,10 +15,6 @@ public abstract class PathAction<A> {
   public boolean possible;
   
   public abstract Object get(String property);
-
-  //public static PathAction fromJSON(String json);
-
-  //public static PathAction fromJSONObject(List<Object> props);
 
   public abstract Object toJSON();
   

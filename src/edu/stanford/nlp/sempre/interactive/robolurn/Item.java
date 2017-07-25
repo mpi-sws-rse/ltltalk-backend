@@ -75,37 +75,6 @@ public class Item extends RoboBlock {
     return new Item(new Point(point.x, point.y), color, carried);
   }
 
-  /*
-  @Override
-  public int hashCode() {
-    final int prime = 19;
-    int result = 1;
-    result = prime * result + point.x;
-    result = prime * result + point.y;
-    result = prime * result + color.toString().hashCode();
-
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    Item other = (Item) obj;
-
-    if (!point.equals(other.point))
-      return false;
-    if (color != other.color)
-      return false;
-
-    return true;
-  }
-  */
-
   @Override
   public String toString() {
     return this.toJSON().toString();

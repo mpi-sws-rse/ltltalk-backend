@@ -8,7 +8,10 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 
-// Not currently used
+/**
+ * This processor would enforce annotations like `MethodProcessor`
+ * Not currently implemented or used
+ */
 public class SemanticProcessor extends AbstractProcessor {
 
   @Override
