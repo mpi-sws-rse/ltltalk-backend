@@ -41,6 +41,8 @@ public class GrammarInducer {
     public int verbose = 0;
     @Option(gloss = "cats that never overlaps, and always save to replace")
     public List<String> simpleCats = Lists.newArrayList("$Color", "$Number", "$Direction");
+    @Option(gloss = "cats that should never be the lhs of induced rules")
+    public List<String> nonInducingCats = Lists.newArrayList("$TOKEN", "$PHRASE", "$LEMMA_TOKEN", "$LEMMA_PHRASE");
     @Option(gloss = "use best packing")
     public boolean useBestPacking = true;
     @Option(gloss = "use simple packing")
@@ -125,8 +127,9 @@ public class GrammarInducer {
       bestPacking.forEach(d -> formulaToCat.put(catFormulaKey(d), varName(d)));
       buildFormula(def, formulaToCat);
       for (Rule rule : induceRules(bestPacking, def)) {
-        if (rule.rhs.stream().allMatch(s -> Rule.isCat(s)))
-          continue;
+        // ALTER : I am not sure why this is here, but it prevents some use cases from being defined
+        //if (rule.rhs.stream().allMatch(s -> Rule.isCat(s)))
+          //continue;
         filterRule(rule);
       }
 
@@ -271,8 +274,6 @@ public class GrammarInducer {
 
       // or it's a previous bestEndsAtI[j] for i-minLength+1 <= j < i
       for (int j = blockingIndex(matches, i) + 1; j < i; j++) {
-        // LogInfo.dbgs("BlockingIndex: %d, j=%d, i=%d", blockingIndex(matches,
-        // i), j, i);
         if (bestEndsAtI.get(j).score >= bestOverall.score)
           bestOverall = bestEndsAtI.get(j);
       }
@@ -295,12 +296,15 @@ public class GrammarInducer {
   private List<Rule> induceRules(List<Derivation> packings, Derivation defDeriv) {
     List<String> RHS = getRHS(defDeriv, packings);
     SemanticFn sem = getSemantics(defDeriv, packings);
+    // sem will be null if type inference fails
+    if (sem == null)
+      return new ArrayList<>();
     String cat = getNormalCat(defDeriv);
     Rule inducedRule = new Rule(cat, RHS, sem);
     inducedRule.addInfo("induced", "true");
     inducedRule.addInfo("anchored", "true");
     List<Rule> inducedRules = new ArrayList<>();
-    if (!inducedRule.isCatUnary()) {
+    if (!inducedRule.isCatUnary() && !opts.nonInducingCats.contains(inducedRule.lhs)) {
       inducedRules.add(inducedRule);
     }
     return inducedRules;
@@ -308,11 +312,7 @@ public class GrammarInducer {
 
   // populate grammarInfo.formula, replacing everything that can be replaced
   private void buildFormula(Derivation deriv, Map<String, String> replaceMap) {
-    // LogInfo.logs("BUILDING %s at (%d,%d) %s", deriv, deriv.start, deriv.end,
-    // catFormulaKey(deriv));
     if (replaceMap.containsKey(catFormulaKey(deriv))) {
-      // LogInfo.logs("Found match %s, %s, %s", catFormulaKey(deriv),
-      // replaceMap, deriv);
       deriv.grammarInfo.formula = new VariableFormula(replaceMap.get(catFormulaKey(deriv)));
       return;
     }
@@ -322,10 +322,6 @@ public class GrammarInducer {
 
     for (Derivation c : deriv.children) {
       buildFormula(c, replaceMap);
-      // deriv.grammarInfo.start = Math.min(deriv.grammarInfo.start,
-      // c.grammarInfo.start);
-      // deriv.grammarInfo.end = Math.max(deriv.grammarInfo.end,
-      // c.grammarInfo.end);
     }
     Rule rule = deriv.rule;
     List<Derivation> args = deriv.children;
@@ -339,7 +335,6 @@ public class GrammarInducer {
         if (!(f instanceof LambdaFormula))
           throw new RuntimeException("Expected LambdaFormula, but got " + f);
         Formula after = renameBoundVars(f, new HashSet<>());
-        // LogInfo.logs("renameBoundVar %s === %s", after, f);
         f = Formulas.lambdaApply((LambdaFormula) after, arg.grammarInfo.formula);
       }
       deriv.grammarInfo.formula = f;
@@ -351,9 +346,6 @@ public class GrammarInducer {
     } else {
       deriv.grammarInfo.formula = deriv.formula;
     }
-    // LogInfo.logs("BUILT %s for %s", deriv.grammarInfo.formula,
-    // deriv.formula);
-    // LogInfo.log("built " + deriv.grammarInfo.formula);
   }
 
   private String newName(String s) {
@@ -392,7 +384,12 @@ public class GrammarInducer {
       LispTree newTree = LispTree.proto.newList();
       newTree.addChild("ConstantFn");
       newTree.addChild(baseFormula.toLispTree());
-      constantFn.init(newTree);
+      try {
+        // Type inference will throw an exception if it fails
+        constantFn.init(newTree);
+      } catch (RuntimeException e) {
+        return null;
+      }
       return constantFn;
     }
 

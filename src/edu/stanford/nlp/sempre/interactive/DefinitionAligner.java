@@ -122,24 +122,25 @@ public class DefinitionAligner {
     this.chartMap = GrammarInducer.makeChartMap(chartList);
     if (opts.verbose > 0)
       LogInfo.logs("DefinitionAligner: head '%s' as body: '%s'", headTokens, defTokens);
-    if (Math.abs(headTokens.size() - defTokens.size()) >= 4)
-      return;
+    // ALTER : why is this here?
+    //if (Math.abs(headTokens.size() - defTokens.size()) >= 4)
+      // return;
     recursiveMatch(def);
   }
 
   void recursiveMatch(Derivation def) {
-     LogInfo.logs("Considering (%d,%d): %s", def.start, def.end, def);
     for (int start = 0; start < headTokens.size(); start++) {
       for (int end = headTokens.size(); end > start; end--) {
         // LogInfo.logs("Testing (%d,%d)", start, end);
-        if (end == headTokens.size() && start == 0)
-          continue;
+        // ALTER
+        //if (end == headTokens.size() && start == 0)
+          //continue;
         if (isMatch(def, start, end)) {
           if (opts.verbose > 0)
             LogInfo.logs("Matched head(%d,%d)=%s with deriv(%d,%d)=%s: %s", start, end, headTokens.subList(start, end),
                 def.start, def.end, defTokens.subList(def.start, def.end), def);
           allMatches.add(new Match(def, start, end));
-          // Removing this return allows the aligner to detect all potential alignments
+          // ALTER : Removing this return allows the aligner to detect all potential alignments
           //return;
         }
       }
@@ -212,6 +213,13 @@ public class DefinitionAligner {
     if (opts.verbose > 0)
       LogInfo.logs("(%d,%d)-head(%d,%d): %b %b %s %s", def.start, def.end, start, end, prefixEq, sufixEq,
           window(end, end + opts.windowSize, headTokens), window(def.end, def.end + opts.windowSize, defTokens));
+//      LogInfo.logs("(%d,%d)-head(%d,%d): %b %b", def.start, def.end, start, end, prefixEq, sufixEq);
+//      LogInfo.logs("%s...%s == %s...%s",
+//          window(start - opts.windowSize, start, headTokens),
+//          window(end, end + opts.windowSize, headTokens),
+//          window(def.start - opts.windowSize, def.start, defTokens),
+//          window(def.end, def.end + opts.windowSize, defTokens)
+//      );
     if (!prefixEq || !sufixEq)
       return false;
     if (headTokens.subList(start, end).equals(defTokens.subList(def.start, def.end)))

@@ -213,6 +213,8 @@ public class RoboWorld extends World<RoboBlock> {
   public Set<? extends Object> getSpecialSet(String name) {
     if ("world".equals(name)) {
       return getOpenPoints();
+    } else if ("all_rooms".equals(name)) {
+      return new HashSet<>(rooms.values());
     } else if ("items".equals(name)) {
       return allItems();
     } else if (rooms.containsKey(name)) {

@@ -56,6 +56,7 @@
 (rule $Set ($AreaCollection) (IdentityFn) (anchored true))
 
 (rule $AreaCollection ([ $AreaList ]) (IdentityFn) (anchored true))
+(rule $AreaCollection (all rooms) all_rooms (anchored true))
 
 (rule $Area (world) world (anchored true))
 (for @name (room1 room2 room3 room4 room5 room6 room7 room8 room9)
@@ -96,12 +97,21 @@
 (rule $Item (item $ColorSets) (IdentityFn) (anchored true))
 
 (rule $ColorSet (has $Rel $Color) (lambda r (lambda c ((var r) (var c)))) (anchored true))
+
+#(rule $ColorSets ($ColorSet) (IdentityFn) (anchored true))
+#(rule $ColorSet ($ColorSet or $ColorSet) (lambda s1 (lambda s2 (or (var s1) (var s2)))) (anchored true))
+#(rule $ColorSet ( { $ColorSet } ) (IdentityFn) (anchored true))
+#(rule $ColorSet (not $ColorSet) (lambda x (not (var x))) (anchored true))
+#(rule $ColorSet ($ColorSet and $ColorSet) (lambda s1 (lambda s2
+					#(and (var s1) (var s2)))) (anchored true))
+
 (rule $ColorSets ($ColorSet) (IdentityFn) (anchored true))
 (rule $ColorSet ( { $ColorSets } ) (IdentityFn) (anchored true))
 (rule $ColorSet (! $ColorSets) (lambda x (not (var x))) (anchored true))
 (rule $ColorSets ($ColorSets and $ColorSet) (lambda s1 (lambda s2
 					(and (var s1) (var s2)))) (anchored true))
 (rule $ColorSets ($ColorSets or $ColorSet) (lambda s1 (lambda s2
+#(rule $ColorSets ($ColorSets || $ColorSet) (lambda s1 (lambda s2
 					(or (var s1) (var s2)))) (anchored true))
 
 (rule $Rel (color) items?color (anchored true))

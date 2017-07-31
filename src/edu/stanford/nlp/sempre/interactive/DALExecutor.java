@@ -128,7 +128,6 @@ public class DALExecutor extends Executor {
         if (!successful) {
           // Eventually, this information will be returned to the browser client
           System.out.println("The following action could not be completed: " + f.toLispTree());
-          throw new RuntimeException();
         }
         return successful;
       } catch (ClassCastException e) {
@@ -478,11 +477,12 @@ public class DALExecutor extends Executor {
         throw new RuntimeException(e);
       }
     }
+
     List<String> types = Lists.newArrayList();
     for (Object arg : args)
-      types.add(arg.getClass().toString());
-    throw new RuntimeException("Method " + methodName + " not found in class " + cls + " with arguments "
-        + Arrays.asList(args) + " having types " + types + "; candidates: " + nameMatches);
+          types.add(arg.getClass().toString());
+        throw new RuntimeException("Method " + methodName + " not found in class " + cls + " with arguments "
+            + Arrays.asList(args) + " having types " + types + "; candidates: " + nameMatches);
   }
 
   @SuppressWarnings("unchecked")

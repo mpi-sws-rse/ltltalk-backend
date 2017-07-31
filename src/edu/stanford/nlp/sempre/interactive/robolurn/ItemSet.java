@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  * being immediately evaluated. This is important in situations where filters
  * need to be evaluated in a different order than they are specified
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({ "serial" })
 public class ItemSet extends HashSet<Item> {
 
   public Optional<Boolean> isCarried;

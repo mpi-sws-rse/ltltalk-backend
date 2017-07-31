@@ -174,6 +174,8 @@ public final class TypeInference {
             if (propertyType != null) propertyType = propertyType.reverse();
           }
           if (propertyType == null)
+            // ALTER: It makes more sense to me (brendon) to default to topType,
+            // but I have not found a place where this is necessary yet
             propertyType = SemType.anyAnyFunc;  // Don't know
           type = check(type.meet(propertyType));
         }

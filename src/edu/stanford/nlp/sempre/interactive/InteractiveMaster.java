@@ -17,7 +17,6 @@ import edu.stanford.nlp.sempre.Formulas;
 import edu.stanford.nlp.sempre.Master;
 import edu.stanford.nlp.sempre.Params;
 import edu.stanford.nlp.sempre.Parser;
-import edu.stanford.nlp.sempre.ParserState;
 import edu.stanford.nlp.sempre.Rule;
 import edu.stanford.nlp.sempre.RuleSource;
 import edu.stanford.nlp.sempre.Session;
@@ -115,7 +114,6 @@ public class InteractiveMaster extends Master {
       }
 
       builder.parser.parse(builder.params, ex, false);
-      
 
       stats.size(ex.predDerivations != null ? ex.predDerivations.size() : 0);
       stats.status(InteractiveUtils.getParseStatus(ex));
@@ -292,8 +290,6 @@ public class InteractiveMaster extends Master {
     if (refResponse != null) {
       refResponse.value.ex = exHead;
     }
-
-    System.out.println("bodyDeriv: " + bodyDeriv.toRecursiveString());
     
     List<Rule> inducedRules = new ArrayList<>();
     GrammarInducer grammarInducer = new GrammarInducer(exHead.getTokens(), bodyDeriv, state.chartList);
@@ -302,7 +298,7 @@ public class InteractiveMaster extends Master {
     for (Rule rule : inducedRules) {
       rule.source = new RuleSource(session.id, head, bodyList);
     }
-
+    
     if (opts.useAligner && bodyList.size() == 1) {
       List<Rule> alignedRules = DefinitionAligner.getRules(exHead.getTokens(),
           InteractiveUtils.utterancefromJson(jsonDef, true), bodyDeriv, state.chartList);
@@ -319,11 +315,12 @@ public class InteractiveMaster extends Master {
 
   private static boolean isNonsense(Example exHead) {
     List<String> tokens = exHead.getTokens();
-//    if (tokens.size() > 10)
-//      return true;
+    // ALTER
+    //if (tokens.size() > 10)
+      //return true;
     if (tokens.size() == 0)
       return true;
-//    return tokens.stream().anyMatch(s -> s.length() > 15);
+    //return tokens.stream().anyMatch(s -> s.length() > 15);
     return false;
   }
 
