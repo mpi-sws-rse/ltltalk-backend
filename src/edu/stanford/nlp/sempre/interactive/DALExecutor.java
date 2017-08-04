@@ -122,6 +122,7 @@ public class DALExecutor extends Executor {
       boolean result = invokeAction(
           id,
           world,
+          f,
           f.args.subList(1, f.args.size()).stream().map(x -> processSetFormula(x, world)).toArray());
       return result;
       //world.merge();
@@ -418,7 +419,7 @@ public class DALExecutor extends Executor {
     return new HashSet<>(intersection);
   }
 
-  private boolean invokeAction(String id, World world, Object... args) {
+  private boolean invokeAction(String id, World world, ActionFormula formula, Object... args) {
     ActionInterface ai = world.getActionInterface();
     Class<?> cls = ai.getClass();
     Method[] methods = cls.getMethods();
@@ -452,7 +453,7 @@ public class DALExecutor extends Executor {
     if (bestMethod != null) {
       try {
         Object result = bestMethod.invoke(ai, methodArgs);
-        ai.handleActionResult(world, id, result);
+        ai.handleActionResult(world, formula, result);
         return (boolean) result;
       } catch (InvocationTargetException e) {
         throw new RuntimeException(e.getCause());

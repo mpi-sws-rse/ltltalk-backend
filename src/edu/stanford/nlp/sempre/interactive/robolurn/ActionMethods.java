@@ -4,6 +4,13 @@ import java.awt.Point;
 import java.util.HashSet;
 import java.util.Set;
 
+import edu.stanford.nlp.sempre.ActionFormula;
+import edu.stanford.nlp.sempre.CallFormula;
+import edu.stanford.nlp.sempre.Formula;
+import edu.stanford.nlp.sempre.NameValue;
+import edu.stanford.nlp.sempre.NumberValue;
+import edu.stanford.nlp.sempre.Value;
+import edu.stanford.nlp.sempre.ValueFormula;
 import edu.stanford.nlp.sempre.interactive.ActionInterface;
 import edu.stanford.nlp.sempre.interactive.World;
 
@@ -58,13 +65,31 @@ public class ActionMethods extends ActionInterface {
   public boolean noop() {
     return true;
   }
+  
+  @SuppressWarnings("rawtypes")
+  private static String parseFormula(ActionFormula f) {
+    Value method = ((ValueFormula) f.args.get(0)).value;
+    String id = ((NameValue) method).id;
+    switch (id) {
+      case "move": 
+        return String.format("move %s", f.args.get(1));
+      case "visit": 
+        CallFormula cf = (CallFormula) f.args.get(1);
+        int arg1 = (int) ((NumberValue) ((ValueFormula) cf.args.get(0)).value).value;
+        int arg2 = (int) ((NumberValue) ((ValueFormula) cf.args.get(1)).value).value;
+        return String.format("visit [%d,%d]", arg1, arg2);
+      default:
+        return f.toString();
+    }
+  }
 
-  public void handleActionResult(World world, String actionName, Object resultObj) {
+  public void handleActionResult(World world, ActionFormula formula, Object resultObj) {
     RoboWorld roboWorld = (RoboWorld) world;
     boolean result = (boolean) resultObj;
     if (!result) {
       // TODO : need more information here
-      roboWorld.unrealizableStatus = String.format("Could not complete the action: %s", actionName);
+      roboWorld.unrealizableStatus =
+          String.format("Could not complete the action: %s", ActionMethods.parseFormula(formula));
     }
   }
   
