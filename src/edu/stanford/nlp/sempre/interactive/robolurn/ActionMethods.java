@@ -59,7 +59,7 @@ public class ActionMethods extends ActionInterface {
     return true;
   }
 
-  public void handleActionResult(World<?> world, String actionName, Object resultObj) {
+  public void handleActionResult(World world, String actionName, Object resultObj) {
     RoboWorld roboWorld = (RoboWorld) world;
     boolean result = (boolean) resultObj;
     if (!result) {

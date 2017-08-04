@@ -89,7 +89,7 @@ public class DALExecutor extends Executor {
     //World world = World.fromContext(opts.worldType, context);
 
     //LogInfo.logs(context.toString());
-    World<?> world = World.fromContext(opts.worldType, context);
+    World world = World.fromContext(opts.worldType, context);
     formula = Formulas.betaReduction(formula);
     try {
       performActions((ActionFormula) formula, world);
@@ -107,7 +107,7 @@ public class DALExecutor extends Executor {
 
   // Return whether that action was able to be realized
   @SuppressWarnings("rawtypes")
-  private boolean performActions(ActionFormula f, final World<?> world) {
+  private boolean performActions(ActionFormula f, final World world) {
     if (opts.verbose >= 1) {
       LogInfo.begin_track("DALExecutor.performActions");
       LogInfo.logs("Executing: %s", f);
@@ -195,7 +195,7 @@ public class DALExecutor extends Executor {
         throw new RuntimeException(":foreach cannot be used with \"" + f.args.get(0) + "\", only with \"point\" and \"area\".");
       }
     } else if (f.mode == ActionFormula.Mode.strict) {
-      World<?> newWorld = world.clone();
+      World newWorld = world.clone();
       boolean successful = performActions((ActionFormula) f.args.get(0), newWorld);
       if (successful) {
         successful = performActions((ActionFormula) f.args.get(0), world);
@@ -277,7 +277,7 @@ public class DALExecutor extends Executor {
   // if this gets any more complicated, you should consider the
   // LambdaDCSExecutor
   @SuppressWarnings("unchecked")
-  private Object processSetFormula(Formula formula, final World<?> world) {
+  private Object processSetFormula(Formula formula, final World world) {
     if (formula instanceof ValueFormula<?>) {
       Value v = ((ValueFormula<?>) formula).value;
       // special unary
@@ -418,7 +418,7 @@ public class DALExecutor extends Executor {
     return new HashSet<>(intersection);
   }
 
-  private boolean invokeAction(String id, World<?> world, Object... args) {
+  private boolean invokeAction(String id, World world, Object... args) {
     ActionInterface ai = world.getActionInterface();
     Class<?> cls = ai.getClass();
     Method[] methods = cls.getMethods();
@@ -470,7 +470,7 @@ public class DALExecutor extends Executor {
   
   // Example: id = "Math.cos". similar to JavaExecutor's invoke,
   // but matches arg by building singleton set as needed
-  private Object invoke(String id, World<?> thisObj, Object... args) {
+  private Object invoke(String id, World thisObj, Object... args) {
     Method[] methods;
     Class<?> cls;
     String methodName;
