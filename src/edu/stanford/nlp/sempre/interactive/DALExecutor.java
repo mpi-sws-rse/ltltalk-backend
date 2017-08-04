@@ -42,6 +42,7 @@ import edu.stanford.nlp.sempre.SuperlativeFormula;
 import edu.stanford.nlp.sempre.Value;
 import edu.stanford.nlp.sempre.ValueFormula;
 import edu.stanford.nlp.sempre.interactive.planner.PathFinder;
+import edu.stanford.nlp.sempre.interactive.robolurn.RoboWorld;
 import fig.basic.LogInfo;
 import fig.basic.Option;
 
@@ -200,6 +201,9 @@ public class DALExecutor extends Executor {
       boolean successful = performActions((ActionFormula) f.args.get(0), newWorld);
       if (successful) {
         successful = performActions((ActionFormula) f.args.get(0), world);
+      } else if (world instanceof RoboWorld) {
+        ((RoboWorld) world).unrealizableStatus =
+            ((RoboWorld) newWorld).unrealizableStatus;
       }
       return successful;
     } else {

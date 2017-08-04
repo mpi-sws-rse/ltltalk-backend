@@ -9,6 +9,7 @@ import edu.stanford.nlp.sempre.CallFormula;
 import edu.stanford.nlp.sempre.Formula;
 import edu.stanford.nlp.sempre.NameValue;
 import edu.stanford.nlp.sempre.NumberValue;
+import edu.stanford.nlp.sempre.NameValue;
 import edu.stanford.nlp.sempre.Value;
 import edu.stanford.nlp.sempre.ValueFormula;
 import edu.stanford.nlp.sempre.interactive.ActionInterface;
@@ -72,12 +73,17 @@ public class ActionMethods extends ActionInterface {
     String id = ((NameValue) method).id;
     switch (id) {
       case "move": 
-        return String.format("move %s", f.args.get(1));
+        //return String.format("move %s", f.args.get(1));
+        return "move";
       case "visit": 
-        CallFormula cf = (CallFormula) f.args.get(1);
-        int arg1 = (int) ((NumberValue) ((ValueFormula) cf.args.get(0)).value).value;
-        int arg2 = (int) ((NumberValue) ((ValueFormula) cf.args.get(1)).value).value;
-        return String.format("visit [%d,%d]", arg1, arg2);
+        //CallFormula cf = (CallFormula) f.args.get(1);
+        //int arg1 = (int) ((NumberValue) ((ValueFormula) cf.args.get(0)).value).value;
+        //int arg2 = (int) ((NumberValue) ((ValueFormula) cf.args.get(1)).value).value;
+        //return String.format("visit [%d,%d]", arg1, arg2);
+        return "visit";
+      case "itemActionHandler":
+        String value = ((NameValue) ((ValueFormula) f.args.get(1)).value).id;
+        return value;
       default:
         return f.toString();
     }
