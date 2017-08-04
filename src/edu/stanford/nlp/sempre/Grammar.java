@@ -71,27 +71,33 @@ public class Grammar {
     verifyValid();
   }
 
+  // TODO Modify so that it can read JSON files independent from whitespace
+  @SuppressWarnings("unchecked")
   public void readFromJson(List<String> paths) {
     List<String> jsonStrings = new ArrayList<>();
     for (String path : paths) {
       // Note that each JSON string must be its own line
       jsonStrings.addAll(IOUtils.readLinesEasy(path));
     }
-    List<Object> jsons = new ArrayList<>();
     TypeReference<HashMap<String,Object>> typeRef = new TypeReference<HashMap<String,Object>>() {};
     for (String string : jsonStrings) {
       Map<String, Object> json = Json.readValueHard(string, typeRef);
-      StringBuilder treeString = new StringBuilder();
-      treeString.append("(rule ");
-      treeString.append(json.get("lhs"));
-      StringBuilder rhs = new StringBuilder(((List<String>)json.get("rhs")).stream()
-          .reduce("", (a,b) -> a + " " + b));
-      treeString.append(" (");
-      treeString.append(rhs);
-      treeString.append(") ");
-      treeString.append(json.get("sem"));
-      treeString.append(")");
-      interpret("", LispTree.proto.parseFromString(treeString.toString()), new HashSet<>());
+      SemanticFn sem = parseSemanticFn(
+          LispTree.proto.parseFromString((String) json.get("sem")));
+      Rule rule = new Rule((String) json.get("lhs"), (List<String>) json.get("rhs"), sem);
+      rule.addInfo("anchored", (String) json.get("anchored"));
+      rule.addInfo("induced", (String) json.get("induced"));
+      Map<String, Object> sourceMap = (Map<String, Object>) json.get("source");
+      RuleSource source = new RuleSource(
+          (String) sourceMap.get("uid"),
+          (String) sourceMap.get("head"),
+          (List<String>) sourceMap.get("body")
+      );
+      rule.source = source;
+      
+      // TODO : Add isOptionals support
+      List<Boolean> isOptionals = new ArrayList<>();
+      addRule(rule, isOptionals);
     }
   }
   

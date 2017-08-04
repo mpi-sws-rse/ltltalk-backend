@@ -14,24 +14,24 @@ import edu.stanford.nlp.sempre.interactive.robolurn.RoboWorld;
 /**
  * @param <B> Represents block type
  */
-public abstract class World<B extends Block> {
+public abstract class World {
   
-  public Set<? extends B> walls;
-  public Set<? extends B> items;
-  public Set<? extends Point> open;
+  public Set<? extends Block> walls;
+  public Set<? extends Block> items;
+  public Set<Point> open;
   
   public Optional<Set<Point>> selectedArea;
   public Optional<Point> selectedPoint;
 
   public abstract ActionInterface getActionInterface();
   
-  public static World<?> fromContext(String worldname, ContextValue context) {
+  public static World fromContext(String worldname, ContextValue context) {
     if (worldname.equals("RoboWorld"))
       return RoboWorld.fromContext(context);
     throw new RuntimeException("World does not exist: " + worldname);
   }
 
-  public abstract World<B> clone();
+  public abstract World clone();
   
   public abstract String toJSON();
 
@@ -53,7 +53,7 @@ public abstract class World<B extends Block> {
     Point hc = this.getHighCorner();
     boolean[][] points = new boolean[hc.y - lc.y + 1][hc.x - lc.x + 1];
     Point p; 
-    for (Iterator<? extends B> iter = walls.iterator(); iter.hasNext(); ) {
+    for (Iterator<? extends Block> iter = walls.iterator(); iter.hasNext(); ) {
       p = iter.next().point;
       points[p.y - lc.y][p.x - lc.x] = true;
     }
@@ -69,7 +69,7 @@ public abstract class World<B extends Block> {
     return open;
   }
   
-  public abstract Set<? extends B> has(String rel, Set<Object> values);
+  public abstract Set<? extends Block> has(String rel, Set<Object> values);
 
   public abstract Set<Object> get(String rel, Set<Block> subset);
 
@@ -84,7 +84,7 @@ public abstract class World<B extends Block> {
     return null;
   }
   
-  public Set<? extends B> allItems() {
+  public Set<? extends Block> allItems() {
     return items;
   }
     

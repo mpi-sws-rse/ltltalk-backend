@@ -167,7 +167,7 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('DALExecutor.convertNumberValues', true),
   o('DALExecutor.printStackTrace', true),
   #o('VoxelWorld.maxBlocks', 100000),
-  selo(0, 'DALExecutor.worldType', 'RoboWorld', 'CalendarWorld', 'Otherworld'),
+  selo(0, 'DALExecutor.worldType', 'RoboWorld'),
   selo(0, 'Grammar.inPaths', "./#{$path}/robo.grammar"),
 
   o('Params.initWeightsRandomly', false),

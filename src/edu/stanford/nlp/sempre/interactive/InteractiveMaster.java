@@ -114,7 +114,7 @@ public class InteractiveMaster extends Master {
       }
       
       builder.parser.parse(builder.params, ex, false);
-
+      
       stats.size(ex.predDerivations != null ? ex.predDerivations.size() : 0);
       stats.status(InteractiveUtils.getParseStatus(ex));
       
@@ -295,9 +295,9 @@ public class InteractiveMaster extends Master {
     GrammarInducer grammarInducer = new GrammarInducer(exHead.getTokens(), bodyDeriv, state.chartList);
     inducedRules.addAll(grammarInducer.getRules());
 
-    for (Rule rule : inducedRules) {
-      rule.source = new RuleSource(session.id, head, bodyList);
-    }
+//    for (Rule rule : inducedRules) {
+//      rule.source = new RuleSource(session.id, head, bodyList);
+//    }
     
     if (opts.useAligner && bodyList.size() == 1) {
       List<Rule> alignedRules = DefinitionAligner.getRules(exHead.getTokens(),
@@ -307,6 +307,10 @@ public class InteractiveMaster extends Master {
         rule.source.align = true;
       }
       inducedRules.addAll(alignedRules);
+    }
+
+    for (Rule rule : inducedRules) {
+      rule.source = new RuleSource(session.id, head, bodyList);
     }
 
     exHead.predDerivations = Lists.newArrayList(bodyDeriv);

@@ -1,7 +1,6 @@
 package edu.stanford.nlp.sempre.interactive.robolurn;
 
 import java.awt.Point;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,7 +27,7 @@ import edu.stanford.nlp.sempre.interactive.World;
 import edu.stanford.nlp.sempre.interactive.planner.PathFinder;
 import fig.basic.Option;
 
-public class RoboWorld extends World<RoboBlock> {
+public class RoboWorld extends World {
   public static class Options {
     @Option(gloss = "maximum number of cubes to convert")
     public int maxBlocks = 1024 ^ 2;
@@ -109,7 +108,7 @@ public class RoboWorld extends World<RoboBlock> {
    */
   protected void findCorners() {
     int maxX = 0, maxY = 0, minX = 0, minY = 0;
-    for (RoboBlock w : walls) {
+    for (Block w : walls) {
       if (w.point.x > maxX)
         maxX = w.point.x;
       else if (w.point.x < minX)
@@ -194,7 +193,7 @@ public class RoboWorld extends World<RoboBlock> {
    * Return the set of objects filtered by the specified `rel` and `values`
    */
   @Override
-  public Set<? extends RoboBlock> has(String rel, Set<Object> values) {
+  public Set<? extends Block> has(String rel, Set<Object> values) {
     String[] qualifiedRel = rel.split("\\?");
     if (qualifiedRel.length < 2)
       throw new RuntimeException(rel + " must be qualified with items?rel or walls?rel");
