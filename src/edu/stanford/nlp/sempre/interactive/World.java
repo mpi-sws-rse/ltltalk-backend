@@ -73,7 +73,7 @@ public abstract class World<B extends Block> {
 
   public abstract Set<Object> get(String rel, Set<Block> subset);
 
-  public abstract Set<? extends Object> universalSet(Object o);
+  public abstract Set<? extends Object> universalSet(Class<?> clazz);
 
   public Set<? extends Object> getSpecialSet(String name) {
     if ("world".equals(name)) {
@@ -160,7 +160,7 @@ public abstract class World<B extends Block> {
     if (iter.hasNext())
       return iter.next();
     else
-      return null;
+      return new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
   }
   
   public World() {

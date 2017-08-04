@@ -315,8 +315,13 @@ public class DALExecutor extends Executor {
 
       if (mode == MergeFormula.Mode.or)
         return toMutable(Sets.union(set1, set2));
-      if (mode == MergeFormula.Mode.and)
-        return toMutable(Sets.intersection(set1, set2));
+      if (mode == MergeFormula.Mode.and) {
+        Set<Object> set = toMutable(Sets.intersection(set1, set2));
+        if (set.isEmpty())
+          return new TypedEmptySet(set1, set2);
+        else
+          return set;
+      }
     }
 
     if (formula instanceof NotFormula) {
@@ -324,9 +329,10 @@ public class DALExecutor extends Executor {
       Set<Object> set1 = toSet(processSetFormula(notFormula.child, world));
       Iterator<Object> iter = set1.iterator();
       if (iter.hasNext()) {
-        return toMutable(Sets.difference(world.universalSet(iter.next()), set1));
+        return toMutable(Sets.difference(world.universalSet(iter.next().getClass()), set1));
+      } else if (set1 instanceof TypedEmptySet) {
+        return toMutable(Sets.difference(world.universalSet(((TypedEmptySet) set1).type), set1));
       }
-      //return toMutable(Sets.difference(world.allItems, set1));
       throw new RuntimeException("Reverse formula cannot be executed on empty set.");
     }
 

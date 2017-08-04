@@ -239,15 +239,15 @@ public class RoboWorld extends World<RoboBlock> {
   }
 
   @Override
-  public Set<? extends Object> universalSet(Object o) {
-    if (o instanceof Item) {
+  public Set<? extends Object> universalSet(Class<?> clazz) {
+    if (clazz == Item.class)
       return this.items;
-    } else if (o instanceof Wall) {
+    else if (clazz == Wall.class)
       return this.walls;
-    }  else if (o instanceof Point) {
+    else if (clazz == Point.class)
       return this.getOpenPoints();
-    }
-    return new HashSet<>();
+    else 
+      return new HashSet<>();
   }
 
   @SuppressWarnings("unchecked")

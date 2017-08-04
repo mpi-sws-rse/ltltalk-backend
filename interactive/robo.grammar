@@ -69,6 +69,7 @@
 
 #(rule $Area ( not $Areas ) (lambda a1 (not (var a1))) (anchored true))
 (rule $Areas ( $Area ) (IdentityFn) (anchored true))
+(rule $Area ( { $Areas } ) (IdentityFn) (anchored true))
 (rule $Areas ( $Areas union $Area ) (lambda a1 (lambda a2 (or (var a1) (var a2)))) (anchored true))
 (rule $Areas ( $Areas intersect $Area ) (lambda a1 (lambda a2 (and (var a1) (var a2)))) (anchored true))
 (rule $Areas ( $Areas minus $Area ) (lambda a1 (lambda a2 (and (var a1) (not (var a2))))) (anchored true))
