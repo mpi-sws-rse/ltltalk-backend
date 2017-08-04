@@ -1,6 +1,7 @@
 package edu.stanford.nlp.sempre.interactive.robolurn;
 
 import java.awt.Point;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,6 +22,7 @@ import edu.stanford.nlp.sempre.ContextValue;
 import edu.stanford.nlp.sempre.Json;
 import edu.stanford.nlp.sempre.NaiveKnowledgeGraph;
 import edu.stanford.nlp.sempre.StringValue;
+import edu.stanford.nlp.sempre.interactive.ActionInterface;
 import edu.stanford.nlp.sempre.interactive.Block;
 import edu.stanford.nlp.sempre.interactive.World;
 import edu.stanford.nlp.sempre.interactive.planner.PathFinder;
@@ -31,13 +33,25 @@ public class RoboWorld extends World<RoboBlock> {
     @Option(gloss = "maximum number of cubes to convert")
     public int maxBlocks = 1024 ^ 2;
   }
+//  private class ActionResult {
+//    String action;
+//    String realizable;
+//  }
   
-  private Point lowCorner;
-  private Point highCorner;
+  private ActionMethods actionMethods =  ActionMethods.getInstance();
   
-  private Map<String, Set<Point>> rooms;
+  public ActionInterface getActionInterface() { return actionMethods; }
+  
+  // Eventually make a whole object for this
+  // If this is left unset; everything was realizable
+  public String unrealizableStatus = "";
+  
+  protected Point lowCorner;
+  protected Point highCorner;
+  
+  protected Map<String, Set<Point>> rooms;
   // Store functions in a map so they do not need to be accessed via reflection.
-  private Map<String, Function<ItemSet, Boolean>> itemActions;
+  protected Map<String, Function<ItemSet, Boolean>> itemActions;
   
   public static Options opts = new Options();
 
@@ -52,8 +66,8 @@ public class RoboWorld extends World<RoboBlock> {
   }
 
   // The list of actions that will be sent as a response to the browser client
-  private List<RoboAction> pathActions;
-  private Robot robot;
+  protected List<PathElement> pathActions;
+  protected Robot robot;
   
   public RoboWorld(Robot robot, Set<Wall> walls, Set<Item> items) {
     this(robot, walls, items, new HashMap<>());
@@ -65,11 +79,10 @@ public class RoboWorld extends World<RoboBlock> {
     this.walls = walls;
     this.items = items;
     this.rooms = rooms;
-    this.pathActions = new ArrayList<RoboAction>();
+    this.pathActions = new ArrayList<PathElement>();
     this.findCorners();
     this.selectedArea = Optional.empty();
     this.selectedPoint = Optional.empty();
-    
     
     itemActions = new HashMap<>();
     itemActions.put("pick", (x) -> pick(x));
@@ -90,11 +103,11 @@ public class RoboWorld extends World<RoboBlock> {
          new HashMap<>(rooms)
     );
   }
-  
+
   /**
    * Calculate the dimensions of the map from the context
    */
-  private void findCorners() {
+  protected void findCorners() {
     int maxX = 0, maxY = 0, minX = 0, minY = 0;
     for (RoboBlock w : walls) {
       if (w.point.x > maxX)
@@ -125,23 +138,25 @@ public class RoboWorld extends World<RoboBlock> {
   }
 
   @Override
-  public String getJSONPath() {
+  public String getJSONResponse() {
     StringBuilder sb = new StringBuilder();
-    sb.append("[");
+    sb.append("{\"status\":\"");
+    sb.append(this.unrealizableStatus);
+    sb.append("\",\"path\":[");
     boolean first = true;
-    for (RoboAction pa : pathActions) {
+    for (PathElement pa : pathActions) {
       if (first)
         first = false;
       else
         sb.append(",");
       sb.append(pa.toJSON());
     }
-    sb.append("]");
-    return sb.toString().replace(" ","");
+    sb.append("]}");
+    return sb.toString();
   }
 
   @SuppressWarnings("unchecked")
-  private static RoboWorld fromJSON(String jsonString) {
+  protected static RoboWorld fromJSON(String jsonString) {
     Map<String, Object> ctxMap = Json.readValueHard(jsonString, Map.class);
     List<Object> rawRobot = (List<Object>) ctxMap.get("robot");
     
@@ -234,7 +249,7 @@ public class RoboWorld extends World<RoboBlock> {
     }
     return new HashSet<>();
   }
-  
+
   @SuppressWarnings("unchecked")
   public ItemSet allItems() {
     return new ItemSet((Set<Item>) items);
@@ -263,6 +278,7 @@ public class RoboWorld extends World<RoboBlock> {
   }
   
   /**
+   * 
    * Limit the number of items a set will contain when evaluated 
    */
   public ItemSet setLimit(int limit, Set<Item> s) {
@@ -314,48 +330,15 @@ public class RoboWorld extends World<RoboBlock> {
     return new Point(robot.point.x, robot.point.y);
   }
   
-  public boolean noop() {
-    return true;
-  }
-
-  /**
-   * Move relative to the current position of the robot 
-   */
-  public boolean move(String dir) {
-    Point p = new Point(robot.point.x, robot.point.y);
-    if ("up".equals(dir))
-      p.y += 1;
-    else if ("down".equals(dir))
-      p.y -= 1;
-    else if ("right".equals(dir))
-      p.x += 1;
-    else if ("left".equals(dir))
-      p.x -= 1;
-    else
-      throw new RuntimeException("Unknown direction " + dir);
-    return gotoPoint(p, new HashSet<>());
-  }
-
-  /**
-   * All action methods return whether the action was successfully completed or not
-   */
-  public boolean visit(Point p, Set<Point> avoidSet) {
-    return gotoPoint(p, avoidSet);
-  }
-  
-  public boolean visit(Point p) {
-    return gotoPoint(p, new HashSet<>());
-  }
-  
-  private boolean gotoPoint(Point point, Set<Point> avoidSet) {
+  protected boolean gotoPoint(Point point, Set<Point> avoidSet) {
     avoidSet.addAll(walls.stream().map(w -> w.point).collect(Collectors.toList()));
-    List<RoboAction> path = PathFinder.findPath(
+    List<PathElement> path = PathFinder.findPath(
             avoidSet,
             new Point(robot.point.x, robot.point.y),
             new Point(point),
             this.getLowCorner(),
             this.getHighCorner())
-        .stream().map(p -> new RoboAction(p, RoboAction.Action.PATH))
+        .stream().map(p -> new PathElement(p, PathElement.Action.PATH))
         .collect(Collectors.toList());
     if (pathActions.size() > 0 && path.size() > 1) {
       path.remove(0);
@@ -364,8 +347,8 @@ public class RoboWorld extends World<RoboBlock> {
     if (path.size() > 0) {
       // Remove the last point to avoid the destination of the previous action
       // being duplicated in the list of path actions
-      RoboAction last = path.get(path.size() - 1);
-      last.action = RoboAction.Action.DESTINATION;
+      PathElement last = path.get(path.size() - 1);
+      last.action = PathElement.Action.DESTINATION;
       robot.point = last.point;
       
       // The action is successful iff the robot is now at the specified point
@@ -379,16 +362,12 @@ public class RoboWorld extends World<RoboBlock> {
       return false;
   }
   
-  public boolean itemActionHandler(String act, ItemSet is) {
-    return itemActions.get(act).apply(is);
-  }
-  
-  private boolean pick(ItemSet is) {
+  protected boolean pick(ItemSet is) {
     is.isCarried = Optional.of(false);
     is.locFilter = Optional.of(new HashSet<>(Arrays.asList(robot.point)));
     Set<Item> restricted = is.eval();
     if (restricted.isEmpty()) {
-      pathActions.add(new RoboAction(robot.point, RoboAction.Action.PICKITEM, null, false));
+      pathActions.add(new PathElement(robot.point, PathElement.Action.PICKITEM, null, false));
       return false;
     }
     Item item;
@@ -397,31 +376,31 @@ public class RoboWorld extends World<RoboBlock> {
     for (Iterator<Item> iter = restricted.iterator(); iter.hasNext(); ) {
       item = iter.next();
       item.setCarried(true);
-      pathActions.add(new RoboAction(robot.point, RoboAction.Action.PICKITEM, item.color, true));
+      pathActions.add(new PathElement(robot.point, PathElement.Action.PICKITEM, item.color, true));
     }
     keyConsistency();
     return true;
   }
   
-  private boolean drop(ItemSet is) {
+  protected boolean drop(ItemSet is) {
     is.isCarried = Optional.of(true);
     is.locFilter = Optional.empty();
     Set<Item> restricted = is.eval();
     if (restricted.isEmpty()) {
-      pathActions.add(new RoboAction(robot.point, RoboAction.Action.DROPITEM, null, false));
+      pathActions.add(new PathElement(robot.point, PathElement.Action.DROPITEM, null, false));
       return false;
     }
     Item item;
     for (Iterator<Item> iter = restricted.iterator(); iter.hasNext(); ) {
       item = iter.next();
       item.setCarried(false);
-      pathActions.add(new RoboAction(robot.point, RoboAction.Action.DROPITEM, item.color, true));
+      pathActions.add(new PathElement(robot.point, PathElement.Action.DROPITEM, item.color, true));
     }
     keyConsistency();
     return true;
   }
 
-  private <T> void refreshSet(Set<T> set) {
+  protected <T> void refreshSet(Set<T> set) {
     List<T> s = new ArrayList<>(set);
     set.clear();
     set.addAll(s);
@@ -430,7 +409,7 @@ public class RoboWorld extends World<RoboBlock> {
   /**
    * If the item states have changed, the hash set must be updated
    */
-  private void keyConsistency() {
+  protected void keyConsistency() {
     refreshSet(walls);
     refreshSet(items);
     if (open != null)

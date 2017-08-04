@@ -112,12 +112,12 @@ public class InteractiveMaster extends Master {
         // returns with size and error message
         return;
       }
-
+      
       builder.parser.parse(builder.params, ex, false);
 
       stats.size(ex.predDerivations != null ? ex.predDerivations.size() : 0);
       stats.status(InteractiveUtils.getParseStatus(ex));
-
+      
       LogInfo.logs("parse stats: %s", response.stats);
       response.ex = ex;
     } else if (command.equals(":qdbg")) {

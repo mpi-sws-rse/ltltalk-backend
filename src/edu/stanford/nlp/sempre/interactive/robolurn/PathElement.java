@@ -6,9 +6,9 @@ import java.util.List;
 import org.testng.collections.Lists;
 
 import edu.stanford.nlp.sempre.Json;
-import edu.stanford.nlp.sempre.interactive.PathAction;
+import edu.stanford.nlp.sempre.interactive.AbstractPathElement;
 
-public class RoboAction extends PathAction<RoboAction.Action> {
+public class PathElement extends AbstractPathElement<PathElement.Action> {
 
   public enum Action {
     PICKITEM, DROPITEM, PATH, DESTINATION;
@@ -40,20 +40,20 @@ public class RoboAction extends PathAction<RoboAction.Action> {
   
   public String spec;
 
-  public RoboAction(Point point, Action action, String spec, boolean possible) {
+  public PathElement(Point point, Action action, String spec, boolean possible) {
     this(point, action);
     this.spec = spec;
     this.possible = possible;
   }
 
-  public RoboAction(Point point, Action action) {
+  public PathElement(Point point, Action action) {
     this();
     this.point = point;
     this.action = action;
     this.possible = true;
   }
 
-  public RoboAction() { }
+  public PathElement() { }
 
 
   @Override
@@ -73,13 +73,13 @@ public class RoboAction extends PathAction<RoboAction.Action> {
   }
 
   @SuppressWarnings("unchecked")
-  public static RoboAction fromJSON(String json) {
+  public static PathElement fromJSON(String json) {
     List<Object> props = Json.readValueHard(json, List.class);
     return fromJSONObject(props);
   }
 
-  public static RoboAction fromJSONObject(List<Object> props) {
-    RoboAction act = new RoboAction();
+  public static PathElement fromJSONObject(List<Object> props) {
+    PathElement act = new PathElement();
     act.point = new Point((Integer) props.get(0), (Integer) props.get(1));
     act.action = Action.fromString(((String) props.get(2)));
     if (props.get(3) == null)
@@ -98,8 +98,8 @@ public class RoboAction extends PathAction<RoboAction.Action> {
   }
 
   @Override
-  public RoboAction clone() {
-    RoboAction c = new RoboAction(new Point(point.x, point.y), this.action, this.spec, this.possible);
+  public PathElement clone() {
+    PathElement c = new PathElement(new Point(point.x, point.y), this.action, this.spec, this.possible);
     return c;
   }
 

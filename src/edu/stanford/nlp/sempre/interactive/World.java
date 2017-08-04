@@ -4,16 +4,12 @@ import java.awt.Point;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.Sets;
-
 import edu.stanford.nlp.sempre.ContextValue;
 import edu.stanford.nlp.sempre.interactive.robolurn.RoboWorld;
-import fig.basic.LogInfo;
 
 /**
  * @param <B> Represents block type
@@ -27,6 +23,8 @@ public abstract class World<B extends Block> {
   public Optional<Set<Point>> selectedArea;
   public Optional<Point> selectedPoint;
 
+  public abstract ActionInterface getActionInterface();
+  
   public static World<?> fromContext(String worldname, ContextValue context) {
     if (worldname.equals("RoboWorld"))
       return RoboWorld.fromContext(context);
@@ -37,7 +35,9 @@ public abstract class World<B extends Block> {
   
   public abstract String toJSON();
 
-  public abstract String getJSONPath();
+//  public abstract Map<String,Method> getActionMap();
+  
+  public abstract String getJSONResponse();
 
   public abstract Point getHighCorner();
 

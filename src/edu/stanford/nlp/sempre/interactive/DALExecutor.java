@@ -81,7 +81,7 @@ public class DALExecutor extends Executor {
   }
 
   public static Options opts = new Options();
-  
+
   @Override
   public Response execute(Formula formula, ContextValue context) {
     // We can do beta reduction here since macro substitution preserves the
@@ -94,7 +94,7 @@ public class DALExecutor extends Executor {
     try {
       performActions((ActionFormula) formula, world);
       //return new Response(new StringValue(world.toJSON()));
-      return new Response(new StringValue(world.getJSONPath()));
+      return new Response(new StringValue(world.getJSONResponse()));
     } catch (Exception e) {
       // Comment this out if we expect lots of innocuous type checking failures
       if (opts.printStackTrace) {
@@ -119,20 +119,11 @@ public class DALExecutor extends Executor {
       Value method = ((ValueFormula) f.args.get(0)).value;
       String id = ((NameValue) method).id;
       // all actions takes a fixed set as argument
-      Object resultObj = invoke(
+      boolean result = invokeAction(
           id,
           world,
           f.args.subList(1, f.args.size()).stream().map(x -> processSetFormula(x, world)).toArray());
-      try {
-        boolean successful = (boolean) resultObj;
-        if (!successful) {
-          // Eventually, this information will be returned to the browser client
-          System.out.println("The following action could not be completed: " + f.toLispTree());
-        }
-        return successful;
-      } catch (ClassCastException e) {
-        throw new RuntimeException("Action methods must return boolean type. Got " + resultObj.getClass());
-      }
+      return result;
       //world.merge();
     } else if (f.mode == ActionFormula.Mode.sequential) {
       boolean successful = true;
@@ -421,6 +412,56 @@ public class DALExecutor extends Executor {
     return new HashSet<>(intersection);
   }
 
+  private boolean invokeAction(String id, World<?> world, Object... args) {
+    ActionInterface ai = world.getActionInterface();
+    Class<?> cls = ai.getClass();
+    Method[] methods = cls.getMethods();
+    String methodName = id;
+    
+    Object[] methodArgs = new Object[args.length + 1];
+    methodArgs[0] = world;
+    for (int i = 0; i < args.length; ++i) {
+      methodArgs[i+1] = args[i];
+    }
+
+    // Find a suitable method
+    List<Method> nameMatches = Lists.newArrayList();
+    Method bestMethod = null;
+    int bestCost = INVALID_TYPE_COST;
+    for (Method m : methods) {
+      if (!m.getName().equals(methodName))
+        continue;
+      m.setAccessible(true);
+      nameMatches.add(m);
+//      if (isStatic != Modifier.isStatic(m.getModifiers()))
+//        continue;
+      int cost = typeCastCost(m.getParameterTypes(), methodArgs);
+
+      if (cost < bestCost) {
+        bestCost = cost;
+        bestMethod = m;
+      }
+    }
+
+    if (bestMethod != null) {
+      try {
+        Object result = bestMethod.invoke(ai, methodArgs);
+        ai.handleActionResult(world, id, result);
+        return (boolean) result;
+      } catch (InvocationTargetException e) {
+        throw new RuntimeException(e.getCause());
+      } catch (IllegalAccessException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    List<String> types = Lists.newArrayList();
+    for (Object arg : methodArgs)
+          types.add(arg.getClass().toString());
+        throw new RuntimeException("Method " + methodName + " not found in class " + cls + " with arguments "
+            + Arrays.asList(methodArgs) + " having types " + types + "; candidates: " + nameMatches);
+  }
+  
   // Example: id = "Math.cos". similar to JavaExecutor's invoke,
   // but matches arg by building singleton set as needed
   private Object invoke(String id, World<?> thisObj, Object... args) {

@@ -8,7 +8,7 @@ import java.util.List;
  * Generic type A represents an action type
  * @param <A>
  */
-public abstract class PathAction<A> {
+public abstract class AbstractPathElement<A> {
   
   public A action;
   public Point point;
@@ -18,5 +18,5 @@ public abstract class PathAction<A> {
 
   public abstract Object toJSON();
   
-  public abstract PathAction<A> clone();
+  public abstract AbstractPathElement<A> clone();
 }
