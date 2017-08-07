@@ -278,8 +278,10 @@ public class InteractiveMaster extends Master {
     
     InteractiveBeamParserState state = ((InteractiveBeamParser)parser).parseWithoutExecuting(params, exHead, false);
     
-    if (GrammarInducer.getParseStatus(exHead) == GrammarInducer.ParseStatus.Core)
-      throw BadInteractionException.headIsCore(head);
+    // ~~~ This is definitely a hack to get internal testing to work more smoothly 
+    if (!(parser instanceof SessionBeamParser))
+      if (GrammarInducer.getParseStatus(exHead) == GrammarInducer.ParseStatus.Core)
+        throw BadInteractionException.headIsCore(head);
 
     LogInfo.logs("num anchored: %d", state.chartList.size());
     List<String> bodyList = InteractiveUtils.utterancefromJson(jsonDef, false);
