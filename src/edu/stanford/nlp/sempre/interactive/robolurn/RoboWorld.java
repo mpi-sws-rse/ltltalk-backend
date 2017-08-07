@@ -95,12 +95,15 @@ public class RoboWorld extends World {
   public RoboWorld clone() {
     Set<Wall> newWalls = walls.stream().map(w -> (Wall) w.clone()).collect(Collectors.toSet());
     Set<Item> newItems = items.stream().map(i -> (Item) i.clone()).collect(Collectors.toSet());
-    return new RoboWorld(
+    RoboWorld newWorld = new RoboWorld(
          robot.clone(),
          newWalls,
          newItems,
          new HashMap<>(rooms)
     );
+    newWorld.selectedArea = this.selectedArea;
+    newWorld.selectedPoint = this.selectedPoint;
+    return newWorld;
   }
 
   /**
