@@ -246,7 +246,7 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('Derivation.showRules', false),
   o('Derivation.anchoredBonus', 1.0),
 
-  o('NumberFn.allowedRange', -10, 10),
+  o('NumberFn.allowedRange', -99, 99),
   o('SimpleLexicon.inPaths', "./#{$path}/simple_colors.lexicon"),
 
   lambda { |e| system 'mkdir -p ./int-output/'; nil},

@@ -33,7 +33,6 @@ public class SessionBeamParser extends InteractiveBeamParser {
     } else {
       interactiveCatUnaryRules.add(sRule);
     }
-    System.out.printf("~~~ %s\n", allRules.stream().filter(r -> r.source != null).map(r -> r.source.uid + " : " + r).collect(Collectors.toList()));
   }
   
   @Override
@@ -45,14 +44,9 @@ public class SessionBeamParser extends InteractiveBeamParser {
     this.interactiveCatUnaryRules = new ArrayList<>();
     this.trie = new Trie();
     this.allRules = new LinkedHashSet<>();
-    System.out.println("~~~ " + sessionId);
     for (Rule r : oldAllRules) {
-      if (r.source == null || sessionId.equals(r.source.uid)) {
-        if (r.source != null)
-          System.out.printf("~~~ %s : %s", r.source.uid, r);
+      if (r.source == null || sessionId.equals(r.source.uid))
         this.addRule(r);
-      } else
-        System.out.printf("~~~ %s : %s", r.source.uid, r);
     }
 
     ParserState state = super.parse(params, ex, computeExpectedCounts);

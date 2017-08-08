@@ -1,6 +1,7 @@
 package edu.stanford.nlp.sempre.interactive;
 
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -156,11 +157,18 @@ public abstract class World {
   }
   
   public Point anyPoint(Set<Point> s) {
-    Iterator<Point> iter = s.iterator();
-    if (iter.hasNext())
-      return iter.next();
-    else
+    if (s.isEmpty())
       return new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
+    ArrayList<Point> arr = new ArrayList<>();
+    for (Point p : s)
+      arr.add(p);
+    return arr.get((int) (System.currentTimeMillis() % arr.size()));
+
+//    Iterator<Point> iter = s.iterator();
+//    if (iter.hasNext())
+//      return iter.next();
+//    else
+//      return new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
   }
   
   public World() {
