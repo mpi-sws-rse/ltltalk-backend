@@ -21,6 +21,7 @@ import edu.stanford.nlp.sempre.ContextValue;
 import edu.stanford.nlp.sempre.Json;
 import edu.stanford.nlp.sempre.NaiveKnowledgeGraph;
 import edu.stanford.nlp.sempre.StringValue;
+import edu.stanford.nlp.sempre.Unit;
 import edu.stanford.nlp.sempre.interactive.ActionInterface;
 import edu.stanford.nlp.sempre.interactive.Block;
 import edu.stanford.nlp.sempre.interactive.World;
@@ -248,8 +249,10 @@ public class RoboWorld extends World {
       return this.walls;
     else if (clazz == Point.class)
       return this.getOpenPoints();
+    else  if (clazz == Unit.class)
+      return Sets.newHashSet(Unit.get());
     else 
-      return new HashSet<>();
+      return Sets.newHashSet();
   }
 
   @SuppressWarnings("unchecked")
@@ -257,6 +260,38 @@ public class RoboWorld extends World {
     return new ItemSet((Set<Item>) items);
   }
 
+  public Set<?> itemAt(Set<Item> s, Point p) { 
+    return itemAt(s, Sets.newHashSet(p));
+  }
+
+  public Set<?> itemAt(Set<Item> s, Set<Point> points) {
+    if (s.stream().anyMatch(i -> points.contains(i.point) && !i.isCarried()))
+      return Unit.trueSet();
+    else
+      return Unit.falseSet();
+  }
+  
+  public Set<?> robotHas(Set<Item> s) {
+    if (s.stream().anyMatch(i -> i.isCarried()))
+      return Unit.trueSet();
+    else
+      return Unit.falseSet();
+  }
+  
+  public Set<?> robotAt(Point p) { 
+    if (p.equals(robot.point))
+      return Unit.trueSet();
+    else
+      return Unit.falseSet();
+  }
+
+  public Set<?> robotAt(Set<Point> points) {
+    if (points.contains(robot.point))
+      return Unit.trueSet();
+    else
+      return Unit.falseSet();
+  }
+  
   public ItemSet setLocationFilter(Point p, Set<Item> s) {
     ItemSet is;
     if (s instanceof ItemSet)

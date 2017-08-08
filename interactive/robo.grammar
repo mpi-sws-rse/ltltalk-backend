@@ -33,19 +33,19 @@
 ### Situation Rules ###
 
 # These will be used only if the final language spec requires it
-#(rule $Situation ( { $Situations } ) (IdentityFn) (anchored true))
+(rule $Situation ( { $Situations } ) (IdentityFn) (anchored true))
 (rule $Situations ($Situation) (IdentityFn) (anchored true))
-#(rule $Situations ($Situations or $Situation) (lambda s1 (lambda s2 (call || (var s1) (var s2)))) (anchored true))
-#(rule $Situations ($Situations and $Situation) (lambda s1 (lambda s2 (call && (var s1) (var s2)))) (anchored true))
-#(rule $Situation (not $Situations) (lambda s (call ! (var s) )) (anchored true))
+(rule $Situations ($Situations or  $Situation) (lambda s1 (lambda s2 (or  (var s1) (var s2)))) (anchored true))
+(rule $Situations ($Situations and $Situation) (lambda s1 (lambda s2 (and (var s1) (var s2)))) (anchored true))
+(rule $Situation (not $Situations) (lambda s (not (var s))) (anchored true))
 
 # JoinFn's must be qualified with items?rel in order to specify that the join should be done
 # on items as opposed to walls or open spaces.
-(rule $Situation ($Item at $Point) (lambda i (lambda f (and (var i) (items?point (var f))))) (anchored true))
-(rule $Situation ($Item at $Areas) (lambda i (lambda a (and (var i) (items?point (var a))))) (anchored true))
-(rule $Situation (robot has $Item) (lambda i (and (var i) (items?carried (boolean true)))) (anchored true))
-(rule $Situation (robot at $Point) (lambda f (and (var f) (call getRobotLocation))) (anchored true))
-(rule $Situation (robot at $Areas) (lambda a (and (var a) (call getRobotLocation))) (anchored true))
+(rule $Situation ($Item at $Point) (lambda i (lambda f (call itemAt (var i) (var f)))) (anchored true))
+(rule $Situation ($Item at $Areas) (lambda i (lambda a (call itemAt (var i) (var a)))) (anchored true))
+(rule $Situation (robot has $Item) (lambda i (call robotHas (var i))) (anchored true))
+(rule $Situation (robot at $Point) (lambda f (call robotAt (var f))) (anchored true))
+(rule $Situation (robot at $Areas) (lambda a (call robotAt (var a))) (anchored true))
 (rule $Situation (possible $Action) (lambda a (:realizable (var a))) (anchored true))
 
 
@@ -135,6 +135,7 @@
 
 (rule $Action (repeat $Numbers times $Action) (lambda n (lambda a (:loop (var n) (var a)))) (anchored true))
 (rule $Action (if $Situations then $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored true))
+(rule $Action (while $Situations $Action ) (lambda s (lambda a (:while (var s) (var a)))) (anchored 1))
 
 ############### Arithmetic
 (for @op (+ -)

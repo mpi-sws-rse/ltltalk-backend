@@ -9,7 +9,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.beust.jcommander.internal.Sets;
+
 import edu.stanford.nlp.sempre.ContextValue;
+import edu.stanford.nlp.sempre.Unit;
 import edu.stanford.nlp.sempre.interactive.robolurn.RoboWorld;
 
 /**
@@ -45,7 +48,6 @@ public abstract class World {
   public abstract Point getLowCorner();
   
   // Lazy eval for now. If the walls (they don't now) change, this will need to be updated.
-  @SuppressWarnings("unchecked")
   public Set<Point> getOpenPoints() {
     if (this.open != null)
       return (Set<Point>) this.open;
@@ -163,12 +165,6 @@ public abstract class World {
     for (Point p : s)
       arr.add(p);
     return arr.get((int) (System.currentTimeMillis() % arr.size()));
-
-//    Iterator<Point> iter = s.iterator();
-//    if (iter.hasNext())
-//      return iter.next();
-//    else
-//      return new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
   }
   
   public World() {

@@ -39,6 +39,8 @@ import edu.stanford.nlp.sempre.NumberValue;
 import edu.stanford.nlp.sempre.ReverseFormula;
 import edu.stanford.nlp.sempre.StringValue;
 import edu.stanford.nlp.sempre.SuperlativeFormula;
+import edu.stanford.nlp.sempre.TypedEmptySet;
+import edu.stanford.nlp.sempre.Unit;
 import edu.stanford.nlp.sempre.Value;
 import edu.stanford.nlp.sempre.ValueFormula;
 import edu.stanford.nlp.sempre.interactive.planner.PathFinder;
@@ -149,6 +151,8 @@ public class DALExecutor extends Executor {
       return successful;
     } else if (f.mode == ActionFormula.Mode.conditional) {
       // using the empty set to represent false
+      // The combination of "robot has" and "not" does not work
+      //System.out.printf("~~~ %s\n", toSet(processSetFormula(f.args.get(0), world)));
       boolean cond = toSet(processSetFormula(f.args.get(0), world)).iterator().hasNext();
       boolean successful = true;
       if (cond)
@@ -211,6 +215,15 @@ public class DALExecutor extends Executor {
     }
   }
 
+//  private boolean toBoolean(Object o) {
+//    if (o instanceof Boolean)
+//      return ((Boolean) o).booleanValue();
+//    else if (o instanceof Set)
+//      return !((Set<?>) o).isEmpty();
+//    else
+//      throw new RuntimeException("Cannot cast object of type " + o.getClass() + " to boolean.");
+//  }
+
   @SuppressWarnings("unchecked")
   private Set<Object> toSet(Object maybeSet) {
     if (maybeSet instanceof Set)
@@ -239,10 +252,11 @@ public class DALExecutor extends Executor {
     return itemset;
   }
 
-  @SuppressWarnings("unused")
+  @SuppressWarnings({ "unused", "unchecked" })
   private Set<Point> toPointSet(Set<Object> maybePoints) {
     if (maybePoints.isEmpty())
-      return new HashSet<>();
+      // This might cause a problem; return empty HashSet if so
+      return (Set<Point>) new TypedEmptySet(Point.class);
     Set<Point> pointSet;
     if (maybePoints.iterator().next() instanceof Block)
       pointSet = maybePoints.stream().map(i -> ((Block) i).point).collect(Collectors.toSet());
@@ -318,15 +332,18 @@ public class DALExecutor extends Executor {
       Set<Object> set1 = toSet(processSetFormula(mergeFormula.child1, world));
       Set<Object> set2 = toSet(processSetFormula(mergeFormula.child2, world));
 
+      Set<Object> result;
       if (mode == MergeFormula.Mode.or)
-        return toMutable(Sets.union(set1, set2));
-      if (mode == MergeFormula.Mode.and) {
-        Set<Object> set = toMutable(Sets.intersection(set1, set2));
-        if (set.isEmpty())
-          return new TypedEmptySet(set1, set2);
-        else
-          return set;
-      }
+        result = toMutable(Sets.union(set1, set2));
+      else if (mode == MergeFormula.Mode.and)
+        result = toMutable(Sets.intersection(set1, set2));
+      else
+        throw new RuntimeException("Unknown merge formula");
+
+      if (result.isEmpty())
+        return new TypedEmptySet(set1, set2);
+      else
+        return result;
     }
 
     if (formula instanceof NotFormula) {
@@ -405,9 +422,9 @@ public class DALExecutor extends Executor {
       ActionFormula actionFormula = (ActionFormula) formula;
       if (actionFormula.mode == ActionFormula.Mode.realizable) {
         if (performActions((ActionFormula) actionFormula.args.get(0), world.clone()))
-          return Sets.newHashSet(new Object());
+          return Sets.newHashSet(Unit.get());
         else
-          return Sets.newHashSet();
+          return new TypedEmptySet(Unit.class);
       } else {
         throw new RuntimeException(actionFormula + " cannot be treated as a set.");
       }
@@ -553,7 +570,8 @@ public class DALExecutor extends Executor {
 
       cost += typeCastCost(types[i], args[i]);
       if (cost >= INVALID_TYPE_COST) {
-        LogInfo.dbgs("NOT COMPATIBLE: want %s, got %s with type %s", types[i], args[i], args[i].getClass());
+        // Brendon: Is this important to note?
+        //LogInfo.dbgs("NOT COMPATIBLE: want %s, got %s with type %s", types[i], args[i], args[i].getClass());
         break;
       }
     }
