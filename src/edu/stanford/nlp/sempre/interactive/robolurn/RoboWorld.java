@@ -431,6 +431,7 @@ public class RoboWorld extends World {
     for (Iterator<Item> iter = restricted.iterator(); iter.hasNext(); ) {
       item = iter.next();
       item.setCarried(false);
+      item.point = robot.point;
       pathActions.add(new PathElement(robot.point, PathElement.Action.DROPITEM, item.color, true));
     }
     keyConsistency();

@@ -351,11 +351,21 @@ public class DALExecutor extends Executor {
       Set<Object> set1 = toSet(processSetFormula(notFormula.child, world));
       Iterator<Object> iter = set1.iterator();
       if (iter.hasNext()) {
-        return toMutable(Sets.difference(world.universalSet(iter.next().getClass()), set1));
+        Object elem = iter.next();
+        Set<? extends Object> result =
+            toMutable(Sets.difference(world.universalSet(elem.getClass()), set1));
+        if (result.isEmpty())
+          return new TypedEmptySet(elem.getClass());
+        else
+          return result;
       } else if (set1 instanceof TypedEmptySet) {
-        return toMutable(Sets.difference(world.universalSet(((TypedEmptySet) set1).type), set1));
-      }
-      throw new RuntimeException("Reverse formula cannot be executed on empty set.");
+        Set<? extends Object> result =
+            toMutable(Sets.difference(world.universalSet(((TypedEmptySet) set1).type), set1));
+        if (result.isEmpty())
+          return set1; // Which is a TypedEmptySet
+        return result;
+      } else 
+        throw new RuntimeException("Reverse formula cannot be executed on empty set.");
     }
 
     if (formula instanceof AggregateFormula) {

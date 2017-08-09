@@ -134,7 +134,7 @@
 (rule $Action ($Action ;) (IdentityFn) (anchored true))
 
 (rule $Action (repeat $Numbers times $Action) (lambda n (lambda a (:loop (var n) (var a)))) (anchored true))
-(rule $Action (if $Situations then $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored true))
+(rule $Action (if $Situations $Action) (lambda b (lambda a (:if (var b) (var a)))) (anchored true))
 (rule $Action (while $Situations $Action ) (lambda s (lambda a (:while (var s) (var a)))) (anchored 1))
 
 ############### Arithmetic
