@@ -6,7 +6,8 @@ import java.util.Set;
 /**
  * A proper unit type (a la Scala)
  * @author brendonboldt
- *
+ * This is used when sets are used a booleans. The reason that Set<Unit> is
+ * useful is because it makes the complement of the empty set easy to generate.
  */
 public final class Unit {
   

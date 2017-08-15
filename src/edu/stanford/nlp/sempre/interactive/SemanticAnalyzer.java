@@ -6,7 +6,7 @@ import java.util.Set;
 import edu.stanford.nlp.sempre.Derivation;
 
 /**
- * Detects if derivation contains a loop variables used out of scope.
+ * Detects if a derivation contains a loop variable used out of scope.
  * @author brendonboldt
  *
  */

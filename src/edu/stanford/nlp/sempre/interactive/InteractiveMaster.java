@@ -3,7 +3,10 @@ package edu.stanford.nlp.sempre.interactive;
 import java.io.PrintWriter;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
@@ -34,6 +37,8 @@ public class InteractiveMaster extends Master {
   public static class Options {
     @Option(gloss = "Write out new grammar rules")
     public String intOutputPath;
+    @Option(gloss = "Grammar output file name")
+    public String grammarLogFile = "grammar.log.json";
     @Option(gloss = "each session gets a different model with its own parameters")
     public boolean independentSessions = false;
     @Option(gloss = "number of utterances to return for autocomplete")
@@ -193,7 +198,7 @@ public class InteractiveMaster extends Master {
         String head = tree.children.get(1).value;
         String jsonDef = tree.children.get(2).value;
 
-        List<Rule> inducedRules = new ArrayList<>();
+        Collection<Rule> inducedRules = new ArrayList<>();
         stats.put("head_len", head.length());
         stats.put("json_len", jsonDef.length());
         try {
@@ -220,7 +225,7 @@ public class InteractiveMaster extends Master {
           // write out the grammar
           if (session.isWritingGrammar()) {
             PrintWriter out = IOUtils
-                .openOutAppendHard(Paths.get(InteractiveMaster.opts.intOutputPath, "grammar.log.json").toString());
+                .openOutAppendHard(Paths.get(InteractiveMaster.opts.intOutputPath, InteractiveMaster.opts.grammarLogFile).toString());
             for (Rule rule : inducedRules) {
               out.println(rule.toJson());
             }
@@ -293,14 +298,10 @@ public class InteractiveMaster extends Master {
       refResponse.value.ex = exHead;
     }
     
-    List<Rule> inducedRules = new ArrayList<>();
+    Set<Rule> inducedRules = new LinkedHashSet<>();
     GrammarInducer grammarInducer = new GrammarInducer(exHead.getTokens(), bodyDeriv, state.chartList);
     inducedRules.addAll(grammarInducer.getRules());
 
-//    for (Rule rule : inducedRules) {
-//      rule.source = new RuleSource(session.id, head, bodyList);
-//    }
-    
     if (opts.useAligner && bodyList.size() == 1) {
       List<Rule> alignedRules = DefinitionAligner.getRules(exHead.getTokens(),
           InteractiveUtils.utterancefromJson(jsonDef, true), bodyDeriv, state.chartList);
@@ -316,7 +317,7 @@ public class InteractiveMaster extends Master {
     }
 
     exHead.predDerivations = Lists.newArrayList(bodyDeriv);
-    return inducedRules;
+    return inducedRules.stream().collect(Collectors.toList());
   }
 
   private static boolean isNonsense(Example exHead) {

@@ -5,10 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edu.stanford.nlp.sempre.ActionFormula;
-import edu.stanford.nlp.sempre.CallFormula;
-import edu.stanford.nlp.sempre.Formula;
-import edu.stanford.nlp.sempre.NameValue;
-import edu.stanford.nlp.sempre.NumberValue;
 import edu.stanford.nlp.sempre.NameValue;
 import edu.stanford.nlp.sempre.Value;
 import edu.stanford.nlp.sempre.ValueFormula;
@@ -16,7 +12,7 @@ import edu.stanford.nlp.sempre.interactive.ActionInterface;
 import edu.stanford.nlp.sempre.interactive.World;
 
 /**
- * Singleton class containing _actions_ which can be performed on RoboWorld
+ * Singleton class containing actions which can be performed on RoboWorld
  * @author brendonboldt
  *
  */
@@ -76,6 +72,8 @@ public class ActionMethods extends ActionInterface {
         //return String.format("move %s", f.args.get(1));
         return "move";
       case "visit": 
+        // This code below would provice more information on the nature of the
+        // action that failed (currently unfinished).
         //CallFormula cf = (CallFormula) f.args.get(1);
         //int arg1 = (int) ((NumberValue) ((ValueFormula) cf.args.get(0)).value).value;
         //int arg2 = (int) ((NumberValue) ((ValueFormula) cf.args.get(1)).value).value;

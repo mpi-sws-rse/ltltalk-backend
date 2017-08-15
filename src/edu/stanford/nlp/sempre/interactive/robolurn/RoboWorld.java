@@ -33,17 +33,13 @@ public class RoboWorld extends World {
     @Option(gloss = "maximum number of cubes to convert")
     public int maxBlocks = 1024 ^ 2;
   }
-//  private class ActionResult {
-//    String action;
-//    String realizable;
-//  }
   
   private ActionMethods actionMethods =  ActionMethods.getInstance();
   
   public ActionInterface getActionInterface() { return actionMethods; }
   
   // Eventually make a whole object for this
-  // If this is left unset; everything was realizable
+  // If this is left unset, everything was realizable
   public String unrealizableStatus = "";
   
   protected Point lowCorner;
@@ -57,7 +53,6 @@ public class RoboWorld extends World {
 
   public static RoboWorld fromContext(ContextValue context) {
     if (context == null || context.graph == null) {
-      //return fromJSON("[[0,0,[]],[1,1,\"wall\",null]]");
       return null;
     }
     NaiveKnowledgeGraph graph = (NaiveKnowledgeGraph) context.graph;
@@ -135,6 +130,10 @@ public class RoboWorld extends World {
     return this.highCorner;
   }
   
+  /*
+   * This is not curently needed because the world only has to return the
+   * robot's path (i.e., the delta to the next state of the wolrd).
+   */
   @Override
   public String toJSON() {
     return "NOT YET SUPPORTED";

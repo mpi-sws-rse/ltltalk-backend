@@ -4,11 +4,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * This class serves as a placeholder for operations resulting from the
- * complement of the intersection of disjoin sets. It is the job of the methods
- * which receive this to insert the appropriate universal set.
+ * An empty set with a known type at runtime.
  * @author brendonboldt
- *
+ * This class serves as a placeholder for operations resulting from the
+ * complement of the intersection of disjoint sets. It is the job of the methods
+ * which receive this to insert the appropriate universal set.
+ * Thanks, type erasure.
  */
 @SuppressWarnings({ "rawtypes", "serial" })
 public class TypedEmptySet extends HashSet {

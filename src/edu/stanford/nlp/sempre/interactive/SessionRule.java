@@ -5,6 +5,11 @@ import java.util.List;
 import edu.stanford.nlp.sempre.Rule;
 import edu.stanford.nlp.sempre.SemanticFn;
 
+/**
+ * A rule which considers the session source in determining equality
+ * @author brendonboldt
+ *
+ */
 public class SessionRule extends Rule {
 
   public SessionRule(String lhs, List<String> rhs, SemanticFn sem) {
@@ -19,8 +24,6 @@ public class SessionRule extends Rule {
   
   @Override
   public boolean equals(Object o) {
-//    if (!(o instanceof Rule)) 
-//      return false;
     if (!super.equals(o))
       return false;
     Rule r = (Rule) o;

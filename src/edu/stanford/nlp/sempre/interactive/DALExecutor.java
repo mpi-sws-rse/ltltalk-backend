@@ -215,15 +215,6 @@ public class DALExecutor extends Executor {
     }
   }
 
-//  private boolean toBoolean(Object o) {
-//    if (o instanceof Boolean)
-//      return ((Boolean) o).booleanValue();
-//    else if (o instanceof Set)
-//      return !((Set<?>) o).isEmpty();
-//    else
-//      throw new RuntimeException("Cannot cast object of type " + o.getClass() + " to boolean.");
-//  }
-
   @SuppressWarnings("unchecked")
   private Set<Object> toSet(Object maybeSet) {
     if (maybeSet instanceof Set)

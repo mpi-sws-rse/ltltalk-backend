@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.util.List;
 
 /**
+ * A PathElement is an atomic action for the robot to perform.
  * @author brendonboldt
  * Generic type A represents an action type
  * @param <A>

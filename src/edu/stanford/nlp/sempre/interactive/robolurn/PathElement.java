@@ -10,6 +10,7 @@ import edu.stanford.nlp.sempre.interactive.AbstractPathElement;
 
 public class PathElement extends AbstractPathElement<PathElement.Action> {
 
+  // PATH represents a movement to an adjacent point
   public enum Action {
     PICKITEM, DROPITEM, PATH, DESTINATION;
 
