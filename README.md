@@ -67,6 +67,7 @@ Here are some general tips for troubleshooting:
 	- Run `ant clean` and then `ant interactive`
 - If the server throws an error during use with the browser client
 	- Open an issue detailing the server-side error and the client-side input
+- If all previously learned rules have to be forgotten, one can clean the file `sempre-interactive/int-output/grammar.log.json`
 
 # Browser Client
 
