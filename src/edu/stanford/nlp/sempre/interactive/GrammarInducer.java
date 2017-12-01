@@ -39,8 +39,8 @@ public class GrammarInducer {
     public Set<String> filteredCats = new HashSet<String>();
     @Option(gloss = "verbose")
     public int verbose = 0;
-    @Option(gloss = "cats that never overlaps, and always save to replace")
-    public List<String> simpleCats = Lists.newArrayList("$Color", "$Number", "$Direction");
+    @Option(gloss = "cats that never overlap, and always safe to replace")
+    public List<String> simpleCats = Lists.newArrayList("Color", "Number", "Direction");
     @Option(gloss = "cats that should never be the lhs of induced rules")
     public List<String> nonInducingCats = Lists.newArrayList("$TOKEN", "$PHRASE", "$LEMMA_TOKEN", "$LEMMA_PHRASE");
     @Option(gloss = "use best packing")
@@ -72,6 +72,10 @@ public class GrammarInducer {
       allHead = true;
     }
     
+    
+    
+    
+    
     // dont want weird cat unary rules with strange semantics
     if (headTokens == null || headTokens.isEmpty()) {
       throw new RuntimeException("The head is empty, refusing to define.");
@@ -86,10 +90,11 @@ public class GrammarInducer {
     addMatches(def, makeChartMap(chartList));
     Collections.reverse(this.matches);
 
+    
     inducedRules = new ArrayList<>();
     if (allHead && opts.useSimplePacking) {
       List<Derivation> filteredMatches = this.matches.stream().filter(d -> {
-        return opts.simpleCats.contains(d.cat) && d.allAnchored() && d.end - d.start == 1;
+        return opts.simpleCats.contains(getCategoryStringFromDerivation(d)) && d.allAnchored() && d.end - d.start == 1;
       }).collect(Collectors.toList());
 
       List<Derivation> packing = new ArrayList<>();
@@ -101,6 +106,7 @@ public class GrammarInducer {
           }
         }
       }
+      
 
       HashMap<String, String> formulaToCat = new HashMap<>();
       packing.forEach(d -> formulaToCat.put(catFormulaKey(d), varName(d)));
@@ -192,6 +198,10 @@ public class GrammarInducer {
     return getNormalCat(anchored) + (anchored.start - s) + "_" + (anchored.end - s);
   }
 
+  // when we don't want to deal with '$Color', but would rather have 'Color' 
+  static private String getCategoryStringFromDerivation(Derivation d){
+	  return d.cat.substring(1);
+  }
   static private String getNormalCat(Derivation def) {
     // return def.cat;
     // TODO : this seems like a very naive thing to do
