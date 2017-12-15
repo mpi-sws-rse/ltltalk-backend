@@ -3,7 +3,7 @@ package edu.stanford.nlp.sempre;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import fig.basic.LispTree;
-
+import fig.basic.LogInfo;
 import java.util.List;
 
 /**
@@ -26,6 +26,74 @@ public class CallFormula extends Formula {
     this.args = args;
   }
 
+  @Override
+  public List<Formula>getChildren(){
+	
+	  return this.args;
+	  
+  }
+  
+  
+  @Override
+  public String prettyString(){
+	  String s;
+	if (this.func.toString().equals( "makePoint" )){
+		s = "[" + this.args.get(0).prettyString() + ","+this.args.get(1).prettyString()+"]"; 
+	} 
+	else if (this.func.toString().equals("anyPoint")){
+		s = "any point in "+this.args.get(0).prettyString();
+	}
+	else if (this.func.toString().equals("filterArea")){
+		s = this.args.get(0).prettyString() +" containing item "+this.args.get(1).prettyString();
+		if (precisePrettyPrinting){
+			s = "{" + s + "}";
+		}
+	}
+	else if (this.func.toString().equals("robotHas")){
+		s = "robot has item "+this.args.get(0).prettyString();
+		
+	}
+	else if (this.func.toString().equals("itemAt")){
+		s = "item at "+this.args.get(0).prettyString() + this.args.get(1).prettyString();
+	}
+	else if (this.func.toString().equals("getRobotLocation")){
+		s = "current";
+	}
+	else if (this.func.toString().equals("robotAt")){
+		s = "robot at "+this.args.get(0).prettyString();
+	}
+	else if (this.func.toString().equals("filterCollection")){
+		s = this.args.get(0).prettyString() +" containing item "+this.args.get(1).prettyString();
+		if (precisePrettyPrinting){
+			s = "{" + s + "}";
+		}
+	}
+	else if (this.func.toString().equals("getSelectedPoint")){
+		s = "point";
+	}
+	else if (this.func.toString().equals("getSelectedArea")){
+		s = "area";
+	}
+	else if (this.func.toString().equals("setLimit")){
+		s = "";
+		LogInfo.logs("first child = %s",this.args.get(0).prettyString());
+		if (this.args.get(0).prettyString().equals("-1.0")){
+			s = "every item "+this.args.get(1).prettyString();
+		}
+		else if (this.args.get(0).prettyString().equals("1.0")){
+			s = "item "+this.args.get(1).prettyString();
+		}
+	}
+	else if (this.func.toString().equals("allItems")){
+		s = "";
+		
+	}
+	else {
+		s = this.toString();
+	}
+	return s;
+  }
+  
   public LispTree toLispTree() {
     LispTree tree = LispTree.proto.newList();
     tree.addChild("call");

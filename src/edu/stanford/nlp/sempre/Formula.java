@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.base.Function;
 import fig.basic.LispTree;
+import fig.basic.LogInfo;
 
 import java.util.List;
 
@@ -22,6 +23,11 @@ public abstract class Formula {
   private int hashCode = -1;
   // Serialize as LispTree.
   public abstract LispTree toLispTree();
+  
+  // hacking in option
+  public boolean precisePrettyPrinting = true;
+  
+  public String subcategory = "default";
 
   // Recursively perform some operation on each formula.
   // Apply to formulas.  If |func| returns false, then recurse on children.
@@ -30,6 +36,9 @@ public abstract class Formula {
   // Recursively perform some operation on each formula.
   // Apply to formulas.  If |func| returns null, then recurse on children.
   public abstract Formula map(Function<Formula, Formula> func);
+  
+  // return the children of the formula
+  public abstract List<Formula> getChildren();
 
   // Recursively perform some operation on each formula.
   // Apply to formulas.  If |func| returns an empty set or |alwaysRecurse|, then recurse on children.
@@ -51,6 +60,21 @@ public abstract class Formula {
   }
 
   public abstract int computeHashCode();
+  
+  public String prettyString(){
+	  return this.toString();
+  }
+  
+  public void printFormulaRecursively() {
+	    //LogInfo.logs("Formula: %s of subclass %s and class %s", this.toString(), this.subcategory, this.getClass());
+	  LogInfo.logs("Formula: %s of subclass %s", this.toString(), this.getClass());
+	    List<Formula> children = this.getChildren();
+	    for (int i = 0; i < children.size(); i++) {
+	      LogInfo.begin_track("child %s:", i);
+	      children.get(i).printFormulaRecursively();
+	      LogInfo.end_track();
+	    }
+	  }
 
   public static Formula nullFormula = new PrimitiveFormula() {
       public LispTree toLispTree() { return LispTree.proto.newLeaf("null"); }

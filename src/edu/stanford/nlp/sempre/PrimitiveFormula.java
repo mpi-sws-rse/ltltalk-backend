@@ -3,6 +3,7 @@ package edu.stanford.nlp.sempre;
 import com.google.common.base.Function;
 
 import java.util.List;
+import java.util.LinkedList;
 
 /**
  * A PrimitiveFormula represents an atomic value which is cannot be decomposed
@@ -15,6 +16,11 @@ public abstract class PrimitiveFormula extends Formula {
   @Override
   public void forEach(Function<Formula, Boolean> func) {
     func.apply(this);
+  }
+  
+  @Override
+  public List<Formula>getChildren(){
+	  return new LinkedList();
   }
 
   @Override

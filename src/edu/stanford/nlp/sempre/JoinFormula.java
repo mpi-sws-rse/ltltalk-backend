@@ -2,8 +2,10 @@ package edu.stanford.nlp.sempre;
 
 import com.google.common.base.Function;
 import fig.basic.LispTree;
+import fig.basic.LogInfo;
 
 import java.util.List;
+import java.util.LinkedList;
 
 /**
  * A join formula represents a database join and has the following form:
@@ -28,7 +30,29 @@ public class JoinFormula extends Formula {
     this.relation = relation;
     this.child = child;
   }
-
+  @Override
+  public List<Formula>getChildren(){
+	  LinkedList children = new LinkedList();
+	  children.add(this.child);
+	  if (this.relation instanceof Formula){
+		  children.add(this.relation);
+	  }
+	  return children;
+	  
+  }
+  
+  
+  @Override
+  public String prettyString(){
+	  String s = relation.prettyString()+ " "+ child.prettyString();
+	  if (precisePrettyPrinting){
+		  return "{" + s + "}";
+	  }
+	  else{
+		  return s;
+	  }
+  }
+  
   public LispTree toLispTree() {
     LispTree tree = LispTree.proto.newList();
     tree.addChild(relation.toLispTree());

@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import fig.basic.LispTree;
 
 import java.util.List;
+import java.util.LinkedList;
 
 /**
  * If |expr| denotes a set of pairs S,
@@ -29,6 +30,15 @@ public class ReverseFormula extends Formula {
   @Override
   public void forEach(Function<Formula, Boolean> func) {
     if (!func.apply(this)) child.forEach(func);
+  }
+  
+  @Override
+  public List<Formula>getChildren(){
+	 
+	  LinkedList children = new LinkedList();
+	  children.add(this.child);
+	  return children;
+	  
   }
 
   @Override

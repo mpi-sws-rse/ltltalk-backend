@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import fig.basic.LispTree;
 
 import java.util.List;
+import java.util.LinkedList;
 
 /**
  * 'Aggregate' takes a set and computes some number on that set.
@@ -26,6 +27,15 @@ public class AggregateFormula extends Formula {
     tree.addChild(child.toLispTree());
     return tree;
   }
+  
+  @Override
+  public List<Formula>getChildren(){
+	  LinkedList children = new LinkedList();
+	  children.add(child);
+	  return children;
+	  
+  }
+  
 
   public static Mode parseMode(String mode) {
     if ("count".equals(mode)) return Mode.count;

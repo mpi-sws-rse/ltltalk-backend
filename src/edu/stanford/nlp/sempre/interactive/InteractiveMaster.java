@@ -123,7 +123,8 @@ public class InteractiveMaster extends Master {
       stats.size(ex.predDerivations != null ? ex.predDerivations.size() : 0);
       stats.status(InteractiveUtils.getParseStatus(ex));
       
-      LogInfo.logs("parse stats: %s", response.stats);
+      
+      
       response.ex = ex;
     } else if (command.equals(":qdbg")) {
       // Create example

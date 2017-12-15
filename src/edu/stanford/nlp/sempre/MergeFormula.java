@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import fig.basic.LispTree;
 
 import java.util.List;
+import java.util.LinkedList;
 
 /**
  * Takes two unary formulas and performs either the intersection or union.
@@ -34,7 +35,32 @@ public class MergeFormula extends Formula {
   public void forEach(Function<Formula, Boolean> func) {
     if (!func.apply(this)) { child1.forEach(func); child2.forEach(func); }
   }
+  
+  @Override
+  public String prettyString(){
+	  String s;
+	  String modeString = "";
+	  if (mode.equals(Mode.and)){
+		  modeString = "and";
+	  }
+	  else if (mode.equals(Mode.or)){
+		  modeString = "or";
+	  }
+	  s = this.child1.prettyString() + " "+ modeString + " "+ this.child2.prettyString();
+	  if (precisePrettyPrinting){
+		  s = "{"+s+"}";
+	  }
+	  return s;
+  }
 
+  @Override
+  public List<Formula>getChildren(){
+	  LinkedList children = new LinkedList();
+	  children.add(this.child1);
+	  children.add(this.child2);
+	  return children;
+	  
+  }
   @Override
   public Formula map(Function<Formula, Formula> func) {
     Formula result = func.apply(this);

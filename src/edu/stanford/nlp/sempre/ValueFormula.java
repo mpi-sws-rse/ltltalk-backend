@@ -1,6 +1,7 @@
 package edu.stanford.nlp.sempre;
 
 import fig.basic.LispTree;
+import fig.basic.LogInfo;
 
 /**
  * A ValueFormula represents an atomic value which is cannot be decomposed
@@ -17,6 +18,21 @@ public class ValueFormula<T extends Value> extends PrimitiveFormula {
     return value.toLispTree();
   }
 
+  @Override
+  public String prettyString(){
+	  //LogInfo.logs("value is of class %s", this.value.getClass());
+	  if (value.sortString().equals("items?color")){
+		  return "has color";
+	  }
+	  else if (value.sortString().equals("all_rooms")){
+		  return "all rooms";
+	  }
+	  else
+	  {
+		  return this.value.contentString();
+	  }
+  }
+  
   @SuppressWarnings({"equalshashcode"})
   @Override
   public boolean equals(Object o) {

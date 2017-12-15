@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import fig.basic.LispTree;
 
 import java.util.List;
+import java.util.LinkedList;
 
 /**
  * (not expression) returns the truth value which is opposite of expression.
@@ -20,6 +21,25 @@ public class NotFormula extends Formula {
     tree.addChild("not");
     tree.addChild(child.toLispTree());
     return tree;
+  }
+  
+  @Override
+  public List<Formula>getChildren(){
+	  LinkedList children = new LinkedList();
+	  children.add(child);
+	  return children;
+	  
+  } 
+  
+  @Override
+  public String prettyString(){
+	  String s = "not "+this.child.prettyString();
+	  if (precisePrettyPrinting){
+		  return "{"+s+"}";
+	  }
+	  else{
+		  return s;
+	  }
   }
 
   @Override

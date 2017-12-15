@@ -1,11 +1,13 @@
 package edu.stanford.nlp.sempre;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
 import fig.basic.LispTree;
+import fig.basic.LogInfo;
 
 /**
  * An ActionFormula represent a compositional action used in the interactive
@@ -56,6 +58,72 @@ public class ActionFormula extends Formula {
   public ActionFormula(Mode mode, List<Formula> args) {
     this.mode = mode;
     this.args = args;
+  }
+  
+  @Override
+  public String prettyString(){
+	  String s;
+	  if (this.mode.equals(Mode.primitive)){
+		  if (this.getChildren().get(0).prettyString().equals("itemActionHandler")){
+			  s = this.getChildren().get(1).prettyString() + " "+this.getChildren().get(2).prettyString();
+		  }
+		  else if(this.getChildren().get(0).prettyString().equals("visit")){
+			  if (this.getChildren().size() == 3){
+				  s = this.getChildren().get(0).prettyString() + " "+this.getChildren().get(1).prettyString() + " while avoiding "+this.getChildren().get(2).prettyString();
+			  }
+			  else
+			  {
+				  s = this.getChildren().get(0).prettyString() + " "+this.getChildren().get(1).prettyString();
+			  }
+		  }
+		  else {
+			  s = this.getChildren().get(0).prettyString() + " "+this.getChildren().get(1).prettyString();
+		  }
+		  
+	  }
+	  else if (this.mode.equals(Mode.foreach)){
+		  s = "foreach "+this.getChildren().get(0).prettyString() + " in "+this.getChildren().get(1).prettyString() + " "+this.getChildren().get(2).prettyString();
+	  }
+	  else if (this.mode.equals(Mode.conditional)){
+		  s = "if "+this.getChildren().get(0).prettyString() + " "+this.getChildren().get(1).prettyString();
+	  }
+	  else if (this.mode.equals(Mode.realizable)){
+		  s = "possible "+this.getChildren().get(0).prettyString();
+	  }
+	  else if (this.mode.equals(Mode.strict)){
+		  s = "strict "+this.getChildren().get(0).prettyString();
+	  }
+	  else if (this.mode.equals(Mode.sequential)){
+		  //s = "{";
+//		  for (Formula f : this.getChildren()){
+//			s = s + "; "+ f.prettyString();  
+//		  }
+//		  s = s + "}";
+		  String joined = this.getChildren().stream()
+				  							 .map(c -> c.prettyString())
+				  							 .collect(Collectors.joining(";"));
+		  s = "{"+joined+"}";
+		  
+	  }
+	  else if (this.mode.equals(Mode.repeat)){
+		  s = "repeat "+this.getChildren().get(0).prettyString()+" times "+this.getChildren().get(1).prettyString();
+	  }
+	  else {
+		  s = this.toString();
+	  }
+	  if (precisePrettyPrinting){
+		  return "{"+s+"}";
+	  }
+	  else{
+		  return s;
+	  }
+  }
+  
+  @Override
+  public List<Formula>getChildren(){
+	 
+	  return this.args;
+	  
   }
 
   public static Mode parseMode(String mode) {

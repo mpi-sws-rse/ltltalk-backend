@@ -23,6 +23,8 @@ public abstract class Value {
 
   // (optional) String used for sorting Values. The default is to call toString()
   public String sortString() { return toString(); }
+  
+  public String contentString(){return toString();}
 
   @JsonCreator
   public static Value fromString(String str) {

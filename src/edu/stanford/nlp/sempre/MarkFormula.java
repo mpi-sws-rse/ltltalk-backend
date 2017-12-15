@@ -4,7 +4,7 @@ import com.google.common.base.Function;
 import fig.basic.LispTree;
 
 import java.util.List;
-
+import java.util.LinkedList;
 /**
  * Usage:
  *   (mark |var| |body|).
@@ -23,6 +23,15 @@ public class MarkFormula extends Formula {
   public MarkFormula(String var, Formula body) {
     this.var = var;
     this.body = body;
+  }
+  
+  @Override
+  public List<Formula>getChildren(){
+	
+	  LinkedList<Formula> children = new LinkedList();
+	  children.add(this.body);
+	  return children;
+	  
   }
 
   public LispTree toLispTree() {

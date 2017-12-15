@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import fig.basic.LispTree;
 
 import java.util.List;
+import java.util.LinkedList;
 
 /**
  * Performs arithmetic operations (+, -, *, /).
@@ -24,6 +25,14 @@ public class ArithmeticFormula extends Formula {
     this.child2 = child2;
   }
 
+  @Override
+  public List<Formula>getChildren(){
+	  LinkedList children = new LinkedList();
+	  children.add(child1);
+	  children.add(child2);
+	  return children;
+	  
+  }
   public LispTree toLispTree() {
     LispTree tree = LispTree.proto.newList();
     tree.addChild(modeToString(mode));

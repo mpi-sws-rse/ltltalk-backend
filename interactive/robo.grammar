@@ -64,15 +64,19 @@
 
 
 (rule $Area ([ $PointList ]) (IdentityFn) (anchored true))
+(rule $Area ( $PointCombination ) (IdentityFn) (anchored true))
 (rule $Area (area with corners $Point and $Point) (lambda p1 (lambda p2
     (call getAreaWithCorners (var p1) (var p2)))) (anchored true))
 
-#(rule $Area ( not $Areas ) (lambda a1 (not (var a1))) (anchored true))
+(rule $Area ( not $Areas ) (lambda a1 (not (var a1))) (anchored true))
 (rule $Areas ( $Area ) (IdentityFn) (anchored true))
 (rule $Area ( { $Areas } ) (IdentityFn) (anchored true))
 (rule $Areas ( $Areas union $Area ) (lambda a1 (lambda a2 (or (var a1) (var a2)))) (anchored true))
+(rule $Areas ( $Areas or $Area ) (lambda a1 (lambda a2 (or (var a1) (var a2)))) (anchored true))
 (rule $Areas ( $Areas intersect $Area ) (lambda a1 (lambda a2 (and (var a1) (var a2)))) (anchored true))
+(rule $Areas ( $Areas and $Area ) (lambda a1 (lambda a2 (and (var a1) (var a2)))) (anchored true))
 (rule $Areas ( $Areas minus $Area ) (lambda a1 (lambda a2 (and (var a1) (not (var a2))))) (anchored true))
+#(rule $Areas ( $Areas and not $Area ) (lambda a1 (lambda a2 (and (var a1) (not (var a2))))) (anchored true))
 (rule $AreaList ( $Area ) (IdentityFn) (anchored true))
 (rule $AreaList ( $AreaList , $Area ) (lambda x ( lambda y (call combineCollections (var x) (var y)))) (anchored true))
 
@@ -80,12 +84,15 @@
 (rule $Point ([ $Numbers , $Numbers ]) (lambda x (lambda y (call makePoint (var x) (var y)))) (anchored true))
 (rule $Point (current) (ConstantFn (call getRobotLocation)) (anchored true))
 (rule $PointList ( $Point ) (IdentityFn) (anchored true))
+(rule $PointCombination ( $Point ) (IdentityFn) (anchored true))
 (rule $PointList ( $PointList , $Point ) (lambda x ( lambda y (or (var x) (var y)))) (anchored true))
+(rule $PointCombination ( $PointCombination or $Point ) (lambda x ( lambda y (or (var x) (var y)))) (anchored true))
 
 (rule $Area ($Areas containing $Item) (lambda a (lambda i
     (call filterArea (var a) (var i)))) (anchored true))
 (rule $AreaCollection ($AreaCollection containing $Item) (lambda c (lambda i
     (call filterCollection (var c) (var i)))) (anchored true))
+(rule $AreaCollection ( { $AreaCollection } ) (IdentityFn) (anchored true))
 
 ### Item Rules ###
 

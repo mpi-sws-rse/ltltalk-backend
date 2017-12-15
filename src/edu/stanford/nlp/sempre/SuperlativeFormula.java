@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import fig.basic.LispTree;
 
 import java.util.List;
+import java.util.LinkedList;
 
 /**
  * Computes the extreme elements of a set |head| according to the degree given
@@ -32,6 +33,18 @@ public class SuperlativeFormula extends Formula {
     if ("argmin".equals(mode)) return Mode.argmin;
     if ("argmax".equals(mode)) return Mode.argmax;
     return null;
+  }
+  
+  @Override
+  public List<Formula>getChildren(){
+	 
+	  LinkedList children = new LinkedList();
+	  children.add(this.rank);
+	  children.add(this.count);
+	  children.add(this.head);
+	  children.add(this.relation);
+	  return children;
+	  
   }
 
   public LispTree toLispTree() {

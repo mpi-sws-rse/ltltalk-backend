@@ -42,6 +42,8 @@ public class NameValue extends Value {
   }
 
   @Override public String sortString() { return id; }
+  
+  @Override public String contentString(){return id;}
 
   @Override public int hashCode() { return id.hashCode(); }
   @Override public boolean equals(Object o) {

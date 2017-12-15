@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import fig.basic.LispTree;
 
 import java.util.List;
+import java.util.LinkedList;
 
 /**
  * Lambda abstraction (lambda |var| |body|)
@@ -24,6 +25,14 @@ public class LambdaFormula extends Formula {
     tree.addChild(var);
     tree.addChild(body.toLispTree());
     return tree;
+  }
+  
+  @Override
+  public List<Formula>getChildren(){
+	  LinkedList children = new LinkedList();
+	  children.add(this.body);
+	  return children;
+	  
   }
 
   @Override

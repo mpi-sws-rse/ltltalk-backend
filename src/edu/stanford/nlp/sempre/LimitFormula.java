@@ -1,6 +1,7 @@
 package edu.stanford.nlp.sempre;
 
 import java.util.List;
+import java.util.LinkedList;
 
 import com.google.common.base.Function;
 
@@ -14,6 +15,16 @@ public class LimitFormula extends Formula {
   public LimitFormula(Formula number, Formula set) {
     this.number = number;
     this.set = set;
+  }
+  
+  @Override
+  public List<Formula>getChildren(){
+	 
+	  LinkedList children = new LinkedList();
+	  children.add(this.number);
+	  children.add(this.set);
+	  return children;
+	  
   }
   
   @Override

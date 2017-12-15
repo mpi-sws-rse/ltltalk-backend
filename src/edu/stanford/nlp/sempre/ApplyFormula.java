@@ -1,6 +1,7 @@
 package edu.stanford.nlp.sempre;
 
 import java.util.List;
+import java.util.LinkedList;
 
 import com.google.common.base.Function;
 
@@ -54,6 +55,15 @@ public class ApplyFormula extends Formula {
   public int computeHashCode() {
     throw new RuntimeException("Not yet implemented");
     // TODO Auto-generated method stub
+  }
+  
+  @Override
+  public List<Formula>getChildren(){
+	 
+	  LinkedList children = new LinkedList();
+	  children.add(this.arg);
+	  return children;
+	  
   }
 
 
