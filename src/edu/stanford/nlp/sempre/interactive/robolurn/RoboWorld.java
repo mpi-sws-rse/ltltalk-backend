@@ -259,9 +259,6 @@ public class RoboWorld extends World {
     return new ItemSet((Set<Item>) items);
   }
 
-  public Set<?> itemAt(Set<Item> s, Point p) { 
-    return itemAt(s, Sets.newHashSet(p));
-  }
 
   public Set<?> itemAt(Set<Item> s, Set<Point> points) {
     if (s.stream().anyMatch(i -> points.contains(i.point) && !i.isCarried()))
@@ -277,13 +274,6 @@ public class RoboWorld extends World {
       return Unit.falseSet();
   }
   
-  public Set<?> robotAt(Point p) { 
-    if (p.equals(robot.point))
-      return Unit.trueSet();
-    else
-      return Unit.falseSet();
-  }
-
   public Set<?> robotAt(Set<Point> points) {
     if (points.contains(robot.point))
       return Unit.trueSet();
