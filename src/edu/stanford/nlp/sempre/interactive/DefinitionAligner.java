@@ -106,7 +106,19 @@ public class DefinitionAligner {
         if (opts.verbose > 1)
           LogInfo.logs("DefinitionAligner.NotCore: %s", currentParses);
         GrammarInducer grammarInducer = new GrammarInducer(head, match.deriv, filteredList);
-        allAlignedRules.addAll(grammarInducer.getRules());
+        List<Rule> obtainedRules = grammarInducer.getRules();
+        if (obtainedRules != null){
+        	allAlignedRules.addAll(grammarInducer.getRules());
+        	
+        }
+        else{
+        	if (opts.verbose > 1){
+        		LogInfo.logs("DefinitionAligner: aligned rules were null");	
+        	}
+        	
+        	
+        }
+        
       }
     }
     return allAlignedRules;

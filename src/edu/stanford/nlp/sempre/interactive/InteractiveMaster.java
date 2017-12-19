@@ -56,6 +56,9 @@ public class InteractiveMaster extends Master {
     
     @Option(gloss = "allow regular commands specified in Master")
     public boolean allowRegularCommands = false;
+    
+    @Option(gloss = "verbosity level")
+    public int verbose = 0;
   }
 
   public static Options opts = new Options();
@@ -110,7 +113,7 @@ public class InteractiveMaster extends Master {
     if (command.equals(":q")) {
       // Create example
       String utt = tree.children.get(1).value;
-      Example ex = exampleFromUtterance(utt, session);
+      Example ex = InteractiveUtils.exampleFromUtterance(utt, session);
 
       if (!utteranceAllowed(ex, response)) {
         stats.error("utterance_too_expensive");
@@ -129,7 +132,7 @@ public class InteractiveMaster extends Master {
     } else if (command.equals(":qdbg")) {
       // Create example
       String utt = tree.children.get(1).value;
-      Example ex = exampleFromUtterance(utt, session);
+      Example ex = InteractiveUtils.exampleFromUtterance(utt, session);
 
       builder.parser.parse(builder.params, ex, false);
 
@@ -154,7 +157,7 @@ public class InteractiveMaster extends Master {
         response.lines.add("cannot accept formula: ");
       }
 
-      Example ex = exampleFromUtterance(utt, session);
+      Example ex = InteractiveUtils.exampleFromUtterance(utt, session);
       response.ex = ex;
 
       // Parse!
@@ -200,6 +203,7 @@ public class InteractiveMaster extends Master {
         String jsonDef = tree.children.get(2).value;
 
         Collection<Rule> inducedRules = new ArrayList<>();
+        
         stats.put("head_len", head.length());
         stats.put("json_len", jsonDef.length());
         try {
@@ -262,26 +266,18 @@ public class InteractiveMaster extends Master {
     }
   }
 
-  private static Example exampleFromUtterance(String utt, Session session) {
-    Example.Builder b = new Example.Builder();
-    b.setId(session.id);
-    b.setUtterance(utt);
-    b.setContext(session.context);
-    Example ex = b.createExample();
-    ex.preprocess();
-    return ex;
-  }
+  
 
   public static List<Rule> induceRulesHelper(String command, String head, String jsonDef, Parser parser, Params params,
       Session session, Ref<Response> refResponse) throws BadInteractionException {
-    Example exHead = exampleFromUtterance(head, session);
-    LogInfo.logs("head: %s", exHead.getTokens());
+    Example exHead = InteractiveUtils.exampleFromUtterance(head, session);
+    
+    
 
     if (exHead.getTokens() == null || exHead.getTokens().size() == 0)
       throw BadInteractionException.headIsEmpty(head);
     if (isNonsense(exHead))
       throw BadInteractionException.nonSenseDefinition(head);
-    
     InteractiveBeamParserState state = ((InteractiveBeamParser)parser).parseWithoutExecuting(params, exHead, false);
     
     // ~~~ This is definitely a hack to get internal testing to work more smoothly 
@@ -289,18 +285,28 @@ public class InteractiveMaster extends Master {
       if (GrammarInducer.getParseStatus(exHead) == GrammarInducer.ParseStatus.Core)
         throw BadInteractionException.headIsCore(head);
 
-    LogInfo.logs("num anchored: %d", state.chartList.size());
+    
+    
+    
     List<String> bodyList = InteractiveUtils.utterancefromJson(jsonDef, false);
-    LogInfo.logs("bodyutterances:\n %s", String.join("\t", bodyList));
+    if (opts.verbose > 2){
+    	LogInfo.begin_track("induce rules helper");
+    	LogInfo.logs("head: %s, jsonDef: %s", exHead.getTokens(), jsonDef);
+    	LogInfo.logs("num anchored: %d", state.chartList.size());
+    	LogInfo.logs("bodyutterances:\n %s", String.join("\t", bodyList));
+    	LogInfo.end_track();
+    }
+    
+    
 
     Derivation bodyDeriv = InteractiveUtils
-        .combine(InteractiveUtils.derivsfromJson(jsonDef, parser, params, refResponse));
+        .combine(InteractiveUtils.derivsfromJson(jsonDef, parser, params, refResponse, session));
     if (refResponse != null) {
       refResponse.value.ex = exHead;
     }
     
     Set<Rule> inducedRules = new LinkedHashSet<>();
-    GrammarInducer grammarInducer = new GrammarInducer(exHead.getTokens(), bodyDeriv, state.chartList);
+    GrammarInducer grammarInducer = new GrammarInducer(exHead.getTokens(), bodyDeriv, state.chartList, parser, params, session);
     inducedRules.addAll(grammarInducer.getRules());
 
     if (opts.useAligner && bodyList.size() == 1) {

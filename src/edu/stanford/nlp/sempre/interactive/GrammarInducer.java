@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import com.beust.jcommander.internal.Lists;
 import com.google.common.base.Function;
 
+
 import edu.stanford.nlp.sempre.ActionFormula;
 import edu.stanford.nlp.sempre.ConstantFn;
 import edu.stanford.nlp.sempre.Derivation;
@@ -26,11 +27,13 @@ import edu.stanford.nlp.sempre.SemanticFn;
 import edu.stanford.nlp.sempre.VariableFormula;
 import edu.stanford.nlp.sempre.Params;
 import edu.stanford.nlp.sempre.Parser;
+import edu.stanford.nlp.sempre.Session;
 
 import fig.basic.LispTree;
 import fig.basic.LogInfo;
 import fig.basic.Option;
 import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.SimpleEquivalentRewriting;
+import edu.stanford.nlp.sempre.interactive.robolurn.DerivationAndChartList;
 /**
  * Takes two examples, and induce Rules
  *
@@ -53,6 +56,8 @@ public class GrammarInducer {
     public boolean useSimplePacking = true;
     @Option(gloss = "maximum nonterminals in a rule")
     public long maxNonterminals = 4;
+    @Option(gloss="whether to use simple loop rewriting when looking for equivalent formulas")
+    public boolean useLoopRewriting = true;
   }
 
   public static Options opts = new Options();
@@ -63,11 +68,16 @@ public class GrammarInducer {
   String id;
 
   public List<Derivation> matches;
-  Derivation def;
 
+  
+  public GrammarInducer(List<String> headTokens, Derivation def1, List<Derivation> chartListArg){
+	  this(headTokens, def1, chartListArg, null, null, null);
+  }
+  
+  
   // induce rule is possible,
   // otherwise set the correct status
-  public GrammarInducer(List<String> headTokens, Derivation def1, List<Derivation> chartList) {
+  public GrammarInducer(List<String> headTokens, Derivation def1, List<Derivation> chartListArg, Parser parser, Params params, Session session) {
     // grammarInfo start and end is used to indicate partial, when using aligner
     boolean allHead = false;
     if (def1.grammarInfo.start == -1) {
@@ -76,7 +86,6 @@ public class GrammarInducer {
       allHead = true;
     }
     
-    LogInfo.logs("+-+-++-=-=-=- chart list: %s", chartList.toString());
     
     
     
@@ -85,41 +94,58 @@ public class GrammarInducer {
     if (headTokens == null || headTokens.isEmpty()) {
       throw new RuntimeException("The head is empty, refusing to define.");
     }
-    chartList.removeIf(d -> d.start == def1.grammarInfo.start && d.end == def1.grammarInfo.end);
-    this.def = def1;
     
-    //this.def.getFormula().printFormulaRecursively();
+    //take this into account!
+    chartListArg.removeIf(d -> d.start == def1.grammarInfo.start && d.end == def1.grammarInfo.end);
+    Derivation originalDerivation = def1;
+    
 
     this.headTokens = headTokens;
     int numTokens = headTokens.size();
-
-    
-    //SimpleEquivalentRewriting rewriting = new SimpleEquivalentRewriting(this.def, headTokens);
-    
     LinkedList<Derivation> derivationsToTry = new LinkedList<Derivation>();
+    derivationsToTry.add(originalDerivation);
     
-    derivationsToTry.add(this.def);
-    //derivationsToTry.add(rewriting.rewrittenEquivalentDerivation);
-//    for (Derivation candidateDef : rewriting.equivalentDerivations){
-//    	derivationsToTry.add(candidateDef);
-//    }
-    LogInfo.logs("derivations to try: %s", derivationsToTry.toString());
+    boolean loopRewriting = opts.useLoopRewriting && parser != null;
     
-    this.matches = new ArrayList<>();
-    addMatches(this.def, makeChartMap(chartList));
-    Collections.reverse(this.matches);
-    LogInfo.logs("00000 matches: %s",this.matches.toString());
+    if (loopRewriting == true){
 
+    	SimpleEquivalentRewriting rewriting = new SimpleEquivalentRewriting(originalDerivation, headTokens);
+	    
+	    List<Formula> equivalentFormulas = rewriting.getEquivalentFormulas();
+	    for (Formula f : equivalentFormulas){
+	    	Derivation equivalentDerivation  = InteractiveUtils.derivFromUtteranceAndFormula(f.prettyString(), f, parser, params, session);
+		    
+		    if (equivalentDerivation.grammarInfo.start == -1) {
+		        equivalentDerivation.grammarInfo.start = 0;
+		        equivalentDerivation.grammarInfo.end = headTokens.size();
+		        allHead = true;
+		      }
+		    derivationsToTry.add(equivalentDerivation);
+	    }
+	    
+    }
     
     inducedRules = new ArrayList<>();
     
     for (Derivation def : derivationsToTry){
-    	LogInfo.logs("examining derivations %s", def.toString());
+    	
+    	List<Derivation> chartList = chartListArg;
+    	if (opts.verbose > 1){
+    		LogInfo.logs("Grammar inducer: examining derivation %s", def.toString());
+    	}
+    	
+    	
+    	this.matches = new ArrayList<>();
+        addMatches(def, makeChartMap(chartList));
+        Collections.reverse(this.matches);
     
 	    if (allHead && opts.useSimplePacking) {
 	      List<Derivation> filteredMatches = this.matches.stream().filter(d -> {
 	        return opts.simpleCats.contains(getCategoryStringFromDerivation(d)) && d.allAnchored() && d.end - d.start == 1;
 	      }).collect(Collectors.toList());
+	      if (opts.verbose > 2){
+	    	  LogInfo.logs("filtered matches = %s", filteredMatches.toString());
+	      }
 	
 	      List<Derivation> packing = new ArrayList<>();
 	      for (int i = 0; i <= headTokens.size(); i++) {
@@ -131,10 +157,15 @@ public class GrammarInducer {
 	        }
 	      }
 	      
+	      if (opts.verbose > 2){
+	    	  LogInfo.logs("packing = %s", packing.toString());
+	      }
+	      
 	
 	      HashMap<String, String> formulaToCat = new HashMap<>();
-	      packing.forEach(d -> formulaToCat.put(catFormulaKey(d), varName(d)));
+	      packing.forEach(d -> formulaToCat.put(catFormulaKey(d), varName(d, def)));
 	      buildFormula(def, formulaToCat);
+	      
 	      List<Rule> simpleInduced = induceRules(packing, def);
 	      for (Rule rule : simpleInduced) {
 	        rule.addInfo("simple_packing", "true");
@@ -152,11 +183,9 @@ public class GrammarInducer {
 	    }
 	    if (opts.useBestPacking) {
 	      List<Derivation> bestPacking = bestPackingDP(this.matches, numTokens);
-	      LogInfo.logs("best packing: %s", bestPacking.toString());
 	      HashMap<String, String> formulaToCat = new HashMap<>();
-	      bestPacking.forEach(d -> formulaToCat.put(catFormulaKey(d), varName(d)));
+	      bestPacking.forEach(d -> formulaToCat.put(catFormulaKey(d), varName(d, def)));
 	      buildFormula(def, formulaToCat);
-	      LogInfo.logs("formula building: %s", def.grammarInfo.formula.toString());
 	      for (Rule rule : induceRules(bestPacking, def)) {
 	        // ALTER : I am not sure why this is here, but it prevents some use cases from being defined
 	        //if (rule.rhs.stream().allMatch(s -> Rule.isCat(s)))
@@ -196,6 +225,9 @@ public class GrammarInducer {
       LogInfo.logs("GrammarInducer.filterRule: too many nontermnimals (max %d) %s", GrammarInducer.opts.maxNonterminals, rule.rhs.toString());
       return;
     }
+    if (opts.verbose > 2){
+    	LogInfo.logs("filterRule - adding to induced rules: %s", rule);
+    }
     inducedRules.add(rule);
     RHSs.add(rule.rhs.toString());
   }
@@ -218,8 +250,8 @@ public class GrammarInducer {
     return getNormalCat(d) + "::" + d.formula.toString();
   }
 
-  private String varName(Derivation anchored) {
-    int s = def.grammarInfo.start;
+  private String varName(Derivation anchored, Derivation originalOne) {
+    int s = originalOne.grammarInfo.start;
     return getNormalCat(anchored) + (anchored.start - s) + "_" + (anchored.end - s);
   }
 
@@ -273,7 +305,7 @@ public class GrammarInducer {
 
   // start inclusive, end exclusive
   private List<Derivation> bestPackingDP(List<Derivation> matches, int length) {
-	 LogInfo.logs("start in best packing...");
+	  
     List<Packing> bestEndsAtI = new ArrayList<>(length + 1);
     List<Packing> maximalAtI = new ArrayList<>(length + 1);
     bestEndsAtI.add(new Packing(Double.NEGATIVE_INFINITY, new ArrayList<Derivation>()));
@@ -283,13 +315,12 @@ public class GrammarInducer {
     List<Derivation>[] endsAtI = new ArrayList[length + 1];
 
     for (Derivation d : matches) {
-    	LogInfo.logs("going over all matches: %s", d.toString());
+    	
       List<Derivation> derivs = endsAtI[d.end];
       derivs = derivs != null ? derivs : new ArrayList<>();
       derivs.add(d);
       endsAtI[d.end] = derivs;
     }
-    LogInfo.logs("went over all matches...");
 
     for (int i = 1; i <= length; i++) {
       // the new maximal either uses a derivation that ends at i, plus a
@@ -334,6 +365,9 @@ public class GrammarInducer {
   private List<Rule> induceRules(List<Derivation> packings, Derivation defDeriv) {
     List<String> RHS = getRHS(defDeriv, packings);
     SemanticFn sem = getSemantics(defDeriv, packings);
+    if (opts.verbose > 2){
+    	LogInfo.logs("in induce rules");
+    }
     // sem will be null if type inference fails
     if (sem == null)
       return new ArrayList<>();
@@ -343,6 +377,9 @@ public class GrammarInducer {
     inducedRule.addInfo("anchored", "true");
     List<Rule> inducedRules = new ArrayList<>();
     if (!inducedRule.isCatUnary() && !opts.nonInducingCats.contains(inducedRule.lhs)) {
+    	if (opts.verbose > 2){
+    		LogInfo.logs("adding to inducedRUlse: %s", inducedRule);
+    	}
       inducedRules.add(inducedRule);
     }
     return inducedRules;
@@ -435,7 +472,7 @@ public class GrammarInducer {
     }
 
     for (int i = packings.size() - 1; i >= 0; i--) {
-      baseFormula = new LambdaFormula(varName(packings.get(i)), Formulas.fromLispTree(baseFormula.toLispTree()));
+      baseFormula = new LambdaFormula(varName(packings.get(i), def), Formulas.fromLispTree(baseFormula.toLispTree()));
     }
     SemanticFn applyFn = new ApplyFn();
     LispTree newTree = LispTree.proto.newList();

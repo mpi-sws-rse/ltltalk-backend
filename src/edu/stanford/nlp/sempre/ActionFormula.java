@@ -94,11 +94,6 @@ public class ActionFormula extends Formula {
 		  s = "strict "+this.getChildren().get(0).prettyString();
 	  }
 	  else if (this.mode.equals(Mode.sequential)){
-		  //s = "{";
-//		  for (Formula f : this.getChildren()){
-//			s = s + "; "+ f.prettyString();  
-//		  }
-//		  s = s + "}";
 		  String joined = this.getChildren().stream()
 				  							 .map(c -> c.prettyString())
 				  							 .collect(Collectors.joining(";"));

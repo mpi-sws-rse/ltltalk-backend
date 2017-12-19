@@ -21,6 +21,8 @@ import edu.stanford.nlp.sempre.Params;
 import edu.stanford.nlp.sempre.Parser;
 import edu.stanford.nlp.sempre.Rule;
 import edu.stanford.nlp.sempre.SemanticFn;
+import edu.stanford.nlp.sempre.interactive.robolurn.DerivationAndChartList;
+import edu.stanford.nlp.sempre.Session;
 import fig.basic.LispTree;
 import fig.basic.LogInfo;
 import fig.basic.Option;
@@ -31,6 +33,8 @@ import fig.basic.Ref;
  *
  * @author sidaw
  */
+
+
 public final class InteractiveUtils {
   public static class Options {
     @Option(gloss = "use the best formula when no match or not provided")
@@ -57,6 +61,16 @@ public final class InteractiveUtils {
     }
     return deriv;
   }
+  
+  public static Example exampleFromUtterance(String utt, Session session) {
+    Example.Builder b = new Example.Builder();
+    b.setId(session.id);
+    b.setUtterance(utt);
+    b.setContext(session.context);
+    Example ex = b.createExample();
+    ex.preprocess();
+    return ex;
+  }
 
   public static Derivation stripBlock(Derivation deriv) {
     if (opts.verbose > 0)
@@ -67,8 +81,61 @@ public final class InteractiveUtils {
     return deriv;
   }
 
+  public static Derivation derivFromUtteranceAndFormula(String utterance, Formula formula, Parser parser, Params params, Session session){
+
+	  Derivation foundDerivation = null;
+	  List<Derivation> allDerivs = new ArrayList<>();
+	  Formula targetFormula = formula;
+	  
+	  String utt = utterance;
+	  	  
+	  Example exHead = InteractiveUtils.exampleFromUtterance(utt, session);
+	  
+	  if (exHead.getTokens() == null || exHead.getTokens().size() == 0)
+	      throw BadInteractionException.headIsEmpty(utt);
+	    
+	  InteractiveBeamParserState state = ((InteractiveBeamParser)parser).parseWithoutExecuting(params, exHead, false);
+	  
+	  
+	  
+	
+	  boolean found = false;
+	  for (Derivation d : exHead.predDerivations) {
+		if (opts.verbose > 2){
+		  LogInfo.logs("Deriv from utteranceAnd formula, predDerivations. considering: %s", d.formula.toString());
+		}
+		if (d.formula.equals(targetFormula)) {
+		  found = true;
+		  foundDerivation = stripDerivation(d);
+		  break;
+		}
+	  }
+	  if (!found && !formula.equals("?")) {
+		  LogInfo.errors("matching formula not found: %s :: %s", utt, formula);
+	  }
+	  // just making testing easier, use top derivation when we formula is not
+	  // given
+	  if (!found && exHead.predDerivations.size() > 0 && (formula.equals("?") || formula == null || opts.useBestFormula))
+		  foundDerivation = stripDerivation(exHead.predDerivations.get(0));
+	  else if (!found) {
+		  Derivation res = new Derivation.Builder().formula(targetFormula)
+	        // setting start to -1 is important,
+	// which grammarInducer interprets to mean we do not want partial
+	// rules
+				  .withCallable(new SemanticFn.CallInfo("$Action", -1, -1, null, new ArrayList<>())).createDerivation();
+	    foundDerivation = res;
+	  }
+		    
+	  if (foundDerivation != null && opts.verbose > 1){
+		  LogInfo.logs("derivFromUtteranceAndFormula: returning deriv  %s", foundDerivation);
+	  }
+	 return foundDerivation;
+	
+		  
+}
+	  
   public static List<Derivation> derivsfromJson(String jsonDef, Parser parser, Params params,
-      Ref<Master.Response> refResponse) {
+      Ref<Master.Response> refResponse, Session session) {
     @SuppressWarnings("unchecked")
     List<Object> body = Json.readValueHard(jsonDef, List.class);
     // string together the body definition
@@ -79,55 +146,21 @@ public final class InteractiveUtils {
       List<String> pair = (List<String>) obj;
       String utt = pair.get(0);
       String formula = pair.get(1);
+      
 
       if (formula.equals("()")) {
         LogInfo.logs("Error: Got empty formula");
         continue;
       }
-
-      Example.Builder b = new Example.Builder();
-      // b.setId("session:" + sessionId);
-      b.setUtterance(utt);
-      Example ex = b.createExample();
-      ex.preprocess();
-
-      LogInfo.logs("Parsing body: %s", ex.utterance);
-      ((InteractiveBeamParser)parser).parseWithoutExecuting(params, ex, false);
-
-      boolean found = false;
       Formula targetFormula = Formulas.fromLispTree(LispTree.proto.parseFromString(formula));
-      for (Derivation d : ex.predDerivations) {
-        // LogInfo.logs("considering: %s", d.formula.toString());
-        if (d.formula.equals(targetFormula)) {
-          found = true;
-          allDerivs.add(stripDerivation(d));
-          break;
-        }
+      Derivation newDerivation = derivFromUtteranceAndFormula(utt, targetFormula, parser, params, session);
+      if (newDerivation != null){
+    	  allDerivs.add(newDerivation);
       }
-      if (!found && !formula.equals("?")) {
-        LogInfo.errors("matching formula not found: %s :: %s", utt, formula);
-        numFailed++;
-      }
-      // just making testing easier, use top derivation when we formula is not
-      // given
-      if (!found && ex.predDerivations.size() > 0 && (formula.equals("?") || formula == null || opts.useBestFormula))
-        allDerivs.add(stripDerivation(ex.predDerivations.get(0)));
-      else if (!found) {
-        Derivation res = new Derivation.Builder().formula(targetFormula)
-            // setting start to -1 is important,
-            // which grammarInducer interprets to mean we do not want partial
-            // rules
-            .withCallable(new SemanticFn.CallInfo("$Action", -1, -1, null, new ArrayList<>())).createDerivation();
-        allDerivs.add(res);
-      }
-    }
-    if (refResponse != null) {
-      refResponse.value.stats.put("num_failed", numFailed);
-      refResponse.value.stats.put("num_body", body.size());
-    }
-    // LogInfo.logs("returning deriv list %s, \n %s", allDerivs.toString(),
-    // jsonDef);
-    return allDerivs;
+     }
+     
+   
+   return allDerivs;
   }
 
   public static List<String> utterancefromJson(String jsonDef, boolean tokenize) {

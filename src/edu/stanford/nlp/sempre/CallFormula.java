@@ -76,7 +76,6 @@ public class CallFormula extends Formula {
 	}
 	else if (this.func.toString().equals("setLimit")){
 		s = "";
-		LogInfo.logs("first child = %s",this.args.get(0).prettyString());
 		if (this.args.get(0).prettyString().equals("-1.0")){
 			s = "every item "+this.args.get(1).prettyString();
 		}
