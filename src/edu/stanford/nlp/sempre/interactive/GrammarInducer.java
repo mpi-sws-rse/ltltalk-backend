@@ -33,7 +33,6 @@ import fig.basic.LispTree;
 import fig.basic.LogInfo;
 import fig.basic.Option;
 import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.SimpleEquivalentRewriting;
-import edu.stanford.nlp.sempre.interactive.robolurn.DerivationAndChartList;
 /**
  * Takes two examples, and induce Rules
  *

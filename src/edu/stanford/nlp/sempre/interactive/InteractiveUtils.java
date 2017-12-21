@@ -21,7 +21,6 @@ import edu.stanford.nlp.sempre.Params;
 import edu.stanford.nlp.sempre.Parser;
 import edu.stanford.nlp.sempre.Rule;
 import edu.stanford.nlp.sempre.SemanticFn;
-import edu.stanford.nlp.sempre.interactive.robolurn.DerivationAndChartList;
 import edu.stanford.nlp.sempre.Session;
 import fig.basic.LispTree;
 import fig.basic.LogInfo;
