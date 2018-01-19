@@ -48,20 +48,21 @@ public class Master {
     public Example ex;
 
     // Which derivation we're selecting to show
-    int candidateIndex = -1;
+    public int candidateIndex = -1;
 
     // Detailed information
     public Map<String, Object> stats = new LinkedHashMap<>();
     public List<String> lines = new ArrayList<>();
 
     public String getFormulaAnswer() {
+    	LogInfo.logs("size of derivations = %d", ex.getPredDerivations().size());
       if (ex.getPredDerivations().size() == 0)
         return "(no answer)";
       else if (candidateIndex == -1)
         return "(not selected)";
       else {
         Derivation deriv = getDerivation();
-        return deriv.getFormula() + " => " + deriv.getValue();
+        return deriv.getFormula().prettyString() + " => " + deriv.getValue();
       }
     }
     public String getAnswer() {

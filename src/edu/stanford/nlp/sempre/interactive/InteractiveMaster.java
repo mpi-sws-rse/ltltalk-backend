@@ -93,13 +93,16 @@ public class InteractiveMaster extends Master {
     LogInfo.logs("query %s", line);
     line = line.trim();
     Response response = new Response();
-    if (line.startsWith("(:"))
+    if (line.startsWith("(:")) {
       handleCommand(session, line, response);
+    }
     else if (line.startsWith("(") && opts.allowRegularCommands || session.id.equals("stdin"))
       super.processQuery(session, line);
     else
       handleCommand(session, String.format("(:q \"%s\")", line), response);
     LogInfo.end_track();
+
+
     return response;
   }
 
@@ -126,9 +129,20 @@ public class InteractiveMaster extends Master {
       stats.size(ex.predDerivations != null ? ex.predDerivations.size() : 0);
       stats.status(InteractiveUtils.getParseStatus(ex));
       
+      for (Derivation d : ex.getPredDerivations()) {
+    	  LogInfo.logs(d.getFormula().prettyString());
+      }
+
+      
       
       
       response.ex = ex;
+
+    if (response.ex.predDerivations.size() > 0) {
+        response.candidateIndex = 0;
+    }
+
+
     } else if (command.equals(":qdbg")) {
       // Create example
       String utt = tree.children.get(1).value;
@@ -264,6 +278,7 @@ public class InteractiveMaster extends Master {
     } else {
       LogInfo.log("Invalid command: " + tree);
     }
+    
   }
 
   
