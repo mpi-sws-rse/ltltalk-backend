@@ -447,6 +447,7 @@ public class DALExecutor extends Executor {
     Method[] methods = cls.getMethods();
     String methodName = id;
     
+    
     Object[] methodArgs = new Object[args.length + 1];
     methodArgs[0] = world;
     for (int i = 0; i < args.length; ++i) {
@@ -473,6 +474,7 @@ public class DALExecutor extends Executor {
     }
 
     if (bestMethod != null) {
+    	
       try {
         Object result = bestMethod.invoke(ai, methodArgs);
         ai.handleActionResult(world, formula, result);

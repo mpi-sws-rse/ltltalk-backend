@@ -167,6 +167,16 @@ public abstract class World {
     return arr.get((int) (System.currentTimeMillis() % arr.size()));
   }
   
+  public Set<Point> anyArea(Set<Set<Point>> collection){
+	  if (collection.isEmpty()) {
+		  return new HashSet<Point>();
+	  }
+	  ArrayList<Set<Point>> arr = new ArrayList<>();
+	  for (Set<Point> area : collection)
+		  arr.add(area);
+	  return arr.get((int) (System.currentTimeMillis() % arr.size()));
+  }
+  
   public World() {
     this.walls = new HashSet<>();
     this.items = new HashSet<>();

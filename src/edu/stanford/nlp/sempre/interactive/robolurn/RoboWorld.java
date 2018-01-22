@@ -27,6 +27,7 @@ import edu.stanford.nlp.sempre.interactive.Block;
 import edu.stanford.nlp.sempre.interactive.World;
 import edu.stanford.nlp.sempre.interactive.planner.PathFinder;
 import fig.basic.Option;
+import fig.basic.LogInfo;
 
 public class RoboWorld extends World {
   public static class Options {
@@ -197,6 +198,7 @@ public class RoboWorld extends World {
    */
   @Override
   public Set<? extends Block> has(String rel, Set<Object> values) {
+	  
     String[] qualifiedRel = rel.split("\\?");
     if (qualifiedRel.length < 2)
       throw new RuntimeException(rel + " must be qualified with items?rel or walls?rel");
@@ -321,20 +323,65 @@ public class RoboWorld extends World {
     return is;
   }
 
+  /* returns all points specified by `itemSet` that are also in the `area` */
   public Set<Point> filterArea(Set<Point> area, Set<Item> itemSet) {
-    Set<Point> itemArea = itemSet.stream()
-        .filter(i -> ! i.isCarried())
-        .map(i -> i.point).collect(Collectors.toSet());
+	  
+//    Set<Point> itemArea = itemSet.stream()
+//        .filter(i -> ! i.isCarried())
+//        .map(i -> i.point).collect(Collectors.toSet());
+	Set<Point> itemArea = pointsFromItems(itemSet);
     return Sets.intersection(area, itemArea);
   }
   
-  public Set<Set<Point>> filterCollection(Set<Set<Point>> collection, Set<Item> itemSet) {
-    Set<Point> itemArea = itemSet.stream()
-        .filter(i -> ! i.isCarried())
-        .map(i -> i.point).collect(Collectors.toSet());
-    return collection.stream()
-        .filter(a -> ! Sets.intersection(a, itemArea).isEmpty()).collect(Collectors.toSet());
+  /* returns all points containing items specified by itemSet */
+  public Set<Point> pointsFromItems(Set<Item> itemSet){
+	  
+	  Set<Point> itemArea = itemSet.stream()
+			  .filter(i -> ! i.isCarried())
+			  .map(i -> i.point)
+			  .collect(Collectors.toSet());
+	  return itemArea;
   }
+
+  public Set<Point> roomContainingItem(Item i){
+	  for (Map.Entry<String, Set<Point>> entry : this.rooms.entrySet()) {
+		  if (entry.getValue().contains(i.point)){
+			  return entry.getValue();
+		  }
+	  }
+	  return null;
+			  
+  }
+  
+  /* returns all rooms containing items specified by itemSet */
+  public Set<Set<Point>> roomsFromItems(Set<Item> itemSet){
+	  
+	  Set<Set<Point>> roomsWithItems = itemSet.stream()
+			  .filter(i -> ! i.isCarried())
+			  .map(i -> roomContainingItem(i))
+			  .collect(Collectors.toSet());
+	  LogInfo.logs("rooms from items, returning %s", roomsWithItems);
+	  return roomsWithItems;
+  }
+  
+  public Set<Set<Point>> roomsComplement(Set<Set<Point>> roomToComplement){
+	  Set<Set<Point>> complement = this.rooms.values().stream()
+			  .filter(r -> !roomToComplement.contains(r))
+			  .collect(Collectors.toSet());
+	LogInfo.logs("---- in rooms complement. complementing %s, returning %s", roomToComplement, complement);
+	return complement;
+  }
+
+  
+
+
+//  public Set<Set<Point>> intersectionOfCollections(Set<Set<Point>> collection1, Set<Set<Point>> collection2) {
+//	    Set<Set<Point>> filtered = collection2.stream()
+//	        .filter(a -> collection1.contains(a))
+//	        .collect(Collectors.toSet());
+//	    return filtered;
+//	  }
+
   
   /**
    * Specify how to filter items based on their being carried by the robot

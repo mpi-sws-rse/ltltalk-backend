@@ -8,7 +8,33 @@
 (rule $Action (strict $Action) (lambda a (:strict (var a))) (anchored true))
 
 (rule $Action (visit $Point) (lambda x (: @visit (var x))) (anchored true))
-(rule $Action (visit $Areas) (lambda a (: @visit (call anyPoint (var a)))) (anchored true))
+(rule 
+	$Action 
+	(visit $Areas) 
+	(lambda a 
+		(: @visit 
+			(call anyPoint (var a))
+		)
+	) 
+	(anchored true)
+)
+
+(rule
+	$Action
+	(visit $AreaCollection)
+	(lambda a
+		(: @visit
+			(call 
+				anyPoint
+				(call anyArea (var a)) 
+			)	
+		)
+	)
+	(anchored true)
+)
+
+
+
 (rule $Action (visit $Point while avoiding $Areas) (lambda f  (lambda a (: @visit (var f) (var a)))) (anchored true))
 (rule $Action (visit $Areas while avoiding $Areas)
     (lambda a1 (lambda a2 (: @visit (call anyPoint (var a1)) (var a2)))) (anchored true))
@@ -88,11 +114,166 @@
 (rule $PointList ( $PointList , $Point ) (lambda x ( lambda y (or (var x) (var y)))) (anchored true))
 (rule $PointCombination ( $PointCombination or $Point ) (lambda x ( lambda y (or (var x) (var y)))) (anchored true))
 
-(rule $Area ($Areas containing $Item) (lambda a (lambda i
-    (call filterArea (var a) (var i)))) (anchored true))
-(rule $AreaCollection ($AreaCollection containing $Item) (lambda c (lambda i
-    (call filterCollection (var c) (var i)))) (anchored true))
+
+
+#(rule $Area ($Areas containing $Item) (lambda a (lambda i
+#    (call filterArea (var a) (var i)))) (anchored true))
+
+# $AreaItemConditions will evaluate to the set of points containing those items
+(rule 
+	$Area 
+	($Areas $AreaItemConditions) 
+	(lambda a 
+		(lambda c
+    		(and  
+    			(var a) 
+    			(var c)
+    		)
+    	)
+    ) 
+    (anchored true)
+)
+
+#(rule $AreaCollection ($AreaCollection containing $Item) (lambda c (lambda i
+#    (call filterCollection (var c) (var i)))) (anchored true))
+
 (rule $AreaCollection ( { $AreaCollection } ) (IdentityFn) (anchored true))
+
+# $RoomItemConditions will evaluate to set of areas (set of rooms)
+(rule 
+	$AreaCollection 
+	($AreaCollection $RoomItemConditions)
+	(lambda x 
+		(lambda y
+    		(
+    			and  
+    			(var x) 
+    			(var y)
+    		)
+    	)
+    ) 
+    (anchored true)
+)
+
+( rule 
+	$AreaItemCondition 
+	(containing $Item ) 
+	(lambda i
+		( call 
+			pointsFromItems 
+			(var i) 
+		)
+	)
+	(anchored true) 
+)
+
+( rule 
+	$RoomItemCondition 
+	(containing $Item ) 
+	(lambda i
+		( call 
+			roomsFromItems 
+			(var i) 
+		)
+	)
+	(anchored true) 
+)
+
+
+
+(rule 
+	$AreaItemConditions 
+	($AreaItemCondition) 
+	(IdentityFn) 
+	(anchored true)
+)
+
+(rule 
+	$RoomItemConditions 
+	($RoomItemCondition) 
+	(IdentityFn) 
+	(anchored true)
+)
+
+
+(rule
+	$AreaItemConditions
+	($AreaItemConditions and $AreaItemCondition)
+	( lambda a1 
+		(lambda a2 
+			(and 
+				(var a1) 
+				(var a2)
+			)
+		) 
+	)
+)
+
+
+(rule
+	$RoomItemConditions
+	($RoomItemConditions and $RoomItemCondition)
+	( lambda a1 
+		(lambda a2 
+			(and 
+				(var a1) 
+				(var a2)
+			)
+		) 
+	)
+)
+
+
+(rule
+	$AreaItemConditions
+	($AreaItemConditions or $AreaItemCondition)
+	( lambda a1 
+		(lambda a2 
+			(or 
+				(var a1) 
+				(var a2)
+			)
+		) 
+	)
+)
+
+(rule
+	$RoomItemConditions
+	($RoomItemConditions or $RoomItemCondition)
+	( lambda a1 
+		(lambda a2 
+			(or 
+				(var a1) 
+				(var a2)
+			)
+		) 
+	)
+)
+
+
+(rule
+	$AreaItemCondition
+	(not $AreaItemCondition)
+	( lambda a1 
+		(not 
+			 
+			(var a1) 
+		)
+	)
+)
+
+(rule
+	$RoomItemCondition
+	(not $RoomItemCondition)
+	( lambda a1 
+		 
+		(call
+			roomsComplement 
+			(var a1) 
+		)
+	)
+)
+
 
 ### Item Rules ###
 
@@ -114,10 +295,20 @@
 (rule $ColorSets ($ColorSet) (IdentityFn) (anchored true))
 (rule $ColorSet ( { $ColorSets } ) (IdentityFn) (anchored true))
 (rule $ColorSet (not $ColorSets) (lambda x (not (var x))) (anchored true))
-(rule $ColorSets ($ColorSets and $ColorSet) (lambda s1 (lambda s2
-					(and (var s1) (var s2)))) (anchored true))
+
+(rule $ColorSets 
+	($ColorSets and $ColorSet) 
+	(lambda s1 
+		(lambda s2
+			(and 
+				(var s1) 
+				(var s2)
+			)
+		)
+	) 
+	(anchored true)
+)
 (rule $ColorSets ($ColorSets or $ColorSet) (lambda s1 (lambda s2
-#(rule $ColorSets ($ColorSets || $ColorSet) (lambda s1 (lambda s2
 					(or (var s1) (var s2)))) (anchored true))
 
 (rule $Rel (color) items?color (anchored true))

@@ -14,6 +14,7 @@ import edu.stanford.nlp.sempre.interactive.World;
 /**
  * Singleton class containing actions which can be performed on RoboWorld
  * @author brendonboldt
+ * @author ivan
  *
  */
 public class ActionMethods extends ActionInterface {
