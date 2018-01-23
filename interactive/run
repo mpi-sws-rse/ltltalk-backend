@@ -248,6 +248,8 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('Derivation.showCat', false),
   o('Derivation.anchoredBonus', 1.0),
 
+  o('Formula.precisePrettyPrinting', true),
+
   o('SimpleEquivalentRewriting.verbose', 0),
 
   o('NumberFn.allowedRange', -99, 99),

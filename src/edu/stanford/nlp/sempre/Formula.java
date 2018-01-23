@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.base.Function;
 import fig.basic.LispTree;
 import fig.basic.LogInfo;
+import fig.basic.Option;
 
 import java.util.List;
 
@@ -19,13 +20,20 @@ import java.util.List;
  * @author Percy Liang
  */
 public abstract class Formula {
+	public static class Options {
+		@Option(gloss = "Whether to print formula with all (disambiguating) brackets")
+		public boolean precisePrettyPrinting;
+	}
+
   // cache the hashcode
   private int hashCode = -1;
   // Serialize as LispTree.
   public abstract LispTree toLispTree();
   
+  public static Options opts = new Options();
+  
   // hacking in option
-  public boolean precisePrettyPrinting = true;
+  public boolean precisePrettyPrinting = opts.precisePrettyPrinting;
   
   public String subcategory = "default";
 

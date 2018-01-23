@@ -41,7 +41,35 @@ public class CallFormula extends Formula {
 		s = "[" + this.args.get(0).prettyString() + ","+this.args.get(1).prettyString()+"]"; 
 	} 
 	else if (this.func.toString().equals("anyPoint")){
-		s = "any point in "+this.args.get(0).prettyString();
+		s = "{any point in "+this.args.get(0).prettyString()+"}";
+	}
+	else if (this.func.toString().equals("anyArea")){
+		
+		s = "any area in "+this.args.get(0).prettyString();
+		if (precisePrettyPrinting) {
+			s = "{" + s + "}";
+		}
+	}
+	else if (this.func.toString().equals("roomsComplement")) {
+		String p = this.args.get(0).prettyString();
+		
+		s = "not  "+p;
+		if (precisePrettyPrinting) {
+			s = "{" + s + "}";
+		}
+				
+	}
+	else if (this.func.toString().equals("roomsFromItems")){
+		s = "rooms containing item"+this.args.get(0).prettyString();
+		if (precisePrettyPrinting){
+			s = "{" + s + "}";
+		}
+	}
+	else if (this.func.toString().equals("pointsFromItems")){
+		s = "world containing item "+this.args.get(0).prettyString();
+		if (precisePrettyPrinting){
+			s = "{" + s + "}";
+		}
 	}
 	else if (this.func.toString().equals("filterArea")){
 		s = this.args.get(0).prettyString() +" containing item "+this.args.get(1).prettyString();

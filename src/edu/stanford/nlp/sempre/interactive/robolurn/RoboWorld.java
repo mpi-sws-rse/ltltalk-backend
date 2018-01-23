@@ -360,7 +360,7 @@ public class RoboWorld extends World {
 			  .filter(i -> ! i.isCarried())
 			  .map(i -> roomContainingItem(i))
 			  .collect(Collectors.toSet());
-	  LogInfo.logs("rooms from items, returning %s", roomsWithItems);
+	  
 	  return roomsWithItems;
   }
   
@@ -368,19 +368,9 @@ public class RoboWorld extends World {
 	  Set<Set<Point>> complement = this.rooms.values().stream()
 			  .filter(r -> !roomToComplement.contains(r))
 			  .collect(Collectors.toSet());
-	LogInfo.logs("---- in rooms complement. complementing %s, returning %s", roomToComplement, complement);
+	
 	return complement;
   }
-
-  
-
-
-//  public Set<Set<Point>> intersectionOfCollections(Set<Set<Point>> collection1, Set<Set<Point>> collection2) {
-//	    Set<Set<Point>> filtered = collection2.stream()
-//	        .filter(a -> collection1.contains(a))
-//	        .collect(Collectors.toSet());
-//	    return filtered;
-//	  }
 
   
   /**
