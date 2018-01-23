@@ -81,7 +81,7 @@
 (rule $Set ($AreaCollection) (IdentityFn) (anchored true))
 
 (rule $AreaCollection ([ $AreaList ]) (IdentityFn) (anchored true))
-(rule $AreaCollection (all rooms) all_rooms (anchored true))
+(rule $AreaCollection (rooms) all_rooms (anchored true))
 
 (rule $Area (world) world (anchored true))
 (for @name (room1 room2 room3 room4 room5 room6 room7 room8 room9)
@@ -107,6 +107,9 @@
 (rule $AreaList ( $AreaList , $Area ) (lambda x ( lambda y (call combineCollections (var x) (var y)))) (anchored true))
 
 (rule $Point (any point in $Areas) (lambda x (call anyPoint (var x))) (anchored true))
+
+(rule $Area (any area in $AreaCollection) (lambda x (call anyArea (var x))) (anchored true))
+
 (rule $Point ([ $Numbers , $Numbers ]) (lambda x (lambda y (call makePoint (var x) (var y)))) (anchored true))
 (rule $Point (current) (ConstantFn (call getRobotLocation)) (anchored true))
 (rule $PointList ( $Point ) (IdentityFn) (anchored true))

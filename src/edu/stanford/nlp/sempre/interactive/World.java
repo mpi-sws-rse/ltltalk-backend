@@ -167,6 +167,7 @@ public abstract class World {
     return arr.get((int) (System.currentTimeMillis() % arr.size()));
   }
   
+  /* returns a randomly chosen area from collection (set of areas)*/
   public Set<Point> anyArea(Set<Set<Point>> collection){
 	  if (collection.isEmpty()) {
 		  return new HashSet<Point>();
