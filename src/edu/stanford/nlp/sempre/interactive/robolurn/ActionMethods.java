@@ -10,6 +10,7 @@ import edu.stanford.nlp.sempre.Value;
 import edu.stanford.nlp.sempre.ValueFormula;
 import edu.stanford.nlp.sempre.interactive.ActionInterface;
 import edu.stanford.nlp.sempre.interactive.World;
+import fig.basic.LogInfo;
 
 /**
  * Singleton class containing actions which can be performed on RoboWorld
@@ -52,10 +53,28 @@ public class ActionMethods extends ActionInterface {
     return world.gotoPoint(p, avoidSet);
   }
   
+  
   public boolean visit(RoboWorld world, Point p) {
     return world.gotoPoint(p, new HashSet<>());
   }
+  
+  public boolean visitArea(RoboWorld world, Set<Point> goalSet, Set<Point> avoidSet) {
+	    return world.gotoSetOfPoints(goalSet, avoidSet);
+	  }
+  
+  public boolean visitArea(RoboWorld world, Set<Point> goalSet) {
+	    return world.gotoSetOfPoints(goalSet, new HashSet<>());
+	  }
 
+  
+  public boolean visitAreaCollections(RoboWorld world, Set<Set<Point>> setOfAreas, Set<Point> avoidSet){
+	  return world.gotoSetOfAreas(setOfAreas, avoidSet);
+  }
+  
+  public boolean visitAreaCollections(RoboWorld world, Set<Set<Point>> setOfAreas){
+	  return world.gotoSetOfAreas(setOfAreas, new HashSet<>());
+  }
+  
   public boolean itemActionHandler(RoboWorld world, String act, ItemSet is) {
     return world.itemActions.get(act).apply(is);
   }
@@ -94,7 +113,8 @@ public class ActionMethods extends ActionInterface {
     if (!result) {
       // TODO : need more information here
       roboWorld.unrealizableStatus =
-          String.format("Could not complete the action: %s", ActionMethods.parseFormula(formula));
+          //String.format("Could not complete the action: %s", ActionMethods.parseFormula(formula));
+    		  String.format("Could not complete the action: %s", formula.prettyString());
     }
   }
   

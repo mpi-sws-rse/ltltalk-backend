@@ -3,6 +3,8 @@ fig
 sfig
 refdb
 virtuoso-opensource
+bin
+pom.xml
 
 classes
 libsempre

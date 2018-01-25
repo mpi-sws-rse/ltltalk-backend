@@ -364,12 +364,43 @@ public class RoboWorld extends World {
 	  return roomsWithItems;
   }
   
+
+ 
+  
+  public Set<Set<Point>> areasFromItems(Set<Set<Point>> areaSet, Set<Item> itemSet){
+		    Set<Point> itemArea = itemSet.stream()
+		        .filter(i -> ! i.isCarried())
+		        .map(i -> i.point).collect(Collectors.toSet());
+		    Set<Set<Point>> retAreas = areaSet.stream()
+		        .filter(a -> ! Sets.intersection(a, itemArea).isEmpty()).collect(Collectors.toSet());
+		    return retAreas;
+  }
+
+  
   public Set<Set<Point>> roomsComplement(Set<Set<Point>> roomToComplement){
 	  Set<Set<Point>> complement = this.rooms.values().stream()
 			  .filter(r -> !roomToComplement.contains(r))
 			  .collect(Collectors.toSet());
 	
 	return complement;
+  }
+  
+  public Set<Set<Point>> areasDifference(Set<Set<Point>> a1, Set<Set<Point>> a2){
+	  Set<Set<Point>> difference = a1.stream()
+			  .filter(r -> !a2.contains(r))
+			  .collect(Collectors.toSet());
+	
+	return difference;
+  }
+  
+  public Set<?> setOfLocationsDifference(Set<Object> a1, Set<Object> a2){
+	  LogInfo.logs("a1 = %s, a2 = %s", a1, a2);
+	  Set<?> difference = a1.stream()
+			  .filter(r -> !a2.contains(r))
+			  .collect(Collectors.toSet());
+	  LogInfo.logs("returning difference %s", difference);
+	  return difference;
+	
   }
 
   
@@ -395,10 +426,12 @@ public class RoboWorld extends World {
   
   protected boolean gotoPoint(Point point, Set<Point> avoidSet) {
     avoidSet.addAll(walls.stream().map(w -> w.point).collect(Collectors.toList()));
+    HashSet<Point> goalPoints = new HashSet<Point>();
+    goalPoints.add(point);
     List<PathElement> path = PathFinder.findPath(
             avoidSet,
             new Point(robot.point.x, robot.point.y),
-            new Point(point),
+            goalPoints,
             this.getLowCorner(),
             this.getHighCorner())
         .stream().map(p -> new PathElement(p, PathElement.Action.PATH))
@@ -444,6 +477,49 @@ public class RoboWorld extends World {
     keyConsistency();
     return true;
   }
+  
+  protected boolean gotoSetOfAreas(Set<Set<Point>> setOfAreas, Set<Point> avoidSet){
+	  // I don't want to make a decision about which set of Areas to visit up until this point
+	  for (Set<Point> area : setOfAreas){
+		  if (gotoSetOfPoints(area, avoidSet) == true){
+			  return true;
+		  } 
+	  }
+	  return false;
+  }
+  protected boolean gotoSetOfPoints(Set<Point> goalSet, Set<Point> avoidSet) {
+	    avoidSet.addAll(walls.stream().map(w -> w.point).collect(Collectors.toList()));
+	    List<PathElement> path = PathFinder.findPath(
+	            avoidSet,
+	            new Point(robot.point.x, robot.point.y),
+	            new HashSet<Point>(goalSet),
+	            this.getLowCorner(),
+	            this.getHighCorner())
+	        .stream().map(p -> new PathElement(p, PathElement.Action.PATH))
+	        .collect(Collectors.toList());
+	    if (pathActions.size() > 0 && path.size() > 1) {
+	      path.remove(0);
+	    }
+	    
+	    if (path.size() > 0) {
+	      // Remove the last point to avoid the destination of the previous action
+	      // being duplicated in the list of path actions
+	      PathElement last = path.get(path.size() - 1);
+	      last.action = PathElement.Action.DESTINATION;
+	      robot.point = last.point;
+	      
+	      // The action is successful iff the robot is now at the specified point
+	      if (goalSet.contains(robot.point)) {
+	        pathActions.addAll(path);
+	        return true;
+	      } else {
+	        return false;
+	      }
+	    } else 
+	      return false;
+	  }
+	  
+	  
   
   protected boolean drop(ItemSet is) {
     is.isCarried = Optional.of(true);

@@ -3,7 +3,9 @@ package edu.stanford.nlp.sempre.interactive.planner;
 import java.awt.Point;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.stream.Collectors;
 
 import es.usc.citius.hipster.algorithm.Algorithm.SearchResult;
@@ -22,24 +24,26 @@ public class PathFinder {
    * Finds a path from start to end given a set of wall coordinates.
    * low/highCorner give size of the map.
    */
-  public static List<Point> findPath(Iterable<? extends Point> map, Point start, Point goal, Point lowCorner,
+  public static List<Point> findPath(Iterable<? extends Point> map, Point start, Set<Point> goalSet, Point lowCorner,
       Point highCorner) {
     int xSize = highCorner.x - lowCorner.x + 1;
     int ySize = highCorner.y - lowCorner.y + 1;
     start.x -= lowCorner.x;
     start.y -= lowCorner.y;
-    goal.x -= lowCorner.x;
-    goal.y -= lowCorner.y;
+    //goal.x -= lowCorner.x;
+    //goal.y -= lowCorner.y;
 
-    if (goal.x < 0)
-      goal.x = 0;
-    else if (goal.x >= xSize)
-      goal.x = xSize - 1;
-
-    if (goal.y < 0)
-      goal.y = 0;
-    else if (goal.y >= ySize)
-      goal.y = ySize - 1;
+    goalSet = goalSet.stream().filter(g -> (g.x >=0 && g.y >= 0 && g.x < xSize && g.y < ySize))
+    		.map(g -> new Point(g.x - lowCorner.x, g.y - lowCorner.y)).collect(Collectors.toSet());;
+//    if (goal.x < 0)
+//      goal.x = 0;
+//    else if (goal.x >= xSize)
+//      goal.x = xSize - 1;
+//
+//    if (goal.y < 0)
+//      goal.y = 0;
+//    else if (goal.y >= ySize)
+//      goal.y = ySize - 1;
 
     char[][] charMap = new char[ySize][xSize];
 
@@ -55,12 +59,15 @@ public class PathFinder {
     }
     charMap[start.y][start.x] = Maze2D.Symbol.START.value();
     boolean replaceGoal = false;
-    if (charMap[goal.y][goal.x] == Maze2D.Symbol.OCCUPIED.value())
-      replaceGoal = true;
+//    if (charMap[goal.y][goal.x] == Maze2D.Symbol.OCCUPIED.value())
+//      replaceGoal = true;
 
-    charMap[goal.y][goal.x] = Maze2D.Symbol.GOAL.value();
+    for (Point goal : goalSet){
+    	charMap[goal.y][goal.x] = Maze2D.Symbol.GOAL.value();
+    }
     Maze2D maze = new Maze2D(charMap);
     // LogInfo.logs(maze.toString());
+
 
     @SuppressWarnings("rawtypes")
     SearchProblem problem = ProblemBuilder.create().initialState(start).defineProblemWithExplicitActions()
@@ -93,7 +100,14 @@ public class PathFinder {
             return source.distance(destination);
           }
         }).build();
-
+    // in the future, I'd here invoke hipster's function for reaching set of points. currently, though, at this place I'm picking some point from the goalSet
+    Point goal;
+    if (!goalSet.isEmpty()){
+    	goal = goalSet.iterator().next();
+    } else
+    {
+    	return new LinkedList<Point>();
+    }
     @SuppressWarnings({ "rawtypes", "unchecked" })
     SearchResult result = Hipster.createAStar(problem).search(goal);
 
@@ -106,10 +120,10 @@ public class PathFinder {
       return p;
     }).collect(Collectors.toList());
     // If the goal was a wall, do not include the last move in the path
-    if (replaceGoal)
-      return transformed.subList(0, transformed.size() - 1);
-    else
-      return transformed;
+//    if (replaceGoal)
+//      return transformed.subList(0, transformed.size() - 1);
+//    else
+    return transformed;
   }
 
   private static double dist(Point p1, Point p2) {

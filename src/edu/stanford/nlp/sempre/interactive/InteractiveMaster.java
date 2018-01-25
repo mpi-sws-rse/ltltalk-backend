@@ -139,11 +139,15 @@ public class InteractiveMaster extends Master {
 				LogInfo.logs("all derivations sent to client");
 				for (Derivation d : response.ex.getPredDerivations()) {
 					LogInfo.logs(d.getFormula().prettyString());
+					LogInfo.logs("%s",d.getFormula());
 				}
-				LogInfo.logs("\n\n");
+				
 
+			}
+			if (opts.verbose > 2){
 				LogInfo.logs("responded with answer: %s", response.getAnswer());
 				LogInfo.logs("responded with lines: %s", response.getLines());
+
 			}
 
 		} else if (command.equals(":qdbg")) {

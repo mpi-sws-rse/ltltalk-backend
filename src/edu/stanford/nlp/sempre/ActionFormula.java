@@ -67,13 +67,15 @@ public class ActionFormula extends Formula {
 		  if (this.getChildren().get(0).prettyString().equals("itemActionHandler")){
 			  s = this.getChildren().get(1).prettyString() + " "+this.getChildren().get(2).prettyString();
 		  }
-		  else if(this.getChildren().get(0).prettyString().equals("visit")){
+		  else if(this.getChildren().get(0).prettyString().equals("visit") || 
+				  this.getChildren().get(0).prettyString().equals("visitAreaCollections") ||
+				  this.getChildren().get(0).prettyString().equals("visitArea")){
 			  if (this.getChildren().size() == 3){
-				  s = this.getChildren().get(0).prettyString() + " "+this.getChildren().get(1).prettyString() + " while avoiding "+this.getChildren().get(2).prettyString();
+				  s = "visit "+this.getChildren().get(1).prettyString() + " while avoiding "+this.getChildren().get(2).prettyString();
 			  }
 			  else
 			  {
-				  s = this.getChildren().get(0).prettyString() + " "+this.getChildren().get(1).prettyString();
+				  s = "visit "+this.getChildren().get(1).prettyString();
 			  }
 		  }
 		  else {
@@ -93,11 +95,14 @@ public class ActionFormula extends Formula {
 	  else if (this.mode.equals(Mode.strict)){
 		  s = "strict "+this.getChildren().get(0).prettyString();
 	  }
+	  else if (this.mode.equals(Mode.whileloop)){
+		  s = "while "+this.getChildren().get(0).prettyString()+" "+this.getChildren().get(1).prettyString();
+	  }
 	  else if (this.mode.equals(Mode.sequential)){
 		  String joined = this.getChildren().stream()
 				  							 .map(c -> c.prettyString())
 				  							 .collect(Collectors.joining(";"));
-		  s = "{"+joined+"}";
+		  s = joined;
 		  
 	  }
 	  else if (this.mode.equals(Mode.repeat)){

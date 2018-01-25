@@ -340,6 +340,7 @@ public class DALExecutor extends Executor {
     if (formula instanceof NotFormula) {
       NotFormula notFormula = (NotFormula) formula;
       Set<Object> set1 = toSet(processSetFormula(notFormula.child, world));
+      LogInfo.logs("set1 is %s with type %s", set1, set1.getClass());
       Iterator<Object> iter = set1.iterator();
       if (iter.hasNext()) {
         Object elem = iter.next();

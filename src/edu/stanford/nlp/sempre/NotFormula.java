@@ -5,6 +5,7 @@ import fig.basic.LispTree;
 
 import java.util.List;
 import java.util.LinkedList;
+import fig.basic.LogInfo;
 
 /**
  * (not expression) returns the truth value which is opposite of expression.
@@ -34,6 +35,7 @@ public class NotFormula extends Formula {
   @Override
   public String prettyString(){
 	  String s = "not "+this.child.prettyString();
+	  LogInfo.logs("child of not was %s with class %s", this.child, this.child.getClass());
 	  if (precisePrettyPrinting){
 		  return "{"+s+"}";
 	  }

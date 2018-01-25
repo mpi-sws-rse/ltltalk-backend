@@ -16,6 +16,7 @@ import java.util.List;
 public class CallFormula extends Formula {
   public final Formula func;
   public final List<Formula> args;
+  
 
   public CallFormula(String func, List<Formula> args) {
     this(Formulas.newNameFormula(func), args);
@@ -43,12 +44,31 @@ public class CallFormula extends Formula {
 	else if (this.func.toString().equals("anyPoint")){
 		s = "{any point in "+this.args.get(0).prettyString()+"}";
 	}
+	else if (this.func.toString().equals("getAreaWithCorners")){
+		s = "area with corners "+this.args.get(0).prettyString()+" and "+this.args.get(1).prettyString();
+		if (precisePrettyPrinting) {
+			s = "{" + s + "}";
+		}
+	}
 	else if (this.func.toString().equals("anyArea")){
 		
 		s = "any area in "+this.args.get(0).prettyString();
 		if (precisePrettyPrinting) {
 			s = "{" + s + "}";
 		}
+	}
+	else if (this.func.toString().equals("createAreaListFromArea")){
+		s = this.args.get(0).prettyString();
+	}
+	else if (this.func.toString().equals("combineCollections") || this.func.toString().equals("combineAreas")){
+		s = this.args.get(0).prettyString() + ", "+this.args.get(1).prettyString();
+	}
+	else if (this.func.toString().equals("makeArray")){
+		s = "["+this.args.get(0).prettyString() +"]";
+		if (precisePrettyPrinting) {
+			s = "{" + s + "}";
+		}
+
 	}
 	else if (this.func.toString().equals("roomsComplement")) {
 		String p = this.args.get(0).prettyString();
@@ -60,7 +80,13 @@ public class CallFormula extends Formula {
 				
 	}
 	else if (this.func.toString().equals("roomsFromItems")){
-		s = "rooms containing item"+this.args.get(0).prettyString();
+		s = this.args.get(0).prettyString() + " containing item "+this.args.get(1).prettyString();
+		if (precisePrettyPrinting){
+			s = "{" + s + "}";
+		}
+	}
+	else if (this.func.toString().equals("areasFromItems")){
+		s = this.args.get(0).prettyString() + " containing item "+this.args.get(1).prettyString();
 		if (precisePrettyPrinting){
 			s = "{" + s + "}";
 		}
@@ -79,16 +105,32 @@ public class CallFormula extends Formula {
 	}
 	else if (this.func.toString().equals("robotHas")){
 		s = "robot has item "+this.args.get(0).prettyString();
+		if (precisePrettyPrinting){
+			s = "{" + s + "}";
+		}
+		
+	}
+	else if (this.func.toString().equals("setOfLocationsDifference")){
+		s = this.args.get(0).prettyString() + " minus "+this.args.get(1).prettyString();
+		if (precisePrettyPrinting){
+			s = "{" + s + "}";
+		}
 		
 	}
 	else if (this.func.toString().equals("itemAt")){
 		s = "item at "+this.args.get(0).prettyString() + this.args.get(1).prettyString();
+		if (precisePrettyPrinting){
+			s = "{" + s + "}";
+		}
 	}
 	else if (this.func.toString().equals("getRobotLocation")){
 		s = "current";
 	}
 	else if (this.func.toString().equals("robotAt")){
 		s = "robot at "+this.args.get(0).prettyString();
+		if (precisePrettyPrinting){
+			s = "{" + s + "}";
+		}
 	}
 	else if (this.func.toString().equals("filterCollection")){
 		s = this.args.get(0).prettyString() +" containing item "+this.args.get(1).prettyString();

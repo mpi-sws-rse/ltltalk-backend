@@ -25,7 +25,7 @@ public class ValueFormula<T extends Value> extends PrimitiveFormula {
 		  return "has color";
 	  }
 	  else if (value.sortString().equals("all_rooms")){
-		  return "allRooms";
+		  return "rooms";
 	  }
 	  else
 	  {

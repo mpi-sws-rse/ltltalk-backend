@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import fig.basic.LogInfo;
 
 import com.beust.jcommander.internal.Sets;
 
@@ -123,20 +124,54 @@ public abstract class World {
         .collect(Collectors.toSet());
   }
   
+  public Set<? extends Object> makeArray(Set<Object> a){
+	  
+	  return a;
+  }
+  
+  
+  public Set<Set<Point>> createAreaListFromArea(Set<Point> a){
+	  return new HashSet<>(Arrays.asList(a));
+  }
+  public Set<Point> combineAreas(Object a1, Point p2){
+	  HashSet<Point> returnValue = new HashSet<Point>(); 
+	  if (a1 instanceof Point){
+		  LogInfo.logs("a1 was instance of point");
+		  returnValue.add((Point)a1);
+		  returnValue.add(p2);
+	  }
+	  else if (a1 instanceof Set){
+		  LogInfo.logs("a1 was set of points");
+		  returnValue.add(p2);
+		  returnValue.addAll((HashSet<Point>)a1);
+		  
+	  }
+	  else {LogInfo.logs("something else happened");}
+	  return returnValue;
+  }
+  
   public Set<? extends Object> combineCollections(Set<Object> c1, Set<Object> c2) {
     Object c1Elem;
     Object c2Elem;
     if (c1.isEmpty() && c2.isEmpty()) return new HashSet<>();
     if (c1.isEmpty()) {
       c2Elem = c2.iterator().next();
-      if (c2Elem instanceof Set) return c2;
-      else if (c2Elem instanceof Point) return new HashSet<>(Arrays.asList(c2));
+      if (c2Elem instanceof Set) {
+    	  return c2;
+      }
+      else if (c2Elem instanceof Point){
+    	  return new HashSet<>(Arrays.asList(c2));
+      }
       else throw new RuntimeException("Collection 2 of unknown type");
     }
     if (c2.isEmpty()) {
       c1Elem = c1.iterator().next();
-      if (c1Elem instanceof Set) return c1;
-      else if (c1Elem instanceof Point) return new HashSet<>(Arrays.asList(c1));
+      if (c1Elem instanceof Set) {
+    	  return c1;
+      }
+      else if (c1Elem instanceof Point){
+    	  return new HashSet<>(Arrays.asList(c1));
+      }
       else throw new RuntimeException("Collection 1 of unknown type");
     }
     c1Elem = c1.iterator().next();
