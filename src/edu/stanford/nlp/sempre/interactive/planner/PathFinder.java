@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
+import fig.basic.LogInfo;
 
 import es.usc.citius.hipster.algorithm.Algorithm.SearchResult;
 import es.usc.citius.hipster.algorithm.Hipster;
@@ -21,7 +22,7 @@ import faisal22.Christofides;
 public class PathFinder {
 
   /**
-   * Finds a path from start to end given a set of wall coordinates.
+   * Finds a path from start to goalSet given a set of wall coordinates.
    * low/highCorner give size of the map.
    */
   public static List<Point> findPath(Iterable<? extends Point> map, Point start, Set<Point> goalSet, Point lowCorner,
@@ -63,10 +64,11 @@ public class PathFinder {
 //      replaceGoal = true;
 
     for (Point goal : goalSet){
+    	if (charMap[goal.y][goal.x] != Maze2D.Symbol.OCCUPIED.value())
     	charMap[goal.y][goal.x] = Maze2D.Symbol.GOAL.value();
     }
     Maze2D maze = new Maze2D(charMap);
-    // LogInfo.logs(maze.toString());
+     LogInfo.logs(maze.toString());
 
 
     @SuppressWarnings("rawtypes")
