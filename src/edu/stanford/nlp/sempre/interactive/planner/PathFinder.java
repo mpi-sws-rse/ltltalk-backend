@@ -68,7 +68,7 @@ public class PathFinder {
     	charMap[goal.y][goal.x] = Maze2D.Symbol.GOAL.value();
     }
     Maze2D maze = new Maze2D(charMap);
-     LogInfo.logs(maze.toString());
+     //LogInfo.logs(maze.toString());
 
 
     @SuppressWarnings("rawtypes")

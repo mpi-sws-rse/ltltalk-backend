@@ -398,7 +398,7 @@ public class RoboWorld extends World {
 	  Set<?> difference = a1.stream()
 			  .filter(r -> !a2.contains(r))
 			  .collect(Collectors.toSet());
-	  LogInfo.logs("returning difference %s", difference);
+	  //LogInfo.logs("returning difference %s", difference);
 	  return difference;
 	
   }
