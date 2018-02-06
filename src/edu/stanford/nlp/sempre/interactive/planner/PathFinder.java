@@ -31,20 +31,9 @@ public class PathFinder {
     int ySize = highCorner.y - lowCorner.y + 1;
     start.x -= lowCorner.x;
     start.y -= lowCorner.y;
-    //goal.x -= lowCorner.x;
-    //goal.y -= lowCorner.y;
 
     goalSet = goalSet.stream().filter(g -> (g.x >=0 && g.y >= 0 && g.x < xSize && g.y < ySize))
     		.map(g -> new Point(g.x - lowCorner.x, g.y - lowCorner.y)).collect(Collectors.toSet());;
-//    if (goal.x < 0)
-//      goal.x = 0;
-//    else if (goal.x >= xSize)
-//      goal.x = xSize - 1;
-//
-//    if (goal.y < 0)
-//      goal.y = 0;
-//    else if (goal.y >= ySize)
-//      goal.y = ySize - 1;
 
     char[][] charMap = new char[ySize][xSize];
 
@@ -60,8 +49,6 @@ public class PathFinder {
     }
     charMap[start.y][start.x] = Maze2D.Symbol.START.value();
     boolean replaceGoal = false;
-//    if (charMap[goal.y][goal.x] == Maze2D.Symbol.OCCUPIED.value())
-//      replaceGoal = true;
 
     for (Point goal : goalSet){
     	if (charMap[goal.y][goal.x] != Maze2D.Symbol.OCCUPIED.value())
@@ -102,16 +89,9 @@ public class PathFinder {
             return source.distance(destination);
           }
         }).build();
-    // in the future, I'd here invoke hipster's function for reaching set of points. currently, though, at this place I'm picking some point from the goalSet
-    Point goal;
-    if (!goalSet.isEmpty()){
-    	goal = goalSet.iterator().next();
-    } else
-    {
-    	return new LinkedList<Point>();
-    }
+    
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    SearchResult result = Hipster.createAStar(problem).search(goal);
+    SearchResult result = Hipster.createAStar(problem).search(goalSet);
 
     // Readjust coordinates
     @SuppressWarnings("unchecked")
@@ -121,10 +101,6 @@ public class PathFinder {
       p.y += lowCorner.y;
       return p;
     }).collect(Collectors.toList());
-    // If the goal was a wall, do not include the last move in the path
-//    if (replaceGoal)
-//      return transformed.subList(0, transformed.size() - 1);
-//    else
     return transformed;
   }
 

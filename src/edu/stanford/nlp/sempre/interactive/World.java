@@ -136,12 +136,12 @@ public abstract class World {
   public Set<Point> combineAreas(Object a1, Point p2){
 	  HashSet<Point> returnValue = new HashSet<Point>(); 
 	  if (a1 instanceof Point){
-		  LogInfo.logs("a1 was instance of point");
+		  //LogInfo.logs("a1 was instance of point");
 		  returnValue.add((Point)a1);
 		  returnValue.add(p2);
 	  }
 	  else if (a1 instanceof Set){
-		  LogInfo.logs("a1 was set of points");
+		  //LogInfo.logs("a1 was set of points");
 		  returnValue.add(p2);
 		  returnValue.addAll((HashSet<Point>)a1);
 		  
