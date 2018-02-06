@@ -4,37 +4,43 @@ import java.awt.Point;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import fig.basic.LogInfo;
 
 import org.testng.collections.Lists;
 
 public class Item extends RoboBlock {
 
   public final String color;
+  public final String shape;
   private boolean carried;
   
   public static Item fromJSONObject(List<Object> props) {
     Item i = new Item(
         new Point((Integer) props.get(0), (Integer) props.get(1)),
-        props.get(3).toString(),
+        props.get(3).toString(), props.get(4).toString(),
         false
     );
     return i;
   }
   
-  public Item(Point point, String color, boolean carried) {
+  public Item(Point point, String color, String shape, boolean carried) {
     if (point == null)
       this.point = new Point(0, 0);
     else
       this.point = point;
     this.color = color;
+    this.shape = shape;
     this.carried = carried;
   }
   
   @Override
   public Object get(String property) {
     Object propval;
-    if (property.equals("color"))
+    if (property.equals("color")) {
       propval = this.color.toString();
+    }
+    else if (property.equals("shape"))
+        propval = this.shape.toString();
     else if (property.equals("carried"))
       propval = this.carried;
     else if (property.equals("point"))
@@ -45,7 +51,7 @@ public class Item extends RoboBlock {
   }
 
   public Object toJSON() {
-    List<Object> cube = Lists.newArrayList(point.x, point.y, color, carried);
+    List<Object> cube = Lists.newArrayList(point.x, point.y, color, shape, carried);
     return cube;
   }
 
@@ -59,12 +65,18 @@ public class Item extends RoboBlock {
     carried = state;
   }
   
+  
+  public String getSpec() {
+	  String itemSpec = "{color: "+this.color+", shape: "+this.shape+"}";
+	  return itemSpec;
+	  
+  }
   public boolean isIn(Set<Item> s) {
     Item item;
     for (Iterator<Item> iter = s.iterator(); iter.hasNext(); ) {
       item = iter.next();
       if (item.point.equals(this.point)
-          && item.color == this.color)
+          && item.color == this.color && item.shape == this.shape)
         return true;
     }
     return false;
@@ -72,7 +84,7 @@ public class Item extends RoboBlock {
   
   @Override
   public Item clone() {
-    return new Item(new Point(point.x, point.y), color, carried);
+    return new Item(new Point(point.x, point.y), color, shape, carried);
   }
 
   @Override

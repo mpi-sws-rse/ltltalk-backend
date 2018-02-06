@@ -39,11 +39,13 @@ public class PathElement extends AbstractPathElement<PathElement.Action> {
     }
   }
   
-  public String spec;
+  public String color;
+  public String shape;
 
-  public PathElement(Point point, Action action, String spec, boolean possible) {
+  public PathElement(Point point, Action action, String color, String shape, boolean possible) {
     this(point, action);
-    this.spec = spec;
+    this.color = color;
+    this.shape = shape;
     this.possible = possible;
   }
 
@@ -64,8 +66,10 @@ public class PathElement extends AbstractPathElement<PathElement.Action> {
       propval = this.point;
     else if (property.equals("action"))
       propval = this.action;
-    else if (property.equals("spec"))
-      propval = this.spec;
+    else if (property.equals("color"))
+      propval = this.color;
+    else if (property.equals("shape"))
+        propval = this.shape;
     else if (property.equals("possible"))
       propval = this.possible;
     else
@@ -84,9 +88,13 @@ public class PathElement extends AbstractPathElement<PathElement.Action> {
     act.point = new Point((Integer) props.get(0), (Integer) props.get(1));
     act.action = Action.fromString(((String) props.get(2)));
     if (props.get(3) == null)
-      act.spec = null;
+      act.color = null;
     else
-      act.spec = props.get(3).toString();
+      act.color = props.get(3).toString();
+    if (props.get(4) == null)
+        act.shape = null;
+      else
+        act.shape = props.get(4).toString();
     return act;
   }
 
@@ -94,13 +102,13 @@ public class PathElement extends AbstractPathElement<PathElement.Action> {
   public Object toJSON() {	
     @SuppressWarnings("unchecked")
     List<? extends Object> cube =
-        Lists.newArrayList(point.x, point.y, action.toString(), "\"" + spec + "\"", possible);
+        Lists.newArrayList(point.x, point.y, action.toString(), "\""+color+"\"", "\""+shape+"\"", possible);
     return cube;
   }
 
   @Override
   public PathElement clone() {
-    PathElement c = new PathElement(new Point(point.x, point.y), this.action, this.spec, this.possible);
+    PathElement c = new PathElement(new Point(point.x, point.y), this.action, this.color, this.shape, this.possible);
     return c;
   }
 

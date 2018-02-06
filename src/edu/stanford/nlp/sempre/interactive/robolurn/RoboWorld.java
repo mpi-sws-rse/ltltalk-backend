@@ -160,13 +160,16 @@ public class RoboWorld extends World {
 
   @SuppressWarnings("unchecked")
   protected static RoboWorld fromJSON(String jsonString) {
+	  LogInfo.logs("world as received in json: %s", jsonString);
     Map<String, Object> ctxMap = Json.readValueHard(jsonString, Map.class);
     List<Object> rawRobot = (List<Object>) ctxMap.get("robot");
+    LogInfo.logs("raw robot: %s", rawRobot);
     
     Point robotPoint = new Point((int) rawRobot.get(0), (int) rawRobot.get(1));
     // Items held by the robot are listed as part of the robot state in the JSON
-    Set<Item> robotItems = ((Collection<String>) rawRobot.get(2)).stream()
-        .map(c -> new Item(null, c, true))
+    
+    Set<Item> robotItems = ((Collection<ArrayList<String>>) rawRobot.get(2)).stream()
+        .map(c -> new Item(null, c.get(0), c.get(1), true))
         .collect(Collectors.toSet());
     
     Robot robot = new Robot(robotPoint);
@@ -198,7 +201,7 @@ public class RoboWorld extends World {
    */
   @Override
   public Set<? extends Block> has(String rel, Set<Object> values) {
-	  
+	//LogInfo.logs("has function. rel = %s, values = %s", rel, values);
     String[] qualifiedRel = rel.split("\\?");
     if (qualifiedRel.length < 2)
       throw new RuntimeException(rel + " must be qualified with items?rel or walls?rel");
@@ -207,7 +210,8 @@ public class RoboWorld extends World {
       if ("color".equals(qualifiedRel[1])
           || "type".equals(qualifiedRel[1])
           || "carried".equals(qualifiedRel[1])
-          || "point".equals(qualifiedRel[1])) {
+          || "point".equals(qualifiedRel[1])
+          || "shape".equals(qualifiedRel[1])) {
         @SuppressWarnings("unchecked")
         Set<Item> set = (Set<Item>) items.stream()
             .filter(i -> values.contains(i.get(qualifiedRel[1])))
@@ -463,7 +467,7 @@ public class RoboWorld extends World {
     is.locFilter = Optional.of(new HashSet<>(Arrays.asList(robot.point)));
     Set<Item> restricted = is.eval();
     if (restricted.isEmpty()) {
-      pathActions.add(new PathElement(robot.point, PathElement.Action.PICKITEM, null, false));
+      pathActions.add(new PathElement(robot.point, PathElement.Action.PICKITEM, null, null, false));
       return false;
     }
     Item item;
@@ -472,7 +476,8 @@ public class RoboWorld extends World {
     for (Iterator<Item> iter = restricted.iterator(); iter.hasNext(); ) {
       item = iter.next();
       item.setCarried(true);
-      pathActions.add(new PathElement(robot.point, PathElement.Action.PICKITEM, item.color, true));
+      
+      pathActions.add(new PathElement(robot.point, PathElement.Action.PICKITEM, item.color, item.shape, true));
     }
     keyConsistency();
     return true;
@@ -526,7 +531,7 @@ public class RoboWorld extends World {
     is.locFilter = Optional.empty();
     Set<Item> restricted = is.eval();
     if (restricted.isEmpty()) {
-      pathActions.add(new PathElement(robot.point, PathElement.Action.DROPITEM, null, false));
+      pathActions.add(new PathElement(robot.point, PathElement.Action.DROPITEM, null, null,  false));
       return false;
     }
     Item item;
@@ -534,7 +539,7 @@ public class RoboWorld extends World {
       item = iter.next();
       item.setCarried(false);
       item.point = robot.point;
-      pathActions.add(new PathElement(robot.point, PathElement.Action.DROPITEM, item.color, true));
+      pathActions.add(new PathElement(robot.point, PathElement.Action.DROPITEM, item.color, item.shape, true));
     }
     keyConsistency();
     return true;

@@ -177,7 +177,6 @@ public class Master {
   public synchronized Response processQuery(Session session, String line) {
     line = line.trim();
     Response response = new Response();
-
     // Capture log output and put it into response.
     // Hack: modifying a static variable to capture the logging.
     // Make sure we're synchronized!

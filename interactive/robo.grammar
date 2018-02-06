@@ -269,24 +269,25 @@
 (rule $CountedItem (every $Item) (lambda i (call setLimit (number -1) (var i))) (anchored true))
 
 (rule $Item (item) (ConstantFn (call allItems)) (anchored true))
-(rule $Item (item $ColorSets) (IdentityFn) (anchored true))
+(rule $Item (item $PropertySets) (IdentityFn) (anchored true))
 
 #function RoboWorld.has
-(rule $ColorSet (has $Rel $Color) (lambda r (lambda c ((var r) (var c)))) (anchored true))
+(rule $PropertySet (has $Rel $Color) (lambda r (lambda c ((var r) (var c)))) (anchored true))
+(rule $PropertySet (has $Rel $Shape) (lambda r (lambda c ((var r) (var c)))) (anchored true))
 
-#(rule $ColorSets ($ColorSet) (IdentityFn) (anchored true))
-#(rule $ColorSet ($ColorSet or $ColorSet) (lambda s1 (lambda s2 (or (var s1) (var s2)))) (anchored true))
-#(rule $ColorSet ( { $ColorSet } ) (IdentityFn) (anchored true))
-#(rule $ColorSet (not $ColorSet) (lambda x (not (var x))) (anchored true))
-#(rule $ColorSet ($ColorSet and $ColorSet) (lambda s1 (lambda s2
+#(rule $PropertySets ($PropertySet) (IdentityFn) (anchored true))
+#(rule $PropertySet ($PropertySet or $PropertySet) (lambda s1 (lambda s2 (or (var s1) (var s2)))) (anchored true))
+#(rule $PropertySet ( { $PropertySet } ) (IdentityFn) (anchored true))
+#(rule $PropertySet (not $PropertySet) (lambda x (not (var x))) (anchored true))
+#(rule $PropertySet ($PropertySet and $PropertySet) (lambda s1 (lambda s2
 					#(and (var s1) (var s2)))) (anchored true))
 
-(rule $ColorSets ($ColorSet) (IdentityFn) (anchored true))
-(rule $ColorSet ( { $ColorSets } ) (IdentityFn) (anchored true))
-(rule $ColorSet (not $ColorSets) (lambda x (not (var x))) (anchored true))
+(rule $PropertySets ($PropertySet) (IdentityFn) (anchored true))
+(rule $PropertySet ( { $PropertySets } ) (IdentityFn) (anchored true))
+(rule $PropertySet (not $PropertySets) (lambda x (not (var x))) (anchored true))
 
-(rule $ColorSets 
-	($ColorSets and $ColorSet) 
+(rule $PropertySets 
+	($PropertySets and $PropertySet) 
 	(lambda s1 
 		(lambda s2
 			(and 
@@ -297,17 +298,29 @@
 	) 
 	(anchored true)
 )
-(rule $ColorSets ($ColorSets or $ColorSet) (lambda s1 (lambda s2
+(rule $PropertySets ($PropertySets or $PropertySet) (lambda s1 (lambda s2
 					(or (var s1) (var s2)))) (anchored true))
 
 
 (rule $Rel (color) items?color (anchored true))
+(rule $Rel (shape) items?shape (anchored true))
 
 
 
 ### Data type definitions ###
 
 (rule $Color ($TOKEN) (SimpleLexiconFn (type color)) (anchored true))
+
+
+#(rule $Shape (pyramid) (ConstantFn pyramid) (anchored true))
+#(rule $Shape (cylinder) (ConstantFn cylinder) (anchored true))
+
+(for @shp (triangle circle square)
+	(rule $Shape (@shp)  @shp (anchored true))
+
+)
+
+
 (for @dir (up down left right)
   (rule $Direction (@dir) @dir (anchored true))
 )
