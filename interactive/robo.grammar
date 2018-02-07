@@ -134,12 +134,12 @@
 (rule $Area (area with corners $Point and $Point) (lambda p1 (lambda p2
     (call getAreaWithCorners (var p1) (var p2)))) (anchored true))
 
-#(rule $Area ( not $Areas ) (lambda a1 (not (var a1))) (anchored true))
+
 (rule $Areas ( $Area ) (IdentityFn) (anchored true))
 (rule $AreaCollections ( $AreaCollection ) (IdentityFn) (anchored true))
 (rule $Area ( { $Areas } ) (IdentityFn) (anchored true))
 (rule $AreaCollection ( { $AreaCollections } ) (IdentityFn) (anchored true))
-#(rule $Areas ( $Areas union $Area ) (lambda a1 (lambda a2 (or (var a1) (var a2)))) (anchored true))
+
 (rule $Areas ( $Areas or $Area ) (lambda a1 (lambda a2 (or (var a1) (var a2)))) (anchored true))
 (rule 
 	$AreaCollections
@@ -272,15 +272,9 @@
 (rule $Item (item $PropertySets) (IdentityFn) (anchored true))
 
 #function RoboWorld.has
-(rule $PropertySet (has $Rel $Color) (lambda r (lambda c ((var r) (var c)))) (anchored true))
-(rule $PropertySet (has $Rel $Shape) (lambda r (lambda c ((var r) (var c)))) (anchored true))
+(rule $PropertySet (has $RelColor $Color) (lambda r (lambda c ((var r) (var c)))) (anchored true))
+(rule $PropertySet (has $RelShape $Shape) (lambda r (lambda c ((var r) (var c)))) (anchored true))
 
-#(rule $PropertySets ($PropertySet) (IdentityFn) (anchored true))
-#(rule $PropertySet ($PropertySet or $PropertySet) (lambda s1 (lambda s2 (or (var s1) (var s2)))) (anchored true))
-#(rule $PropertySet ( { $PropertySet } ) (IdentityFn) (anchored true))
-#(rule $PropertySet (not $PropertySet) (lambda x (not (var x))) (anchored true))
-#(rule $PropertySet ($PropertySet and $PropertySet) (lambda s1 (lambda s2
-					#(and (var s1) (var s2)))) (anchored true))
 
 (rule $PropertySets ($PropertySet) (IdentityFn) (anchored true))
 (rule $PropertySet ( { $PropertySets } ) (IdentityFn) (anchored true))
@@ -302,8 +296,8 @@
 					(or (var s1) (var s2)))) (anchored true))
 
 
-(rule $Rel (color) items?color (anchored true))
-(rule $Rel (shape) items?shape (anchored true))
+(rule $RelColor (color) items?color (anchored true))
+(rule $RelShape (shape) items?shape (anchored true))
 
 
 
@@ -311,9 +305,6 @@
 
 (rule $Color ($TOKEN) (SimpleLexiconFn (type color)) (anchored true))
 
-
-#(rule $Shape (pyramid) (ConstantFn pyramid) (anchored true))
-#(rule $Shape (cylinder) (ConstantFn cylinder) (anchored true))
 
 (for @shp (triangle circle square)
 	(rule $Shape (@shp)  @shp (anchored true))
