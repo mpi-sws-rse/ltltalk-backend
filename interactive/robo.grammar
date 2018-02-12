@@ -5,10 +5,18 @@
 (def @move move)
 (def @itemAct itemActionHandler)
 
+### Keyword Rules ###
+
+### these rules are not used further in derivation. their only purpose is to distinguish the keywords from random strings
+( rule $KEYWORD_TOKEN (foreach) foreach (anchored true))
+( rule $KEYWORD_TOKEN (in) in (anchored true))
+(rule $KEYWORD_TOKEN (containing) containing (anchored true))
+(rule $KEYWORD_TOKEN (visit) visit (anchored true))
+(rule $KEYWORD_TOKEN (has) has (anchored true))
+
 ### Action Rules ###
 
 (rule $Action (strict $Action) (lambda a (:strict (var a))) (anchored true))
-
 (rule $Action (visit $Point) (lambda x (: @visit (var x))) (anchored true))
 (rule 
 	$Action 
@@ -57,6 +65,7 @@
 (rule $Action ($ItemActionFragment $CountedItem) (lambda f (lambda i (: @itemAct (var f) (var i)))) (anchored true))
 (rule $ItemActionFragment (pick) pick (anchored true))
 (rule $ItemActionFragment (drop) drop (anchored true))
+
 
 # foreach "defines" the point variable
 (rule $Action (foreach point in $Areas $Action )

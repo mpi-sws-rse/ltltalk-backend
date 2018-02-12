@@ -159,16 +159,23 @@ public abstract class Parser {
    */
   public ParserState parse(Params params, Example ex, boolean computeExpectedCounts) {
     // Execute target formula (if applicable).
-    if (ex.targetFormula != null && ex.targetValue == null)
+    if (ex.targetFormula != null && ex.targetValue == null){
       ex.targetValue = executor.execute(ex.targetFormula, ex.context).value;
+    }
 
     // Parse
     StopWatch watch = new StopWatch();
     watch.start();
-    LogInfo.begin_track_printAll("Parser.parse: parse");
+    
+    //LogInfo.begin_track_printAll("Parser.parse: parse");
+    
     ParserState state = newParserState(params, ex, computeExpectedCounts);
+
     state.infer();
-    LogInfo.end_track();
+    
+    
+    //LogInfo.end_track();
+    
     watch.stop();
     state.parseTime = watch.getCurrTimeLong();
     state.setEvaluation();

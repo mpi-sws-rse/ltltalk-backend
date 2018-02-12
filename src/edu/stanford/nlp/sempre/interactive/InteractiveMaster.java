@@ -88,9 +88,12 @@ public class InteractiveMaster extends Master {
 
 	@Override
 	public Response processQuery(Session session, String line) {
-		LogInfo.begin_track("InteractiveMaster.handleQuery");
-		LogInfo.logs("session %s", session.id);
-		LogInfo.logs("query %s", line);
+		LogInfo.begin_track_printAll("InteractiveMaster.processQuery");
+		if (opts.verbose > 1) {
+			
+			LogInfo.logs("session %s", session.id);
+			LogInfo.logs("query %s", line);
+		}
 		line = line.trim();
 		Response response = new Response();
 		if (line.startsWith("(:")) {
@@ -99,6 +102,7 @@ public class InteractiveMaster extends Master {
 			super.processQuery(session, line);
 		else
 			handleCommand(session, String.format("(:q \"%s\")", line), response);
+		
 		LogInfo.end_track();
 
 		return response;
@@ -113,6 +117,7 @@ public class InteractiveMaster extends Master {
 
 		// Start of interactive commands
 		if (command.equals(":q")) {
+			
 			// Create example
 			String utt = tree.children.get(1).value;
 			Example ex = InteractiveUtils.exampleFromUtterance(utt, session);
@@ -122,8 +127,9 @@ public class InteractiveMaster extends Master {
 				// returns with size and error message
 				return;
 			}
-
+			LogInfo.begin_track("Parser");
 			builder.parser.parse(builder.params, ex, false);
+			LogInfo.end_track();
 
 			stats.size(ex.predDerivations != null ? ex.predDerivations.size() : 0);
 			stats.status(InteractiveUtils.getParseStatus(ex));
@@ -134,17 +140,16 @@ public class InteractiveMaster extends Master {
 			if (response.ex.predDerivations.size() > 0) {
 				response.candidateIndex = 0;
 			}
-
 			if (opts.verbose >= 1) {
 				LogInfo.logs("all derivations sent to client");
 				for (Derivation d : response.ex.getPredDerivations()) {
-					LogInfo.logs(d.getFormula().prettyString());
-					LogInfo.logs("%s",d.getFormula());
+					LogInfo.logs("derivation: \t%s",d.getFormula().prettyString());
+					LogInfo.logs("formula: \t%s",d.getFormula());
 				}
 				
 
 			}
-			if (opts.verbose > 2){
+			if (opts.verbose >= 1){
 				LogInfo.logs("responded with answer: %s", response.getAnswer());
 				LogInfo.logs("responded with lines: %s", response.getLines());
 
@@ -313,7 +318,7 @@ public class InteractiveMaster extends Master {
 			LogInfo.logs("head: %s, jsonDef: %s", exHead.getTokens(), jsonDef);
 			LogInfo.logs("num anchored: %d", state.chartList.size());
 			LogInfo.logs("bodyutterances:\n %s", String.join("\t", bodyList));
-			LogInfo.end_track();
+			
 		}
 
 		Derivation bodyDeriv = InteractiveUtils
@@ -326,7 +331,10 @@ public class InteractiveMaster extends Master {
 		GrammarInducer grammarInducer = new GrammarInducer(exHead.getTokens(), bodyDeriv, state.chartList, parser,
 				params, session);
 		inducedRules.addAll(grammarInducer.getRules());
-
+		if (opts.verbose > 2) {
+			LogInfo.logs("induced rules before alignment = %s", inducedRules);
+		}
+		
 		if (opts.useAligner && bodyList.size() == 1) {
 			List<Rule> alignedRules = DefinitionAligner.getRules(exHead.getTokens(),
 					InteractiveUtils.utterancefromJson(jsonDef, true), bodyDeriv, state.chartList);
@@ -335,13 +343,24 @@ public class InteractiveMaster extends Master {
 				rule.source.align = true;
 			}
 			inducedRules.addAll(alignedRules);
+			if (opts.verbose > 2) {
+				LogInfo.logs("induced rules with alignment = %s", alignedRules);
+			}
+			if(opts.verbose > 2) {
+				LogInfo.end_track();
+			}
 		}
+		
+		
 
 		for (Rule rule : inducedRules) {
 			rule.source = new RuleSource(session.id, head, bodyList);
 		}
 
 		exHead.predDerivations = Lists.newArrayList(bodyDeriv);
+		
+		
+		
 		return inducedRules.stream().collect(Collectors.toList());
 	}
 

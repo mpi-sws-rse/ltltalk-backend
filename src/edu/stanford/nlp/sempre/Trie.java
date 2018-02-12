@@ -10,11 +10,14 @@ import java.util.Set;
 
 /**
  * Used to access rules efficiently by walking down their RHS.
+ * Stores all rules we are currently using
  * @author Percy Liang
  */
 public class Trie {
   public ArrayList<Rule> rules = new ArrayList<>();
-  Map<String, Trie> children = new LinkedHashMap<>();
+  
+  // list of rules where String appears on the RHS
+  public Map<String, Trie> children = new LinkedHashMap<>();
   // Set of LHS categories of all rules in this subtree
   public Set<String> cats = new LinkedHashSet<>();
 
@@ -35,5 +38,14 @@ public class Trie {
     if (child == null)
       children.put(item, child = new Trie());
     child.add(rule, i + 1);
+  }
+  
+  public String toString(){
+	  String s = "rules: "+rules.toString()+"\n";
+	  for (Map.Entry<String, Trie> entry : children.entrySet()){
+		  s = s + "mapKey = "+entry.getKey();
+		  s = s + "\t "+entry.getValue().toString()+"\n";
+	  }
+	  return s;
   }
 }

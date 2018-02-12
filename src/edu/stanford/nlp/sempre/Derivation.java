@@ -308,7 +308,6 @@ public class Derivation implements SemanticFn.Callable, HasScore {
     Executor.Response response = executor.execute(formula, context);
     StopWatchSet.end();
     value = response.value;
-    LogInfo.logs("executors value = %s", value);
     executorStats = response.stats;
   }
 

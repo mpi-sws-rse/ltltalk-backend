@@ -19,6 +19,7 @@ import edu.stanford.nlp.sempre.ConstantFn;
 import edu.stanford.nlp.sempre.Derivation;
 import edu.stanford.nlp.sempre.Example;
 import edu.stanford.nlp.sempre.Formula;
+import edu.stanford.nlp.sempre.ValueFormula;
 import edu.stanford.nlp.sempre.Formulas;
 import edu.stanford.nlp.sempre.IdentityFn;
 import edu.stanford.nlp.sempre.LambdaFormula;
@@ -28,6 +29,7 @@ import edu.stanford.nlp.sempre.VariableFormula;
 import edu.stanford.nlp.sempre.Params;
 import edu.stanford.nlp.sempre.Parser;
 import edu.stanford.nlp.sempre.Session;
+import edu.stanford.nlp.sempre.NameValue;
 
 import fig.basic.LispTree;
 import fig.basic.LogInfo;
@@ -56,7 +58,9 @@ public class GrammarInducer {
     @Option(gloss = "maximum nonterminals in a rule")
     public long maxNonterminals = 4;
     @Option(gloss="whether to use simple loop rewriting when looking for equivalent formulas")
-    public boolean useLoopRewriting = true;
+    public boolean useLoopRewriting = false;
+    @Option(gloss="whether to use special token category in order to keep track of keywords")
+    public boolean useSpecialTokens = false;
   }
 
   public static Options opts = new Options();
@@ -74,7 +78,7 @@ public class GrammarInducer {
   }
   
   
-  // induce rule is possible,
+  // induce rule if possible,
   // otherwise set the correct status
   public GrammarInducer(List<String> headTokens, Derivation def1, List<Derivation> chartListArg, Parser parser, Params params, Session session) {
     // grammarInfo start and end is used to indicate partial, when using aligner
@@ -190,6 +194,15 @@ public class GrammarInducer {
 	        //if (rule.rhs.stream().allMatch(s -> Rule.isCat(s)))
 	          //continue;
 	        filterRule(rule);
+	      }
+	      
+	      if (opts.useSpecialTokens) {
+	    	  for (String headToken : headTokens) {
+	    		  ValueFormula<NameValue> stringFormula = new ValueFormula<NameValue>(new NameValue(headToken));
+	    		  Rule specialRule = new Rule("KEYWORD_TOKEN", Lists.newArrayList(headToken), new ConstantFn(stringFormula) );
+	    		  specialRule.addInfo("anchored", "true");
+	    		  filterRule(specialRule);
+	    	  }
 	      }
 	
 	      if (opts.verbose > 1) {

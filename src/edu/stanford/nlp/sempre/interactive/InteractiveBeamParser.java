@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Comparator;
 
 import com.beust.jcommander.internal.Lists;
 import com.google.common.base.Joiner;
@@ -36,6 +37,7 @@ import fig.basic.SetUtils;
 import fig.basic.StopWatch;
 import fig.basic.StopWatchSet;
 import fig.exec.Execution;
+import org.apache.commons.lang3.Range;
 
 /**
  * A modified version of the BeamParser, with consideration for use in the interactive setting
@@ -50,6 +52,9 @@ public class InteractiveBeamParser extends Parser {
     public FloatStrategy floatStrategy = FloatStrategy.Never;
     @Option(gloss = "track these categories")
     public List<String> trackedCats;
+    @Option(gloss = "do partial parsing")
+    public boolean partialParsing = false;
+    
   }
 
   public enum FloatStrategy {
@@ -119,12 +124,20 @@ public class InteractiveBeamParser extends Parser {
   public ParserState newParserState(Params params, Example ex, boolean computeExpectedCounts) {
     InteractiveBeamParserState coarseState = null;
     if (Parser.opts.coarsePrune) {
-      LogInfo.begin_track("Parser.coarsePrune");
+    	if (Parser.opts.verbose > 1) {
+    		LogInfo.begin_track("Parser.coarsePrune");
+    	}
+      
+      // in this state only the phrases are assigned (no other categories)
       coarseState = new InteractiveBeamParserState(this, params, ex, computeExpectedCounts,
           InteractiveBeamParserState.Mode.bool, null);
+     // coarseState.visualizeChart();
+      
       coarseState.infer();
       coarseState.keepTopDownReachable();
-      LogInfo.end_track();
+      if (Parser.opts.verbose > 1) {
+    	  LogInfo.end_track();
+      }
     }
     return new InteractiveBeamParserState(this, params, ex, computeExpectedCounts, InteractiveBeamParserState.Mode.full,
         coarseState);
@@ -178,13 +191,21 @@ class InteractiveBeamParserState extends ChartParserState {
     if (numTokens == 0)
       return;
 
-    if (parser.verbose(2))
+    if (parser.verbose(2)){
       LogInfo.begin_track("ParserState.infer");
+      
+    }
 
     // Base case
     for (Derivation deriv : gatherTokenAndPhraseDerivations()) {
       featurizeAndScoreDerivation(deriv);
       addToChart(deriv);
+    }
+    
+    if (Parser.opts.verbose >4){
+    	LogInfo.logs("before recursive case:");
+    	visualizeChart();	
+      
     }
 
     // Recursive case
@@ -192,8 +213,16 @@ class InteractiveBeamParserState extends ChartParserState {
       for (int i = 0; i + len <= numTokens; i++)
         build(i, i + len);
 
-    if (parser.verbose(2))
-      LogInfo.end_track();
+    if (Parser.opts.verbose > 4){
+    	LogInfo.logs("after recursive case");
+    	visualizeChart();	
+      
+    }
+    
+    if (parser.verbose(2)){
+    	LogInfo.end_track();
+    }
+    	
 
     // Visualize
     if (parser.chartFillOut != null && Parser.opts.visualizeChartFilling && this.mode != Mode.bool) {
@@ -201,14 +230,22 @@ class InteractiveBeamParserState extends ChartParserState {
           Json.writeValueAsStringHard(new ChartFillingData(ex.id, chartFillingList, ex.utterance, ex.numTokens())));
       parser.chartFillOut.flush();
     }
-
+    
+    // putting to predDerivations anything that parses with the rule $ROOT -> something
     setPredDerivations();
-
-    for (Derivation deriv : predDerivations) {
-      deriv.getAnchoredTokens();
+    
+    if (Parser.opts.verbose > 4){
+    	LogInfo.logs("pred derivations = %s", predDerivations);
     }
 
+    for (Derivation deriv : predDerivations) {
+    	//this is very weird, I have no idea what is happening here
+      deriv.getAnchoredTokens();
+      
+    }
     this.chartList = this.collectChart();
+    
+    
 
     boolean parseFloat = false;
     if (InteractiveBeamParser.opts.floatStrategy == InteractiveBeamParser.FloatStrategy.Always)
@@ -218,10 +255,17 @@ class InteractiveBeamParserState extends ChartParserState {
     else
       parseFloat = false;
 
+    boolean definedLoopVariablesUsedCorrectly = true;
     for (Iterator<Derivation> iter = predDerivations.iterator(); iter.hasNext();) {
       Derivation d = iter.next();
-      if (!SemanticAnalyzer.checkVariables(d))
+      // checks if there is a loop variable used out of scope ( foreach ... point, foreach ... area)
+      if (!SemanticAnalyzer.checkVariables(d)) {
+    	  definedLoopVariablesUsedCorrectly = false;
+    	  if (Parser.opts.verbose >= 4) {
+    		  LogInfo.logs("semantic analyzer fired and removed %s", d);
+    	  }
         iter.remove();
+      }
     }
 
     if (mode == Mode.full) {
@@ -231,8 +275,10 @@ class InteractiveBeamParserState extends ChartParserState {
       if (computeExpectedCounts) {
         expectedCounts = new HashMap<>();
         ParserState.computeExpectedCounts(predDerivations, expectedCounts);
+        LogInfo.logs("after calculating expected counts = %s", expectedCounts);
       }
     }
+    
 
     /* If Beam Parser failed to find derivations, try a floating parser */
     if (parseFloat) {
@@ -272,9 +318,81 @@ class InteractiveBeamParserState extends ChartParserState {
         }
       }
     }
+    
+    // if we failed to find any (full) derivations
+    if (predDerivations.size() == 0) {
+    	// we want to print this only in the second iteration, when we were doing full parsing
+    	
+        if(coarseState != null && InteractiveBeamParser.opts.partialParsing == true) {
+        	List<String> understandableStrings = eliminateCoveredOnes(this.chartList);
+        	LogInfo.logs("PARSER: can't parse the whole utterance. The parts that I can make sense of are: %s", understandableStrings);
+        	if (definedLoopVariablesUsedCorrectly == false) {
+        		LogInfo.logs("PARSER: Make sure that you're using loop variables correctly. \' foreach point in [some area] ... [use point as a variable name] \' or \' foreach area in [some collection of areas]... [use area as a variable name] \'.");
+        	}
+        	
+//        	for (Derivation d : this.chartList) {
+//        		d.printDerivationRecursively();
+//        	}
+    	    
+        }
+    }
+  }
+  
+  private LinkedList<String> eliminateCoveredOnes(List<Derivation> chartList){
+	  LinkedList<Range> allRanges = new LinkedList<Range>();
+	  LinkedList<Range> filteredRanges = new LinkedList<Range>();
+	  LinkedList<String> understandableStrings = new LinkedList<String>();
+	  for (Derivation d : chartList) {
+		  Range derivRange =Range.between(d.start, d.end); 
+		  if (!allRanges.contains(derivRange)) {
+			  allRanges.add(derivRange);
+		  }
+	  }
+	  
+	  for (Range i : allRanges) {
+		  boolean notContained = true;
+		  for (Range j : allRanges) {
+			  if (j != i && j.containsRange(i)) {
+				  notContained = false;
+				  continue;
+			  }
+		  }
+		  if (notContained == true) {
+			  filteredRanges.add(i);
+		  }
+	  }
+	  
+	  
+	  
+//	  LogInfo.logs("all ranges are: %s", allRanges);
+//	  LogInfo.logs("filtered ranges are: %s", filteredRanges);
+	  
+	  filteredRanges.sort( new Comparator<Range>() {
+		  @Override
+		  public int compare(Range r1, Range r2) {
+			  int r1Start = (int)r1.getMinimum();
+			  int r2Start = (int)r2.getMinimum();
+			  if (r1Start == r2Start){
+				  return 0;
+			  }
+			  else if (r1Start < r2Start) {
+				  return -1;
+			  }
+			  else {
+				  return 1;
+			  }
+		  }
+	  });
+	  
+	  
+	  for (Range r : filteredRanges) {
+		  understandableStrings.add(ex.phraseString((int)r.getMinimum(), (int)r.getMaximum()));
+	  }
+	  return understandableStrings;
   }
 
   private List<Derivation> collectChart() {
+	  
     List<Derivation> chartList = Lists.newArrayList();
     for (int len = 1; len <= numTokens; ++len) {
       for (int i = 0; i + len <= numTokens; ++i) {
@@ -290,11 +408,12 @@ class InteractiveBeamParserState extends ChartParserState {
 
   // Create all the derivations for the span [start, end).
   protected void build(int start, int end) {
-    applyNonCatUnaryRules(start, end, start, parser.trie, new ArrayList<Derivation>(), new IntRef(0));
-
+   
+	applyNonCatUnaryRules(start, end, start, parser.trie, new ArrayList<Derivation>(), new IntRef(0));
+	
     Set<String> cellsPruned = new HashSet<>();
     applyCatUnaryRules(start, end, cellsPruned);
-
+    
     for (Map.Entry<String, List<Derivation>> entry : chart[start][end].entrySet())
       pruneCell(cellsPruned, entry.getKey(), start, end, entry.getValue());
   }
@@ -345,6 +464,8 @@ class InteractiveBeamParserState extends ChartParserState {
   }
 
   private boolean canBeRoot(int start, int end) {return start==0 && end==numTokens;};
+ 
+  
   // Apply all unary rules with RHS category.
   // Before applying each unary rule (rule.lhs -> rhsCat), we can prune the cell
   // of rhsCat
@@ -384,7 +505,7 @@ class InteractiveBeamParserState extends ChartParserState {
       return;
     if (!coarseAllows(node, start, end))
       return;
-
+    
     if (Parser.opts.verbose >= 5) {
       LogInfo.logs("applyNonCatUnaryRules(start=%d, end=%d, i=%d, children=[%s], %s rules)", start, end, i,
           Joiner.on(", ").join(children), node.rules.size());
@@ -393,10 +514,12 @@ class InteractiveBeamParserState extends ChartParserState {
     // Base case: our fencepost has walked to the end of the span, so
     // apply the rule on all the children gathered during the walk.
     if (i == end) {
+    	
       Iterator<Rule> ruleIterator = node.rules.iterator();
       while (ruleIterator.hasNext()) {
         Rule rule = ruleIterator.next();
         if (coarseAllows(rule.lhs, start, end)) {
+        
           numNew.value += applyRule(start, end, rule, children);
         }
       }
@@ -525,23 +648,25 @@ class InteractiveBeamParserState extends ChartParserState {
 
     // Remove all derivations associated with (cat, start, end) that aren't
     // reachable.
-    for (int start = 0; start < numTokens; start++) {
-      for (int end = start + 1; end <= numTokens; end++) {
-        List<String> toRemoveCats = new LinkedList<>();
-        for (String cat : chart[start][end].keySet()) {
-          String key = catStartEndKey(cat, start, end);
-          if (!reachable.contains(key)) {
-            toRemoveCats.add(cat);
-          }
-        }
-        Collections.sort(toRemoveCats);
-        for (String cat : toRemoveCats) {
-          if (parser.verbose(4)) {
-            LogInfo.logs("Pruning chart %s(%s,%s)", cat, start, end);
-          }
-          chart[start][end].remove(cat);
-        }
-      }
+    if (!InteractiveBeamParser.opts.partialParsing){
+	    for (int start = 0; start < numTokens; start++) {
+	      for (int end = start + 1; end <= numTokens; end++) {
+	        List<String> toRemoveCats = new LinkedList<>();
+	        for (String cat : chart[start][end].keySet()) {
+	          String key = catStartEndKey(cat, start, end);
+	          if (!reachable.contains(key)) {
+	            toRemoveCats.add(cat);
+	          }
+	        }
+	        Collections.sort(toRemoveCats);
+	        for (String cat : toRemoveCats) {
+	          if (parser.verbose(4)) {
+	            LogInfo.logs("Pruning chart %s(%s,%s)", cat, start, end);
+	          }
+	          chart[start][end].remove(cat);
+	        }
+	      }
+	    }
     }
   }
 

@@ -160,10 +160,9 @@ public class RoboWorld extends World {
 
   @SuppressWarnings("unchecked")
   protected static RoboWorld fromJSON(String jsonString) {
-	  LogInfo.logs("world as received in json: %s", jsonString);
+	  //LogInfo.logs("world as received in json: %s", jsonString);
     Map<String, Object> ctxMap = Json.readValueHard(jsonString, Map.class);
     List<Object> rawRobot = (List<Object>) ctxMap.get("robot");
-    LogInfo.logs("raw robot: %s", rawRobot);
     
     Point robotPoint = new Point((int) rawRobot.get(0), (int) rawRobot.get(1));
     // Items held by the robot are listed as part of the robot state in the JSON

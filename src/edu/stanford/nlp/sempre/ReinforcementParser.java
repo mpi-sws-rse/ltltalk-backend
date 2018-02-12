@@ -540,7 +540,8 @@ final class ReinforcementParserState extends AbstractReinforcementParserState {
   }
 
   // info for visualizing chart
-  private void visualizeChart() {
+  @Override
+  protected void visualizeChart() {
     if (parser.chartFillOut != null && Parser.opts.visualizeChartFilling) {
       parser.chartFillOut.println(Json.writeValueAsStringHard(new ChartFillingData(ex.id, chartFillingList,
               ex.utterance, ex.numTokens())));

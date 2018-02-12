@@ -61,7 +61,7 @@ public abstract class ChartParserState extends ParserState {
     predDerivations.addAll(MapUtils.get(chart[0][numTokens], Rule.rootCat, Derivation.emptyList));
   }
 
-  private void visualizeChart() {
+  protected void visualizeChart() {
     for (int len = 1; len <= numTokens; ++len) {
       for (int i = 0; i + len <= numTokens; ++i) {
         for (String cat : chart[i][i + len].keySet()) {
