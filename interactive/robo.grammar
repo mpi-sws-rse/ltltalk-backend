@@ -13,6 +13,9 @@
 (rule $KEYWORD_TOKEN (containing) containing (anchored true))
 (rule $KEYWORD_TOKEN (visit) visit (anchored true))
 (rule $KEYWORD_TOKEN (has) has (anchored true))
+(rule $KEYWORD_TOKEN (repeat) repeat (anchored true))
+(rule $KEYWORD_TOKEN (while) while (anchored true))
+(rule $KEYWORD_TOKEN (if) if (anchored true))
 
 ### Action Rules ###
 
