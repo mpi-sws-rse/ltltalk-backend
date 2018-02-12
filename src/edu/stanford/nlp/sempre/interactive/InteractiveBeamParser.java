@@ -52,8 +52,7 @@ public class InteractiveBeamParser extends Parser {
     public FloatStrategy floatStrategy = FloatStrategy.Never;
     @Option(gloss = "track these categories")
     public List<String> trackedCats;
-    @Option(gloss = "do partial parsing")
-    public boolean partialParsing = false;
+    
     
   }
 
@@ -323,7 +322,7 @@ class InteractiveBeamParserState extends ChartParserState {
     if (predDerivations.size() == 0) {
     	// we want to print this only in the second iteration, when we were doing full parsing
     	
-        if(coarseState != null && InteractiveBeamParser.opts.partialParsing == true) {
+        if(coarseState != null && Parser.opts.partialParsing == true) {
         	List<String> understandableStrings = eliminateCoveredOnes(this.chartList);
         	LogInfo.logs("PARSER: can't parse the whole utterance. The parts that I can make sense of are: %s", understandableStrings);
         	if (definedLoopVariablesUsedCorrectly == false) {
@@ -648,7 +647,7 @@ class InteractiveBeamParserState extends ChartParserState {
 
     // Remove all derivations associated with (cat, start, end) that aren't
     // reachable.
-    if (!InteractiveBeamParser.opts.partialParsing){
+    if (!Parser.opts.partialParsing){
 	    for (int start = 0; start < numTokens; start++) {
 	      for (int end = start + 1; end <= numTokens; end++) {
 	        List<String> toRemoveCats = new LinkedList<>();
