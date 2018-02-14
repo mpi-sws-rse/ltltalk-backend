@@ -335,6 +335,11 @@ public class InteractiveMaster extends Master {
 			LogInfo.logs("induced rules before alignment = %s", inducedRules);
 		}
 		
+		for (Rule rule : inducedRules) {
+			rule.source = new RuleSource(session.id, head, bodyList);
+		}
+		
+
 		if (opts.useAligner && bodyList.size() == 1) {
 			List<Rule> alignedRules = DefinitionAligner.getRules(exHead.getTokens(),
 					InteractiveUtils.utterancefromJson(jsonDef, true), bodyDeriv, state.chartList);
@@ -353,9 +358,6 @@ public class InteractiveMaster extends Master {
 		
 		
 
-		for (Rule rule : inducedRules) {
-			rule.source = new RuleSource(session.id, head, bodyList);
-		}
 
 		exHead.predDerivations = Lists.newArrayList(bodyDeriv);
 		
