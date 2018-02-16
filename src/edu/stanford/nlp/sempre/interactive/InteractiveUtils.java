@@ -192,7 +192,6 @@ public final class InteractiveUtils {
   }
 
   public static synchronized void addRuleInteractive(Rule rule, Parser parser) {
-    LogInfo.logs("addRuleInteractive: %s", rule);
     if (parser instanceof InteractiveBeamParser) {
       parser.addRule(rule);
     } else {
