@@ -1,0 +1,389 @@
+{"q": "(:q \"visit world containing item has color green and has shape square\")", "format": "lisp2json", "sessionId": "P3", "count": 213}
+{"q": "(:q \"visit world containing item has color green and has shape square; pick item; visit world containing item has color yellow and containing item has shape circle\")", "format": "lisp2json", "sessionId": "P3", "count": 227}
+{"q": "(:q \"visit world containing item has color green and has shape square; pick item; visit world { containing item has color yellow } and { containing item has shape circle }\")", "format": "lisp2json", "sessionId": "P3", "count": 243}
+{"q": "(:q \"visit world containing item has color green and has shape square; pick item; visit { world containing item has color yellow } and { world containing item has shape circle }\")", "format": "lisp2json", "sessionId": "P3", "count": 245}
+{"q": "(:q \"visit world containing item has color green and has shape square; pick item; visit { world containing item has color yellow } and { world containing item has shape circle }; pick yellow item\")", "format": "lisp2json", "sessionId": "P3", "count": 249}
+{"q": "(:q \"visit world containing item has color green and has shape square; pick item; visit { world containing item has color yellow } and { world containing item has shape circle }; pick item has color yellow\")", "format": "lisp2json", "sessionId": "P3", "count": 251}
+{"q": "(:q \"visit world containing item has color green and has shape square; pick item; visit { world containing item has color yellow } and { world containing item has shape circle }; pick item has color yellow; if point containing item has shape square; pick item\")", "format": "lisp2json", "sessionId": "P3", "count": 262}
+{"q": "(:q \"visit world containing item has color green and has shape square; pick item; visit { world containing item has color yellow } and { world containing item has shape circle }; pick item has color yellow; if possible {pick item has shape square} {drop item has color yellow}\")", "format": "lisp2json", "sessionId": "P3", "count": 278}
+{"q": "(:q \"visit world containing item has color green and has shape square; pick item; visit { world containing item has color yellow } and { world containing item has shape circle }; pick item has color yellow; if possible {pick item has shape square} {drop item has color yellow}\")", "format": "lisp2json", "sessionId": "P3", "count": 282}
+{"q": "(:q \"visit world containing item has color green and has shape square; pick item; visit { world containing item has color yellow } and { world containing item has shape circle }; pick item has color yellow; if item at point has shape square {pick item has shape square}\")", "format": "lisp2json", "sessionId": "P3", "count": 296}
+{"q": "(:q \"visit world containing item has color green and has shape square; pick item; visit { world containing item has color yellow } and { world containing item has shape circle }; pick item has color yellow; if item has shape square at current {pick item has shape square}\")", "format": "lisp2json", "sessionId": "P3", "count": 312}
+{"q": "(:q \"visit world containing item has color green and has shape square; pick item; visit { world containing item has color yellow } and { world containing item has shape circle }; pick item has color yellow; if item has shape square at current {pick item has shape square}; if not item has shape square at current {drop item has color yellow}\")", "format": "lisp2json", "sessionId": "P3", "count": 320}
+{"q": "(:q \"visit world containing item has color green and has shape square; pick item; visit { world containing item has color yellow } and { world containing item has shape circle }; pick item has color yellow; if item has shape square at current {pick item has shape square}; if not item has shape square at current {drop item has color yellow}\")", "format": "lisp2json", "sessionId": "P3", "count": 326}
+{"q": "(:q \"visit point not containing item\")", "format": "lisp2json", "sessionId": "P3", "count": 328}
+{"q": "(:q \"visit area not has item\")", "format": "lisp2json", "sessionId": "P3", "count": 330}
+{"q": "(:q \"visit world containing item\")", "format": "lisp2json", "sessionId": "P3", "count": 332}
+{"q": "(:q \"visit world not containing item\")", "format": "lisp2json", "sessionId": "P3", "count": 334}
+{"q": "(:q \"visit world containing item has color green and has shape square\")", "format": "lisp2json", "sessionId": "P1", "count": 336}
+{"q": "(:q \"visit world containing item has color green and has shape square; visit {world containing item has color yellow} and {world containing item has shape circle}\")", "format": "lisp2json", "sessionId": "P1", "count": 338}
+{"q": "(:q \"visit world containing item has color green and has shape square; visit {world containing item has color yellow} and {world containing item has shape circle}; pick item has color yellow\")", "format": "lisp2json", "sessionId": "P1", "count": 340}
+{"q": "(:q \"visit world minus {world containing item}\")", "format": "lisp2json", "sessionId": "P3", "count": 342}
+{"q": "(:q \"visit world minus {world containing item};\")", "format": "lisp2json", "sessionId": "P3", "count": 344}
+{"q": "(:q \"visit world containing item has color green and has shape square\")", "format": "lisp2json", "sessionId": "P2", "count": 346}
+{"q": "(:q \"pick item has color green and has shape square\")", "format": "lisp2json", "sessionId": "P2", "count": 348}
+{"q": "(:q \"visit world containing item has shape circle and item has color green\")", "format": "lisp2json", "sessionId": "P3", "count": 350}
+{"q": "(:q \"visit world containing item has shape circle and has color green\")", "format": "lisp2json", "sessionId": "P3", "count": 352}
+{"q": "(:q \"visit world containing item has shape circle and has color green; pick item\")", "format": "lisp2json", "sessionId": "P3", "count": 354}
+{"q": "(:q \"pick up item has color green and has shape square\")", "format": "lisp2json", "sessionId": "P2", "count": 356}
+{"q": "(:q \"pick item has color green and has shape square\")", "format": "lisp2json", "sessionId": "P2", "count": 358}
+{"q": "(:q \"visit world containing item has color yellow and has shape circle\")", "format": "lisp2json", "sessionId": "P2", "count": 360}
+{"q": "(:q \"visit world containing item has color read and has shape triangle; pick item\")", "format": "lisp2json", "sessionId": "P3", "count": 362}
+{"q": "(:q \"visit world containing item has color red and has shape triangle ; pick item\")", "format": "lisp2json", "sessionId": "P3", "count": 364}
+{"q": "(:q \"visit world containing item has shape circle and has color green; pick item has shape circle and has color green\")", "format": "lisp2json", "sessionId": "P3", "count": 366}
+{"q": "(:q \"visit world minus {world containing item}\")", "format": "lisp2json", "sessionId": "P3", "count": 368}
+{"q": "(:q \"visit world containing item has shape circle and has color green; pick item has shape circle and has color green\")", "format": "lisp2json", "sessionId": "P3", "count": 370}
+{"q": "(:q \"visit {world containing item has color yellow} and {world containing item has shape circle}\")", "format": "lisp2json", "sessionId": "P2", "count": 372}
+{"q": "(:q \"pick item has color yellow\")", "format": "lisp2json", "sessionId": "P2", "count": 374}
+{"q": "(:q \"visit {world containing item has color yellow} and {world containing item has shape circle}\")", "format": "lisp2json", "sessionId": "P2", "count": 376}
+{"q": "(:q \"pick item has color yellow\")", "format": "lisp2json", "sessionId": "P2", "count": 378}
+{"q": "(:q \"visit world containing item has shape triangle and has color red; pick item has shape triangle and has color red\")", "format": "lisp2json", "sessionId": "P3", "count": 380}
+{"q": "(:q \"while possible visit world containing item has color yellow { visit world containing item has color yellow ; pick item has color yellow }\")", "format": "lisp2json", "sessionId": "P1", "count": 382}
+{"q": "(:q \"visit world containing item has shape square and has color yellow; pick item has shape square and has color yellow\")", "format": "lisp2json", "sessionId": "P3", "count": 384}
+{"q": "(:q \"if possible { pick item has shape square } { pick item has shape square } and if not possible { pick item has shape square } { drop item }\")", "format": "lisp2json", "sessionId": "P2", "count": 386}
+{"q": "(:q \"foreach area in world minus {world containing item} {if possible {strict {visit area; drop item}} {visit area; drop item}\")", "format": "lisp2json", "sessionId": "P3", "count": 388}
+{"q": "(:q \"visit world containing item has color green and has shape cirlce { pick item has color green and has shape cirlce }\")", "format": "lisp2json", "sessionId": "P1", "count": 390}
+{"q": "(:q \"visit world containing item has color green and has shape cirlce ; pick item has color green and has shape cirlce\")", "format": "lisp2json", "sessionId": "P1", "count": 392}
+{"q": "(:q \"visit world containing item has color green and has shape circle ; pick item has color green and has shape cirlce\")", "format": "lisp2json", "sessionId": "P1", "count": 394}
+{"q": "(:q \"foreach area in { world minus {world containing item}}  {if possible {strict {visit area; drop item}} {visit area; drop item}\")", "format": "lisp2json", "sessionId": "P3", "count": 396}
+{"q": "(:q \"visit world containing item has color green and has shape circle ; pick item has color green and has shape circle\")", "format": "lisp2json", "sessionId": "P1", "count": 398}
+{"q": "(:q \"foreach area in { world minus {world containing item}}  {if possible {strict {visit area; drop item}} {visit area; drop item}}\")", "format": "lisp2json", "sessionId": "P3", "count": 400}
+{"q": "(:q \"foreach area in { world minus {world containing item}}  visit area\")", "format": "lisp2json", "sessionId": "P3", "count": 402}
+{"q": "(:q \"visit world containing item has color red and has shape triangle ; pick item has color red and has shape triangle\")", "format": "lisp2json", "sessionId": "P1", "count": 404}
+{"q": "(:q \"if possible { pick item has shape square } { pick item has shape square } ; if not possible { pick item has shape square } { drop item }\")", "format": "lisp2json", "sessionId": "P2", "count": 406}
+{"q": "(:q \"visit world containing item has color yellow and has shape square ; pick item has color yellow and has shape square\")", "format": "lisp2json", "sessionId": "P1", "count": 408}
+{"q": "(:q \"foreach area in world visit area\")", "format": "lisp2json", "sessionId": "P3", "count": 410}
+{"q": "(:q \"while robot has item { visit world minus world containing item; drop item }\")", "format": "lisp2json", "sessionId": "P1", "count": 412}
+{"q": "(:q \"foreach point in world visit area\")", "format": "lisp2json", "sessionId": "P3", "count": 414}
+{"q": "(:q \"foreach point in world {visit point}\")", "format": "lisp2json", "sessionId": "P3", "count": 416}
+{"q": "(:q \"foreach point in {world minus {world containing item}} {visit point}\")", "format": "lisp2json", "sessionId": "P3", "count": 418}
+{"q": "(:q \"visit {world containing item has color green} and {world containing item has shape triangle}\")", "format": "lisp2json", "sessionId": "P1", "count": 420}
+{"q": "(:q \"foreach point in {world minus {world containing item}} {if possible { strict { visit point; drop item}} {visit point; drop item}}\")", "format": "lisp2json", "sessionId": "P3", "count": 422}
+{"q": "(:q \"if possible {visit world containing item has color green and has shape circle} {pick item has color green and has shape circle}\")", "format": "lisp2json", "sessionId": "P2", "count": 424}
+{"q": "(:q \"foreach point in {world minus {world containing item}} {if possible { strict { visit point; drop item}} {visit point; drop item}}\")", "format": "lisp2json", "sessionId": "P3", "count": 426}
+{"q": "(:q \"visit world containing item has color yellow and has shape square ; pick item has color yellow and has shape square\")", "format": "lisp2json", "sessionId": "P1", "count": 428}
+{"q": "(:q \"visit world containing item has shape triangle and has item green\")", "format": "lisp2json", "sessionId": "P3", "count": 430}
+{"q": "(:q \"while robot has item { visit world minus world containing item; drop item }\")", "format": "lisp2json", "sessionId": "P1", "count": 432}
+{"q": "(:q \"visit world containing item has shape triangle and has color green\")", "format": "lisp2json", "sessionId": "P3", "count": 434}
+{"q": "(:q \"while not robot as item {visit world containing item has shape triangle and has color green}\")", "format": "lisp2json", "sessionId": "P3", "count": 436}
+{"q": "(:q \"while not robot has item {visit world containing item has shape triangle and has color green}\")", "format": "lisp2json", "sessionId": "P3", "count": 438}
+{"q": "(:q \"visit {world containing item has color green} and {world containing item has shape triangle}\")", "format": "lisp2json", "sessionId": "P1", "count": 440}
+{"q": "(:q \"if possible pick item has color green has shape triangle { pick item has color green has shape triangle }\")", "format": "lisp2json", "sessionId": "P1", "count": 442}
+{"q": "(:q \"if possible {visit room containing item has color green and has shape circle} {pick item has color green and has shape circle}\")", "format": "lisp2json", "sessionId": "P2", "count": 444}
+{"q": "(:q \"if possible {visit point containing item has color green and has shape circle} {pick item has color green and has shape circle}\")", "format": "lisp2json", "sessionId": "P2", "count": 446}
+{"q": "(:q \"if possible pick item has color green and has shape triangle { pick item has color green and has shape triangle }\")", "format": "lisp2json", "sessionId": "P1", "count": 448}
+{"q": "(:q \"while not robot has item {visit world containing item has shape triangle and has color green; if possible {strict {pick item has shape triangle; pick item has color green} {pick item}}\")", "format": "lisp2json", "sessionId": "P3", "count": 450}
+{"q": "(:q \"while not robot has item {visit world containing item has shape triangle and has color green; if possible {strict {pick item has shape triangle; pick item has color green} {pick item}}}\")", "format": "lisp2json", "sessionId": "P3", "count": 452}
+{"q": "(:q \"while not robot has item {visit world containing item has shape triangle and has color green; if possible {strict {pick item has shape triangle; pick item has color green}} {pick item}}}\")", "format": "lisp2json", "sessionId": "P3", "count": 454}
+{"q": "(:q \"while not robot has item {visit world containing item has shape triangle and has color green; if possible {strict {pick item has shape triangle; pick item has color green}} {pick item}}\")", "format": "lisp2json", "sessionId": "P3", "count": 456}
+{"q": "(:q \"foreach point in {world minus room1} {if point has item {visit point; pick item; visit room1; drop item}}\")", "format": "lisp2json", "sessionId": "P3", "count": 458}
+{"q": "(:q \"foreach area in rooms containing item has color green and has shape circle { visit area; pickitem }\")", "format": "lisp2json", "sessionId": "P2", "count": 460}
+{"q": "(:q \"foreach area in rooms containing item has color green and has shape circle { visit area; pick item }\")", "format": "lisp2json", "sessionId": "P2", "count": 462}
+{"q": "(:q \"foreach point in {world minus room1} {if point has item {visit point; pick item; visit room1; drop item}}}\")", "format": "lisp2json", "sessionId": "P3", "count": 464}
+{"q": "(:q \"foreach point in {world minus room1} {visit point}\")", "format": "lisp2json", "sessionId": "P3", "count": 466}
+{"q": "(:q \"while possible visit {world has item } and {world minus room 1} { visit while possible visit {world has item } and {world minus room 1} }\")", "format": "lisp2json", "sessionId": "P1", "count": 468}
+{"q": "(:q \"foreach point in {world minus room1} {if point hs item {visit point}}\")", "format": "lisp2json", "sessionId": "P3", "count": 470}
+{"q": "(:q \"foreach point in {world minus room1} {if point has item {visit point}}\")", "format": "lisp2json", "sessionId": "P3", "count": 472}
+{"q": "(:q \"if possible {visit world containing item has color green and has shape circle} {pick item has color green and has shape circle}\")", "format": "lisp2json", "sessionId": "P2", "count": 474}
+{"q": "(:q \"if possible {visit area containing item has color green and has shape circle} {pick item has color green and has shape circle}\")", "format": "lisp2json", "sessionId": "P2", "count": 476}
+{"q": "(:q \"while possible visit {world has item } and {world minus room 1} { visit {world has item } and {world minus room1}; pick item; visit room1 minus { world has item}; drop item }\")", "format": "lisp2json", "sessionId": "P1", "count": 478}
+{"q": "(:q \"foreach area in {world minus room1} {if area has item {visit point}}\")", "format": "lisp2json", "sessionId": "P3", "count": 480}
+{"q": "(:q \"visit {world has item } and {world minus room1}; pick item; visit room1 minus { world has item}; drop item\")", "format": "lisp2json", "sessionId": "P1", "count": 482}
+{"q": "(:q \"if possible {visit world containing item has color green and has shape circle} {pick item}\")", "format": "lisp2json", "sessionId": "P2", "count": 484}
+{"q": "(:q \"foreach area in {world minus room1} containing item {visit area; pick item; visit room1; drop item} item {visit point}}\")", "format": "lisp2json", "sessionId": "P3", "count": 486}
+{"q": "(:q \"visit {world has item } and {world minus room1}\")", "format": "lisp2json", "sessionId": "P1", "count": 488}
+{"q": "(:q \"foreach area in {world minus room1} containing item {visit area; pick item; visit room1; drop item}\")", "format": "lisp2json", "sessionId": "P3", "count": 490}
+{"q": "(:q \"foreach area in {world minus room1} containing item {visit area}\")", "format": "lisp2json", "sessionId": "P3", "count": 492}
+{"q": "(:q \"visit {world containing item } and {world minus room1}; pick item; visit room1 minus { world containing item}; drop item\")", "format": "lisp2json", "sessionId": "P1", "count": 494}
+{"q": "(:q \"foreach area in world minus room1 containing item {visit area}\")", "format": "lisp2json", "sessionId": "P3", "count": 496}
+{"q": "(:q \"foreach area in world containing item {visit area}\")", "format": "lisp2json", "sessionId": "P3", "count": 498}
+{"q": "(:q \"while possible visit {world containing item} and {world minus room 1} { visit {world containing item } and {world minus room1}; pick item; visit room1 minus { world containing item}; drop item }\")", "format": "lisp2json", "sessionId": "P1", "count": 500}
+{"q": "(:q \"foreach point in world containing item {visit point}\")", "format": "lisp2json", "sessionId": "P3", "count": 502}
+{"q": "(:q \"foreach point in {world minus room1} containing item {visit point}\")", "format": "lisp2json", "sessionId": "P3", "count": 504}
+{"q": "(:q \"visit world containing item has color green and has shape circle; pick item has color green and has shape circle\")", "format": "lisp2json", "sessionId": "P2", "count": 506}
+{"q": "(:q \"while possible visit {world containing item} and {world minus room1} { visit {world containing item } and {world minus room1}; pick item; visit room1 minus { world containing item}; drop item }\")", "format": "lisp2json", "sessionId": "P1", "count": 508}
+{"q": "(:q \"foreach point in {world minus room1} containing item {visit point; pick item; visit room1; drop item}\")", "format": "lisp2json", "sessionId": "P3", "count": 510}
+{"q": "(:q \"while point in {world minus room1} containing item {visit point; pick item; visit room1; drop item}\")", "format": "lisp2json", "sessionId": "P3", "count": 512}
+{"q": "(:q \"visit world containing item has color red and has shape triangle; pick item has color red and has shape triangle\")", "format": "lisp2json", "sessionId": "P2", "count": 514}
+{"q": "(:q \"while possible visit {world containing item} and {world minus room1} { visit {world containing item } and {world minus room1}; pick item; visit room1; drop item }\")", "format": "lisp2json", "sessionId": "P1", "count": 516}
+{"q": "(:q \"visit world containing item has color red and has shape circle; pick item has color green and has shape circle\")", "format": "lisp2json", "sessionId": "P2", "count": 518}
+{"q": "(:q \"visit world containing item has color green and has shape circle; pick item has color green and has shape circle\")", "format": "lisp2json", "sessionId": "P2", "count": 520}
+{"q": "(:q \"foreach point in {world minus room1} containing item {visit point; pick every item; visit room1; drop item}\")", "format": "lisp2json", "sessionId": "P3", "count": 522}
+{"q": "(:q \"visit world containing item has color red and has shape triangle; pick item has color red and has shape triangle\")", "format": "lisp2json", "sessionId": "P2", "count": 524}
+{"q": "(:q \"repeat 3 times { visit world contains item has color red; pick item has color red }\")", "format": "lisp2json", "sessionId": "P1", "count": 526}
+{"q": "(:q \"foreach point in {world minus room1} containing item {visit point; pick every item; visit room1; drop every item}\")", "format": "lisp2json", "sessionId": "P3", "count": 528}
+{"q": "(:q \"repeat 3 times  visit world contains item has color red; pick item has color red\")", "format": "lisp2json", "sessionId": "P1", "count": 530}
+{"q": "(:q \"visit world containing item has color yellow and has shape square; pick item has color yellow and has shape square\")", "format": "lisp2json", "sessionId": "P2", "count": 532}
+{"q": "(:q \"repeat 3 times  { visit world containing item has color red; pick item has color red }\")", "format": "lisp2json", "sessionId": "P1", "count": 534}
+{"q": "(:q \"visit world containing item has color red and has shape triangle; pick item has color red and has shape triangle\")", "format": "lisp2json", "sessionId": "P2", "count": 536}
+{"q": "(:q \"pick item has color red; pick item has color red; pick item has color red\")", "format": "lisp2json", "sessionId": "P3", "count": 538}
+{"q": "(:q \"visit [1,1]\")", "format": "lisp2json", "sessionId": "P3", "count": 540}
+{"q": "(:q \"visit [1,1]; drop item; drop item\")", "format": "lisp2json", "sessionId": "P3", "count": 542}
+{"q": "(:q \"while robot has item { drop item }\")", "format": "lisp2json", "sessionId": "P1", "count": 544}
+{"q": "(:q \"visit [0,0]; drop item; drop item\")", "format": "lisp2json", "sessionId": "P3", "count": 546}
+{"q": "(:q \"visit [0,0]; drop item;\")", "format": "lisp2json", "sessionId": "P3", "count": 548}
+{"q": "(:q \"visit [0,0]; drop item;\")", "format": "lisp2json", "sessionId": "P3", "count": 550}
+{"q": "(:q \"repeat 2 times { move point has item color green; pick item; visit[1,1]; drop item}\")", "format": "lisp2json", "sessionId": "P3", "count": 552}
+{"q": "(:q \"repeat 2 times {visit point has item color green; pick item; visit[1,1]; drop item}\")", "format": "lisp2json", "sessionId": "P3", "count": 554}
+{"q": "(:q \"drop item\")", "format": "lisp2json", "sessionId": "P1", "count": 556}
+{"q": "(:q \"repeat 2 times {visit world containing item has color green; pick item; visit[1,1]; drop item}\")", "format": "lisp2json", "sessionId": "P3", "count": 558}
+{"q": "(:q \"repat 2 times { visit world containing item has color green; pick item has color green }\")", "format": "lisp2json", "sessionId": "P1", "count": 560}
+{"q": "(:q \"repeat 2 times {visit world containing item has color green; pick item has color green; visit[1,1]; drop item}\")", "format": "lisp2json", "sessionId": "P3", "count": 562}
+{"q": "(:q \"repeat 2 times { visit world containing item has color green; pick item has color green }\")", "format": "lisp2json", "sessionId": "P1", "count": 564}
+{"q": "(:q \"repeat 2 times { visit world containing item has color blue; pick item has color blue }\")", "format": "lisp2json", "sessionId": "P1", "count": 566}
+{"q": "(:q \"repeat 2 times {visit {world  minus [1,1]}containing item has color green; pick item has color green; visit[1,1]; drop item}\")", "format": "lisp2json", "sessionId": "P3", "count": 568}
+{"q": "(:q \"move left\")", "format": "lisp2json", "sessionId": "P2", "count": 570}
+{"q": "(:q \"drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 572}
+{"q": "(:q \"visit world minus {world containing item}\")", "format": "lisp2json", "sessionId": "P1", "count": 574}
+{"q": "(:q \"move left\")", "format": "lisp2json", "sessionId": "P2", "count": 576}
+{"q": "(:q \"while robot has item { drop item }\")", "format": "lisp2json", "sessionId": "P1", "count": 578}
+{"q": "(:q \"drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 580}
+{"q": "(:q \"visit [0,0]\")", "format": "lisp2json", "sessionId": "P1", "count": 582}
+{"q": "(:q \"move left; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 584}
+{"q": "(:q \"move left; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 586}
+{"q": "(:q \"move left; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 588}
+{"q": "(:q \"repeat 2 times {visit room1 containing item has color green; pick item has color green; visit[1,1]; drop item}\")", "format": "lisp2json", "sessionId": "P3", "count": 590}
+{"q": "(:q \"repeat 2 times {visit room1 containing item has color yellow; pick item has color yellow; visit[1,1]; drop item}\")", "format": "lisp2json", "sessionId": "P3", "count": 592}
+{"q": "(:q \"visit world containing item has color red { pick item has color red }\")", "format": "lisp2json", "sessionId": "P1", "count": 594}
+{"q": "(:q \"visit world containing item has color red ; pick item has color red\")", "format": "lisp2json", "sessionId": "P1", "count": 596}
+{"q": "(:q \"while possible visit world containing item has color red { visit world containing item has color red ; pick item has color red }\")", "format": "lisp2json", "sessionId": "P1", "count": 598}
+{"q": "(:q \"visit world containing item has color red and has shape triangle\")", "format": "lisp2json", "sessionId": "P3", "count": 600}
+{"q": "(:q \"visit world containing item has color red and has shape triangle; pick item\")", "format": "lisp2json", "sessionId": "P3", "count": 602}
+{"q": "(:q \"while robot has item { drop item }\")", "format": "lisp2json", "sessionId": "P1", "count": 604}
+{"q": "(:q \"visit world containing item has color red\")", "format": "lisp2json", "sessionId": "P3", "count": 606}
+{"q": "(:q \"foreach point in world containing item has color red {visit point; pick item has color red}\")", "format": "lisp2json", "sessionId": "P3", "count": 608}
+{"q": "(:q \"foreach point in world containing item has color red {visit point; pick item has color red}; visit room1; drop every item\")", "format": "lisp2json", "sessionId": "P3", "count": 610}
+{"q": "(:q \"while possible visit world containing item has color blue { visit world containing item has color blue ; pick item has color blue }\")", "format": "lisp2json", "sessionId": "P1", "count": 612}
+{"q": "(:q \"visit room3\")", "format": "lisp2json", "sessionId": "P1", "count": 614}
+{"q": "(:q \"pick every blue item\")", "format": "lisp2json", "sessionId": "P3", "count": 616}
+{"q": "(:q \"drop\")", "format": "lisp2json", "sessionId": "P1", "count": 618}
+{"q": "(:q \"pick every item as color blue\")", "format": "lisp2json", "sessionId": "P3", "count": 620}
+{"q": "(:q \"while robot has item { drop item }\")", "format": "lisp2json", "sessionId": "P1", "count": 622}
+{"q": "(:q \"pick item as color blue\")", "format": "lisp2json", "sessionId": "P3", "count": 624}
+{"q": "(:q \"foreach are in rooms containing item has color blue {pick item has color blue}\")", "format": "lisp2json", "sessionId": "P3", "count": 626}
+{"q": "(:q \"foreach are in rooms containing item has color blue {visit are; pick item has color blue}\")", "format": "lisp2json", "sessionId": "P3", "count": 628}
+{"q": "(:q \"foreach are in rooms {visit are; pick item has color blue}\")", "format": "lisp2json", "sessionId": "P3", "count": 630}
+{"q": "(:q \"foreach area in rooms {visit area}\")", "format": "lisp2json", "sessionId": "P3", "count": 632}
+{"q": "(:q \"foreach area in rooms {visit area}\")", "format": "lisp2json", "sessionId": "P3", "count": 634}
+{"q": "(:q \"foreach area in world {visit area}\")", "format": "lisp2json", "sessionId": "P3", "count": 636}
+{"q": "(:q \"foreach point in world {visit point}\")", "format": "lisp2json", "sessionId": "P3", "count": 638}
+{"q": "(:q \"foreach point in world containing item has color blue {visit point; pick item has color blue}\")", "format": "lisp2json", "sessionId": "P3", "count": 640}
+{"q": "(:q \"while possible visit world containing item has color red { visit world containing item has color red; pick item has color red }\")", "format": "lisp2json", "sessionId": "P1", "count": 642}
+{"q": "(:q \"foreach point in world {if possible {strict {visit point; repeat 4 {drop item has color blue; move left}}}}\")", "format": "lisp2json", "sessionId": "P3", "count": 644}
+{"q": "(:q \"visit [0,0]\")", "format": "lisp2json", "sessionId": "P1", "count": 646}
+{"q": "(:q \"foreach point in world {if possible {strict {visit point; repeat 4 {drop item has color blue; move left}}} {visit point; repeat 4 {drop item has color blue}}\")", "format": "lisp2json", "sessionId": "P3", "count": 648}
+{"q": "(:q \"foreach point in world {visit point}\")", "format": "lisp2json", "sessionId": "P3", "count": 650}
+{"q": "(:q \"foreach point in world {if possible {strict {visit point}} {visit point}}\")", "format": "lisp2json", "sessionId": "P3", "count": 652}
+{"q": "(:q \"foreach point in world {if possible {strict {visit point; repeat 4 {drop item has color blue; move left}}} {visit point}}\")", "format": "lisp2json", "sessionId": "P3", "count": 654}
+{"q": "(:q \"if has item { visit world minus world }\")", "format": "lisp2json", "sessionId": "P1", "count": 656}
+{"q": "(:q \"if possible pick item { visit world minus world }\")", "format": "lisp2json", "sessionId": "P1", "count": 658}
+{"q": "(:q \"foreach point in world {if possible {visit point; repeat 4 {drop item has color blue; move left}} {visit point}}\")", "format": "lisp2json", "sessionId": "P3", "count": 660}
+{"q": "(:q \"foreach point in world {visit point; repeat 4 {drop item has color blue; move left}}\")", "format": "lisp2json", "sessionId": "P3", "count": 662}
+{"q": "(:q \"while robot has item { if possible pick item { visit world minus world }; drop item; move right }\")", "format": "lisp2json", "sessionId": "P1", "count": 664}
+{"q": "(:q \"foreach point in world {visit point}\")", "format": "lisp2json", "sessionId": "P3", "count": 666}
+{"q": "(:q \"foreach point in world {visit point; drop item has color blue}\")", "format": "lisp2json", "sessionId": "P3", "count": 668}
+{"q": "(:q \"foreach point in world {visit point; repeat 4 {drop item has color blue; move left}}\")", "format": "lisp2json", "sessionId": "P3", "count": 670}
+{"q": "(:q \"foreach point in world { if possible strict { while robot has item { if possible pick item { visit world minus world }; drop item; move right } }                                     { while robot has item { if possible pick item { visit world minus world }; drop item; move right } } }\")", "format": "lisp2json", "sessionId": "P1", "count": 672}
+{"q": "(:q \"foreach point in world {visit point; repeat 4 times {drop item has color blue; move left}}\")", "format": "lisp2json", "sessionId": "P3", "count": 674}
+{"q": "(:q \"move down\")", "format": "lisp2json", "sessionId": "P1", "count": 676}
+{"q": "(:q \"foreach point in world { if possible strict { visit point; while robot has item { if possible pick item { visit world minus world }; drop item; move right } }                                     { visit point; while robot has item { if possible pick item { visit world minus world }; drop item; move right } } }\")", "format": "lisp2json", "sessionId": "P1", "count": 678}
+{"q": "(:q \"foreach point in world {if possible {strict {visit point; repeat 4 times {drop item has color blue; move left}}} {visit point}}\")", "format": "lisp2json", "sessionId": "P3", "count": 680}
+{"q": "(:q \"foreach point in world containing item has color green {pick every item has color green}\")", "format": "lisp2json", "sessionId": "P3", "count": 682}
+{"q": "(:q \"while possible visit world containing item has color green { visit world containing item has color green ; pick item has color green }\")", "format": "lisp2json", "sessionId": "P1", "count": 684}
+{"q": "(:q \"foreach point in world containing item has color green {visit point; pick every item has color green}\")", "format": "lisp2json", "sessionId": "P3", "count": 686}
+{"q": "(:q \"while possible {drop item; move left}\")", "format": "lisp2json", "sessionId": "P3", "count": 688}
+{"q": "(:q \"while possible drop item { visit world minus world containing item; drop item }\")", "format": "lisp2json", "sessionId": "P1", "count": 690}
+{"q": "(:q \"while possible {drop item}\")", "format": "lisp2json", "sessionId": "P3", "count": 692}
+{"q": "(:q \"foreach point in { world minus {world containing item}} {visit point; if possible {drop item} {drop item}}\")", "format": "lisp2json", "sessionId": "P3", "count": 694}
+{"q": "(:q \"foreach point in { world minus {world containing item}} {if possible {visit point; drop item} {drop item}}\")", "format": "lisp2json", "sessionId": "P3", "count": 696}
+{"q": "(:q \"foreach point in { world minus {world containing item}} {if possible {visit point; drop item} {visit point; drop item}}\")", "format": "lisp2json", "sessionId": "P3", "count": 698}
+{"q": "(:q \"foreach point in world containing item has color red { visit point; pick every item has color red }\")", "format": "lisp2json", "sessionId": "P1", "count": 700}
+{"q": "(:q \"foreach point in world containing item has color blue { visit point; pick every item has color blue }\")", "format": "lisp2json", "sessionId": "P1", "count": 702}
+{"q": "(:q \"foreach point in world containing item {has color red} or {has color blue} {visit point}\")", "format": "lisp2json", "sessionId": "P3", "count": 704}
+{"q": "(:q \"foreach room in rooms { visit room; drop item }\")", "format": "lisp2json", "sessionId": "P1", "count": 706}
+{"q": "(:q \"foreach area in rooms { visit area; drop item }\")", "format": "lisp2json", "sessionId": "P1", "count": 708}
+{"q": "(:q \"foreach point in world containing item {has color red} or {has color blue} {visit point; if possible {pick item has color blue} {pick item has color blue}; if possible {pick item has color red} {pick item has color red}}\")", "format": "lisp2json", "sessionId": "P3", "count": 710}
+{"q": "(:q \"foreach room in rooms {visit room; drop item has color blue; drop item has color red}\")", "format": "lisp2json", "sessionId": "P3", "count": 712}
+{"q": "(:q \"foreach room in rooms {visit room}\")", "format": "lisp2json", "sessionId": "P3", "count": 714}
+{"q": "(:q \"foreach area in rooms {visit area}\")", "format": "lisp2json", "sessionId": "P3", "count": 716}
+{"q": "(:q \"foreach area in rooms {visit area; drop item has color blue; drop item has color red}\")", "format": "lisp2json", "sessionId": "P3", "count": 718}
+{"q": "(:q \"foreach point in world containing item has color red { visit point; pick every item has color red }\")", "format": "lisp2json", "sessionId": "P1", "count": 720}
+{"q": "(:q \"visit world containing item has color yellow and has shape square\")", "format": "lisp2json", "sessionId": "P1", "count": 722}
+{"q": "(:q \"drop every item\")", "format": "lisp2json", "sessionId": "P1", "count": 724}
+{"q": "(:q \"foreach point in world containing item { visit point; pick every item }\")", "format": "lisp2json", "sessionId": "P1", "count": 726}
+{"q": "(:q \"visit world minus room1 minus room2 minus room3 minus room4  minus room5\")", "format": "lisp2json", "sessionId": "P1", "count": 728}
+{"q": "(:q \"drop every ote,\")", "format": "lisp2json", "sessionId": "P1", "count": 730}
+{"q": "(:q \"drop every item\")", "format": "lisp2json", "sessionId": "P1", "count": 732}
+{"q": "(:q \"foreach point in world containing item has color red { visit point; pick every item has color red }\")", "format": "lisp2json", "sessionId": "P1", "count": 734}
+{"q": "(:q \"foreach point in world { if possible strict { visit point; while robot has item { if possible pick item { visit world minus world }; drop item; move right } }                                     { visit point; while robot has item { if possible pick item { visit world minus world }; drop item; move right } } }\")", "format": "lisp2json", "sessionId": "P1", "count": 736}
+{"q": "(:q \"foreach point in world containing item has color yellow { visit point; pick every item has color yellow }\")", "format": "lisp2json", "sessionId": "P1", "count": 738}
+{"q": "(:q \"foreach point in world { if possible strict { visit point; while robot has item { if possible pick item { visit world minus world }; drop item; move right } }                                     { visit point; while robot has item { if possible pick item { visit world minus world }; drop item; move right } } }\")", "format": "lisp2json", "sessionId": "P1", "count": 740}
+{"q": "(:q \"foreach point in world containing item has color blue { visit point; pick every item has color blue }\")", "format": "lisp2json", "sessionId": "P1", "count": 742}
+{"q": "(:q \"foreach point in world { if possible strict { visit point; while robot has item { if possible pick item { visit world minus world }; drop item; move right } }                                     { visit point; while robot has item { if possible pick item { visit world minus world }; drop item; move right } } }\")", "format": "lisp2json", "sessionId": "P1", "count": 744}
+{"q": "(:q \"foreach point in world containing item has color green { visit point; pick every item has color green }\")", "format": "lisp2json", "sessionId": "P1", "count": 746}
+{"q": "(:q \"foreach point in world { if possible strict { visit point; while robot has item { if possible pick item { visit world minus world }; drop item; move right } }                                     { visit point; while robot has item { if possible pick item { visit world minus world }; drop item; move right } } }\")", "format": "lisp2json", "sessionId": "P1", "count": 748}
+{"q": "(:q \"foreach point in world containing item has color green {visit point; pick every item has color green}\")", "format": "lisp2json", "sessionId": "P3", "count": 780}
+{"q": "(:q \"foreach point in world containing item has color green {visit point; pick every item has color green}; visit [0,0]; drop every item\")", "format": "lisp2json", "sessionId": "P3", "count": 782}
+{"q": "(:q \"foreach point in world containing item has color red {visit point; pick every item has color red}; visit [1,1]; drop every item\")", "format": "lisp2json", "sessionId": "P3", "count": 784}
+{"q": "(:q \"foreach point in world containing item has color yellow {visit point; pick every item has color yellow}; visit [3,4]; drop every item\")", "format": "lisp2json", "sessionId": "P3", "count": 786}
+{"q": "(:q \"foreach point in world containing item has color blue {visit point; pick every item has color blue}; visit [5,8]; drop every item\")", "format": "lisp2json", "sessionId": "P3", "count": 788}
+{"q": "(:q \"foreach point in world containing item has color red {visit point; pick every item has color red}\")", "format": "lisp2json", "sessionId": "P3", "count": 790}
+{"q": "(:q \"foreach room in rooms containing item has color yellow and has shape square {visit room}\")", "format": "lisp2json", "sessionId": "P3", "count": 792}
+{"q": "(:q \"foreach room in world containing item has color yellow and has shape square {visit room}\")", "format": "lisp2json", "sessionId": "P3", "count": 794}
+{"q": "(:q \"foreach point in world containing item has color yellow {visit point}\")", "format": "lisp2json", "sessionId": "P3", "count": 796}
+{"q": "(:q \"foreach point in world containing item has color yellow and has shape square{visit point}\")", "format": "lisp2json", "sessionId": "P3", "count": 798}
+{"q": "(:q \"foreach point in rooms containing item has color yellow and has shape square{visit point}\")", "format": "lisp2json", "sessionId": "P3", "count": 800}
+{"q": "(:q \"foreach point in world containing item has color yellow and has shape square{visit point; drop every item}\")", "format": "lisp2json", "sessionId": "P3", "count": 802}
+{"q": "(:q \"foreach area in rooms {visit area|\")", "format": "lisp2json", "sessionId": "P3", "count": 804}
+{"q": "(:q \"foreach area in rooms {visit area}\")", "format": "lisp2json", "sessionId": "P3", "count": 806}
+{"q": "(:q \"pick every red item\")", "format": "lisp2json", "sessionId": "P3", "count": 808}
+{"q": "(:q \"pick every item has color red\")", "format": "lisp2json", "sessionId": "P3", "count": 810}
+{"q": "(:q \"foreach point in world containing item has color red {visit point; pick every item has color red}; visit room1\")", "format": "lisp2json", "sessionId": "P3", "count": 812}
+{"q": "(:q \"foreach point in world containing item has color red {visit point; pick every item has color red}; visit room1; drop every item\")", "format": "lisp2json", "sessionId": "P3", "count": 814}
+{"q": "(:q \"foreach point in room1 containing item not has color red {visit point}\")", "format": "lisp2json", "sessionId": "P3", "count": 816}
+{"q": "(:q \"foreach point in room1 containing item not has color red {visit point; pick every item}\")", "format": "lisp2json", "sessionId": "P3", "count": 818}
+{"q": "(:q \"foreach point in world containing item has color blue {visit point; pick every item has color blue}; visit room2;\")", "format": "lisp2json", "sessionId": "P3", "count": 820}
+{"q": "(:q \"foreach point in world containing item has color blue {visit point; pick every item has color blue}; visit room2; drop every item\")", "format": "lisp2json", "sessionId": "P3", "count": 822}
+{"q": "(:q \"foreach point in room2 containing item not has color blue {visit point; pick every item}\")", "format": "lisp2json", "sessionId": "P3", "count": 824}
+{"q": "(:q \"foreach point in world containing item has color yellow {visit point; pick every item has color yellow}\")", "format": "lisp2json", "sessionId": "P3", "count": 826}
+{"q": "(:q \"visit room3\")", "format": "lisp2json", "sessionId": "P3", "count": 828}
+{"q": "(:q \"drop every item\")", "format": "lisp2json", "sessionId": "P3", "count": 830}
+{"q": "(:q \"drop every item\")", "format": "lisp2json", "sessionId": "P3", "count": 832}
+{"q": "(:q \"foreach point in room3 containing item not has color yellow {visit point; pick every item}\")", "format": "lisp2json", "sessionId": "P3", "count": 834}
+{"q": "(:q \"foreach point in room5 containing item {visit point; pick every item}; drop every item\")", "format": "lisp2json", "sessionId": "P3", "count": 836}
+{"q": "(:q \"foreach point in world containing item {visit point; foreach point in {world  minus {world containing item}} {visit point}}\")", "format": "lisp2json", "sessionId": "P3", "count": 838}
+{"q": "(:q \"foreach point in world containing item {visit point; pick every item; foreach point in {world  minus {world containing item}} {visit point}}\")", "format": "lisp2json", "sessionId": "P3", "count": 840}
+{"q": "(:q \"foreach point in world containing item {visit point; pick every item; foreach point in {world  minus {world containing item}} { if possible {strict { visit point; drop item; move up; drop item }} {visit point; drop item; move up; drop item; if possible {move up; drop item} {move up; drop item}}}\")", "format": "lisp2json", "sessionId": "P3", "count": 842}
+{"q": "(:q \"foreach point in world containing item {visit point; pick every item; foreach point in {world  minus {world containing item}} { if possible {strict { visit point; drop item; move up; drop item }} {visit point; drop item; move up; drop item }}}\")", "format": "lisp2json", "sessionId": "P3", "count": 844}
+{"q": "(:q \"foreach point in world containing item {visit point; pick every item; foreach point in {world  minus {world containing item}} { if possible {strict { visit point; drop item; move up; drop item }} {visit point; drop item; move up; drop item; if possible {move up; drop item} {move up; drop item} }}}\")", "format": "lisp2json", "sessionId": "P3", "count": 846}
+{"q": "(:q \"foreach point in world containing item {visit point; pick every item; foreach point in {world  minus {world containing item}} { if possible {strict { visit point; while robot has item {drop item; move up}}} {visit point; drop item; move up; drop item; if possible {move up; drop item} {move up; drop item} }}}\")", "format": "lisp2json", "sessionId": "P3", "count": 848}
+{"q": "(:q \"foreach point in world containing item {visit point; pick every item; foreach point in {world  minus {world containing item}} { if possible {strict { visit point; while robot has item {drop item; move up}}} {visit point; while robot has item {drop item; move up} }}}\")", "format": "lisp2json", "sessionId": "P3", "count": 850}
+{"q": "(:q \"foreach point in world containing item {visit point; pick every item; foreach point in {world  minus {world containing item}} { if possible {strict { visit point; drop item; move up; while robot has item {drop item; move up}}} {visit point; while robot has item {drop item; move up} }}}\")", "format": "lisp2json", "sessionId": "P3", "count": 852}
+{"q": "(:q \"foreach point in {world minus {world containing item}} containing item {visit point; pick every item; foreach point in {world  minus {world containing item}} { if possible {strict { visit point; drop item; move up; while robot has item {drop item; move up}}} {visit point; while robot has item {drop item; move up} }}}\")", "format": "lisp2json", "sessionId": "P3", "count": 854}
+{"q": "(:q \"foreach point in world containing item {visit point; pick every item; foreach point in {world  minus {world containing item}} { if possible {strict { visit point; drop item; move up; while robot has item {drop item; move up}}} {visit point; while robot has item {drop item; move up} }}}\")", "format": "lisp2json", "sessionId": "P3", "count": 856}
+{"q": "(:q \"move left\")", "format": "lisp2json", "sessionId": "P2", "count": 858}
+{"q": "(:q \"move down\")", "format": "lisp2json", "sessionId": "P2", "count": 860}
+{"q": "(:q \"move right; move right; move right; move up\")", "format": "lisp2json", "sessionId": "P2", "count": 862}
+{"q": "(:q \"visit room1\")", "format": "lisp2json", "sessionId": "P2", "count": 864}
+{"q": "(:q \"foreach area in rooms containing item {visit area; pickup item}\")", "format": "lisp2json", "sessionId": "P2", "count": 866}
+{"q": "(:q \"visit world containing item\")", "format": "lisp2json", "sessionId": "P2", "count": 868}
+{"q": "(:q \"visit world containing item\")", "format": "lisp2json", "sessionId": "P2", "count": 870}
+{"q": "(:q \"pick every item\")", "format": "lisp2json", "sessionId": "P2", "count": 872}
+{"q": "(:q \"visist world containing item\")", "format": "lisp2json", "sessionId": "P2", "count": 874}
+{"q": "(:q \"visit world containing item\")", "format": "lisp2json", "sessionId": "P2", "count": 876}
+{"q": "(:q \"pick every item\")", "format": "lisp2json", "sessionId": "P2", "count": 878}
+{"q": "(:q \"visit world containing item\")", "format": "lisp2json", "sessionId": "P2", "count": 880}
+{"q": "(:q \"pick every item\")", "format": "lisp2json", "sessionId": "P2", "count": 882}
+{"q": "(:q \"visit world containing item\")", "format": "lisp2json", "sessionId": "P2", "count": 884}
+{"q": "(:q \"pick every item\")", "format": "lisp2json", "sessionId": "P2", "count": 886}
+{"q": "(:q \"visit world containing item\")", "format": "lisp2json", "sessionId": "P2", "count": 888}
+{"q": "(:q \"pick every item\")", "format": "lisp2json", "sessionId": "P2", "count": 890}
+{"q": "(:q \"visit room1\")", "format": "lisp2json", "sessionId": "P2", "count": 892}
+{"q": "(:q \"pick every item\")", "format": "lisp2json", "sessionId": "P2", "count": 894}
+{"q": "(:q \"visit room1\")", "format": "lisp2json", "sessionId": "P2", "count": 896}
+{"q": "(:q \"drop every item\")", "format": "lisp2json", "sessionId": "P2", "count": 898}
+{"q": "(:q \"pick every item has color red\")", "format": "lisp2json", "sessionId": "P2", "count": 900}
+{"q": "(:q \"move left\")", "format": "lisp2json", "sessionId": "P2", "count": 902}
+{"q": "(:q \"visit room2\")", "format": "lisp2json", "sessionId": "P2", "count": 904}
+{"q": "(:q \"drop item has color red and has shape circle\")", "format": "lisp2json", "sessionId": "P2", "count": 906}
+{"q": "(:q \"drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 908}
+{"q": "(:q \"visit room3\")", "format": "lisp2json", "sessionId": "P2", "count": 910}
+{"q": "(:q \"drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 912}
+{"q": "(:q \"visit room has item has color red\")", "format": "lisp2json", "sessionId": "P2", "count": 914}
+{"q": "(:q \"visit room containing item has color red\")", "format": "lisp2json", "sessionId": "P2", "count": 916}
+{"q": "(:q \"visit world containing item has color red\")", "format": "lisp2json", "sessionId": "P2", "count": 918}
+{"q": "(:q \"visit world containing item has color red\")", "format": "lisp2json", "sessionId": "P2", "count": 920}
+{"q": "(:q \"pick item has color red\")", "format": "lisp2json", "sessionId": "P2", "count": 922}
+{"q": "(:q \"visit world containing item has color red\")", "format": "lisp2json", "sessionId": "P2", "count": 924}
+{"q": "(:q \"pick item has color red\")", "format": "lisp2json", "sessionId": "P2", "count": 926}
+{"q": "(:q \"visit room3\")", "format": "lisp2json", "sessionId": "P2", "count": 928}
+{"q": "(:q \"drop every item\")", "format": "lisp2json", "sessionId": "P2", "count": 930}
+{"q": "(:q \"drop every item\")", "format": "lisp2json", "sessionId": "P2", "count": 932}
+{"q": "(:q \"visit world containing item has color green\")", "format": "lisp2json", "sessionId": "P2", "count": 934}
+{"q": "(:q \"pick every item has color green\")", "format": "lisp2json", "sessionId": "P2", "count": 936}
+{"q": "(:q \"visit world containing item has color green\")", "format": "lisp2json", "sessionId": "P2", "count": 938}
+{"q": "(:q \"visit world containing item has color red\")", "format": "lisp2json", "sessionId": "P2", "count": 940}
+{"q": "(:q \"drop every item\")", "format": "lisp2json", "sessionId": "P2", "count": 942}
+{"q": "(:q \"visit world containing item has color blue\")", "format": "lisp2json", "sessionId": "P2", "count": 944}
+{"q": "(:q \"pick item\")", "format": "lisp2json", "sessionId": "P2", "count": 946}
+{"q": "(:q \"visit world containing item has color blue\")", "format": "lisp2json", "sessionId": "P2", "count": 948}
+{"q": "(:q \"pick item has color blue\")", "format": "lisp2json", "sessionId": "P2", "count": 950}
+{"q": "(:q \"visit world containing item has color green and has shape square\")", "format": "lisp2json", "sessionId": "P2", "count": 952}
+{"q": "(:q \"drop every item\")", "format": "lisp2json", "sessionId": "P2", "count": 954}
+{"q": "(:q \"visit world containing item has color red and has shape triangle\")", "format": "lisp2json", "sessionId": "P2", "count": 956}
+{"q": "(:q \"pick item has color red and has shape triangle\")", "format": "lisp2json", "sessionId": "P2", "count": 958}
+{"q": "(:q \"visit world containing item has color red\")", "format": "lisp2json", "sessionId": "P2", "count": 960}
+{"q": "(:q \"visit world containing item has color red\")", "format": "lisp2json", "sessionId": "P2", "count": 962}
+{"q": "(:q \"visit world containing item has color red\")", "format": "lisp2json", "sessionId": "P2", "count": 964}
+{"q": "(:q \"visit world containing item has color red\")", "format": "lisp2json", "sessionId": "P2", "count": 966}
+{"q": "(:q \"pick item has color red\")", "format": "lisp2json", "sessionId": "P2", "count": 968}
+{"q": "(:q \"visit world containing item has color red\")", "format": "lisp2json", "sessionId": "P2", "count": 970}
+{"q": "(:q \"pick item has color red\")", "format": "lisp2json", "sessionId": "P2", "count": 972}
+{"q": "(:q \"visit world containing item has color blue\")", "format": "lisp2json", "sessionId": "P2", "count": 974}
+{"q": "(:q \"pick item has color blue\")", "format": "lisp2json", "sessionId": "P2", "count": 976}
+{"q": "(:q \"visit world containing item has color blue\")", "format": "lisp2json", "sessionId": "P2", "count": 978}
+{"q": "(:q \"pick item has color blue\")", "format": "lisp2json", "sessionId": "P2", "count": 980}
+{"q": "(:q \"visit world containing item has color blue\")", "format": "lisp2json", "sessionId": "P2", "count": 982}
+{"q": "(:q \"pick item has color blue\")", "format": "lisp2json", "sessionId": "P2", "count": 984}
+{"q": "(:q \"visit room3\")", "format": "lisp2json", "sessionId": "P2", "count": 986}
+{"q": "(:q \"visit room3\")", "format": "lisp2json", "sessionId": "P2", "count": 988}
+{"q": "(:q \"drop every item has color blue\")", "format": "lisp2json", "sessionId": "P2", "count": 990}
+{"q": "(:q \"foreach point in world containing item has color red  { visit point; pick item }\")", "format": "lisp2json", "sessionId": "P2", "count": 992}
+{"q": "(:q \"foreach point in world containing item has color red { visit point; pick item has color red}\")", "format": "lisp2json", "sessionId": "P2", "count": 994}
+{"q": "(:q \"move left; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 996}
+{"q": "(:q \"move left; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 998}
+{"q": "(:q \"move left; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 1000}
+{"q": "(:q \"foreach point in world containing item has color green{ visit point; pick item has color green }\")", "format": "lisp2json", "sessionId": "P2", "count": 1002}
+{"q": "(:q \"pick item\")", "format": "lisp2json", "sessionId": "P2", "count": 1004}
+{"q": "(:q \"move left; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 1006}
+{"q": "(:q \"move left; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 1008}
+{"q": "(:q \"move left; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 1010}
+{"q": "(:q \"visit world containing item has color red\")", "format": "lisp2json", "sessionId": "P2", "count": 1012}
+{"q": "(:q \"pick item; visit world containing item has color yellow\")", "format": "lisp2json", "sessionId": "P2", "count": 1014}
+{"q": "(:q \"pick item\")", "format": "lisp2json", "sessionId": "P2", "count": 1016}
+{"q": "(:q \"visit world containing item has color yellow and shape triangle\")", "format": "lisp2json", "sessionId": "P2", "count": 1018}
+{"q": "(:q \"visit world containing item has color yellow and has shape triangle\")", "format": "lisp2json", "sessionId": "P2", "count": 1020}
+{"q": "(:q \"drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 1022}
+{"q": "(:q \"foreach point in world containing item has color red { visit point; pick item has color red }\")", "format": "lisp2json", "sessionId": "P2", "count": 1024}
+{"q": "(:q \"visit [0,0]\")", "format": "lisp2json", "sessionId": "P2", "count": 1026}
+{"q": "(:q \"drop every item\")", "format": "lisp2json", "sessionId": "P2", "count": 1028}
+{"q": "(:q \"foreach point in world containing item has color blue { visit point; pick item has color blue}\")", "format": "lisp2json", "sessionId": "P2", "count": 1030}
+{"q": "(:q \"visit [1,1]\")", "format": "lisp2json", "sessionId": "P2", "count": 1032}
+{"q": "(:q \"drop every item\")", "format": "lisp2json", "sessionId": "P2", "count": 1034}
+{"q": "(:q \"foreach point in world containing item has color green { visit point; pick item has color green }\")", "format": "lisp2json", "sessionId": "P2", "count": 1036}
+{"q": "(:q \"pick item\")", "format": "lisp2json", "sessionId": "P2", "count": 1038}
+{"q": "(:q \"visit [3,4]\")", "format": "lisp2json", "sessionId": "P2", "count": 1040}
+{"q": "(:q \"drop every item\")", "format": "lisp2json", "sessionId": "P2", "count": 1042}
+{"q": "(:q \"foreach point in world containing item has color yellow { visit point; pick item has color yellow }\")", "format": "lisp2json", "sessionId": "P2", "count": 1044}
+{"q": "(:q \"visit [5,8]\")", "format": "lisp2json", "sessionId": "P2", "count": 1046}
+{"q": "(:q \"drop every item\")", "format": "lisp2json", "sessionId": "P2", "count": 1048}
+{"q": "(:q \"foreach point in world containing item has color red  { visit point; pick every item has color red }\")", "format": "lisp2json", "sessionId": "P2", "count": 1050}
+{"q": "(:q \"visit world containing item has color yellow and has shape square\")", "format": "lisp2json", "sessionId": "P2", "count": 1052}
+{"q": "(:q \"move left; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 1054}
+{"q": "(:q \"move left; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 1056}
+{"q": "(:q \"move left; drop itemmove left; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 1058}
+{"q": "(:q \"move left; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 1060}
+{"q": "(:q \"move left; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 1062}
+{"q": "(:q \"foreach point in world containing item has color yellow{ visit point; pick every item has color yellow }\")", "format": "lisp2json", "sessionId": "P2", "count": 1064}
+{"q": "(:q \"visit room containing no item\")", "format": "lisp2json", "sessionId": "P2", "count": 1066}
+{"q": "(:q \"visit room not containing item\")", "format": "lisp2json", "sessionId": "P2", "count": 1068}
+{"q": "(:q \"visit rooms not containing item\")", "format": "lisp2json", "sessionId": "P2", "count": 1070}
+{"q": "(:q \"visit rooms minus {rooms containing item}\")", "format": "lisp2json", "sessionId": "P2", "count": 1072}
+{"q": "(:q \"drop every item\")", "format": "lisp2json", "sessionId": "P2", "count": 1074}
+{"q": "(:q \"foreach point in world containing item has color green { visit point; pick every item has color green}\")", "format": "lisp2json", "sessionId": "P2", "count": 1076}
+{"q": "(:q \"visit rooms minus {rooms containing item}\")", "format": "lisp2json", "sessionId": "P2", "count": 1078}
+{"q": "(:q \"drop every item\")", "format": "lisp2json", "sessionId": "P2", "count": 1080}
+{"q": "(:q \"foreach point in world containing item has color blue { visit point; pick item }\")", "format": "lisp2json", "sessionId": "P2", "count": 1082}
+{"q": "(:q \"visit rooms minus {rooms containing item}\")", "format": "lisp2json", "sessionId": "P2", "count": 1084}
+{"q": "(:q \"drop every item\")", "format": "lisp2json", "sessionId": "P2", "count": 1086}
+{"q": "(:q \"move right; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 1088}
+{"q": "(:q \"move right; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 1090}
+{"q": "(:q \"move right; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 1092}
+{"q": "(:q \"move right; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 1094}
+{"q": "(:q \"move up; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 1096}
+{"q": "(:q \"visit world containing item has color yellow\")", "format": "lisp2json", "sessionId": "P2", "count": 1098}
+{"q": "(:q \"pick every item\")", "format": "lisp2json", "sessionId": "P2", "count": 1100}
+{"q": "(:q \"move right; drop item; move right; drop item; move right; drop item\")", "format": "lisp2json", "sessionId": "P2", "count": 1102}
+{"q": "(:q \"visit world containing item has color green\")", "format": "lisp2json", "sessionId": "P2", "count": 1104}
+{"q": "(:q \"pick every item\")", "format": "lisp2json", "sessionId": "P2", "count": 1106}
+{"q": "(:q \"drop item; move left; drop item; move left; drop item;\")", "format": "lisp2json", "sessionId": "P2", "count": 1108}
