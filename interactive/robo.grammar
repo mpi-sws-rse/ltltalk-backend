@@ -48,6 +48,22 @@
 )
 
 
+(rule 
+	$Action 
+	(visit $AreaCollections while avoiding $Areas) 
+	(lambda a1
+		(lambda a2 
+			(: 
+				@visitAreaCollections 
+		 		(var a1)
+		 		(var a2)
+		 	)
+		)
+	) 
+	(anchored true)
+)
+
+
 (rule
 	$Action
 	(visit $AreaCollections)
