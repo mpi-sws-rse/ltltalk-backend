@@ -20,12 +20,15 @@ public class ValueFormula<T extends Value> extends PrimitiveFormula {
 
   @Override
   public String prettyString(){
-	  //LogInfo.logs("value is of class %s", this.value.getClass());
-	  if (value.sortString().equals("items?color")){
-		  return "has color";
+	  //LogInfo.logs("value is %s of class %s and its sortString is %s", this.value, this.value.getClass(), this.value.sortString());
+	  if (value.sortString().equals("items?property")){
+		  return "has";
 	  }
-	  if (value.sortString().equals("items?shape")){
-		  return "has shape";
+	  else if (value.sortString().equals("triangle") || value.sortString().equals("circle") || value.sortString().equals("square")){
+		  return "shape "+this.value.contentString();
+	  }
+	  else if (value.sortString().equals("red") || value.sortString().equals("blue") || value.sortString().equals("green") || value.sortString().equals("yellow")){
+		  return "color "+this.value.contentString();
 	  }
 	  else if (value.sortString().equals("all_rooms")){
 		  return "rooms";

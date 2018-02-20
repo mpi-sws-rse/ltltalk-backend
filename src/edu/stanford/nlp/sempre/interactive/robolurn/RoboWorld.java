@@ -195,21 +195,34 @@ public class RoboWorld extends World {
     return world;
   }
 
+  
+  
+//  public Set<? extends Block> hasProperty(String property, String value){
+//	  
+//  }
   /**
    * Return the set of objects filtered by the specified `rel` and `values`
    */
   @Override
   public Set<? extends Block> has(String rel, Set<Object> values) {
-	//LogInfo.logs("has function. rel = %s, values = %s", rel, values);
     String[] qualifiedRel = rel.split("\\?");
+	//String[] qualifiedRel;
+    if (values.size() > 1){
+    	throw new RuntimeException(values + " is more than one");
+    }
+    if (values.contains("circle") || values.contains("square") || values.contains("triangle"))
+    {
+    	qualifiedRel[1] = "shape";
+    }
+    else
+    {
+    	qualifiedRel[1] = "color";
+    }
     if (qualifiedRel.length < 2)
       throw new RuntimeException(rel + " must be qualified with items?rel or walls?rel");
 
     if ("items".equals(qualifiedRel[0])) {
       if ("color".equals(qualifiedRel[1])
-          || "type".equals(qualifiedRel[1])
-          || "carried".equals(qualifiedRel[1])
-          || "point".equals(qualifiedRel[1])
           || "shape".equals(qualifiedRel[1])) {
         @SuppressWarnings("unchecked")
         Set<Item> set = (Set<Item>) items.stream()
@@ -397,7 +410,6 @@ public class RoboWorld extends World {
   }
   
   public Set<?> setOfLocationsDifference(Set<Object> a1, Set<Object> a2){
-	  LogInfo.logs("a1 = %s, a2 = %s", a1, a2);
 	  Set<?> difference = a1.stream()
 			  .filter(r -> !a2.contains(r))
 			  .collect(Collectors.toSet());

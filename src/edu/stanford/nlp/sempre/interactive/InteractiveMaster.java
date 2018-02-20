@@ -88,7 +88,7 @@ public class InteractiveMaster extends Master {
 
 	@Override
 	public Response processQuery(Session session, String line) {
-		LogInfo.begin_track_printAll("InteractiveMaster.processQuery");
+		
 		if (opts.verbose > 1) {
 			
 			LogInfo.logs("session %s", session.id);
@@ -103,12 +103,14 @@ public class InteractiveMaster extends Master {
 		else
 			handleCommand(session, String.format("(:q \"%s\")", line), response);
 		
-		LogInfo.end_track();
+		
 
 		return response;
 	}
 
 	void handleCommand(Session session, String line, Response response) {
+		LogInfo.logs("handle command");
+		LogInfo.begin_track_printAll("InteractiveMaster.handleCommand");
 		LispTree tree = LispTree.proto.parseFromString(line);
 		tree = builder.grammar.applyMacros(tree);
 
@@ -117,6 +119,7 @@ public class InteractiveMaster extends Master {
 
 		// Start of interactive commands
 		if (command.equals(":q")) {
+			LogInfo.logs("received a command");
 			
 			// Create example
 			String utt = tree.children.get(1).value;
@@ -145,6 +148,11 @@ public class InteractiveMaster extends Master {
 				for (Derivation d : response.ex.getPredDerivations()) {
 					LogInfo.logs("derivation: \t%s",d.getFormula().prettyString());
 					LogInfo.logs("formula: \t%s",d.getFormula());
+					
+					if (opts.verbose > 2){
+						d.printDerivationRecursively();
+					}
+					
 				}
 				
 
@@ -293,6 +301,7 @@ public class InteractiveMaster extends Master {
 		} else {
 			LogInfo.log("Invalid command: " + tree);
 		}
+		LogInfo.end_track();
 
 	}
 

@@ -284,9 +284,33 @@
 (rule $Item (item $PropertySets) (IdentityFn) (anchored true))
 
 #function RoboWorld.has
-(rule $PropertySet (has $RelColor $Color) (lambda r (lambda c ((var r) (var c)))) (anchored true))
-(rule $PropertySet (has $RelShape $Shape) (lambda r (lambda c ((var r) (var c)))) (anchored true))
+(rule 
+	$PropertySet 
+	(has $Rel $Property) 
+	(lambda r 
+		(lambda c 
+			(
+				(var r) 
+				(var c)
+			)
+		)
+	)
+	(anchored true)
+)
 
+(rule 
+	$Property 
+	($Color) 
+	(IdentityFn) 
+	(anchored true)
+)
+
+(rule 
+	$Property 
+	($Shape) 
+	(IdentityFn)
+	(anchored true)
+)
 
 (rule $PropertySets ($PropertySet) (IdentityFn) (anchored true))
 (rule $PropertySet ( { $PropertySets } ) (IdentityFn) (anchored true))
@@ -308,9 +332,34 @@
 					(or (var s1) (var s2)))) (anchored true))
 
 
-(rule $RelColor (color) items?color (anchored true))
-(rule $RelShape (shape) items?shape (anchored true))
+(rule 
+	$RelColor 
+	(color) 
+	items?property 
+	(anchored true)
+)
 
+(rule 
+	$Rel 
+	($RelColor) 
+	(IdentityFn) 
+	(anchored true)
+)
+
+
+(rule 
+	$RelShape 
+	(shape) 
+	items?property
+	(anchored true)
+)
+
+(rule 
+	$Rel 
+	($RelShape) 
+	(IdentityFn)
+	(anchored true)
+)
 
 
 ### Data type definitions ###
