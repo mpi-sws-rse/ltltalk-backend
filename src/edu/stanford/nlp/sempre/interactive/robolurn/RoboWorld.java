@@ -346,7 +346,7 @@ public class RoboWorld extends World {
 //        .filter(i -> ! i.isCarried())
 //        .map(i -> i.point).collect(Collectors.toSet());
 	Set<Point> itemArea = pointsFromItems(itemSet);
-    return Sets.intersection(area, itemArea);
+    return new HashSet(Sets.intersection(area, itemArea));
   }
   
   /* returns all points containing items specified by itemSet */
@@ -504,7 +504,10 @@ public class RoboWorld extends World {
 	  return false;
   }
   protected boolean gotoSetOfPoints(Set<Point> goalSet, Set<Point> avoidSet) {
-	    avoidSet.addAll(walls.stream().map(w -> w.point).collect(Collectors.toList()));
+	  avoidSet = avoidSet.stream().filter(w -> !(goalSet.contains(w))).collect(Collectors.toSet());
+	  List<Point> forbiddenLocations = walls.stream().map(w -> w.point).collect(Collectors.toList());
+	  avoidSet.addAll(forbiddenLocations);
+	    
 	    List<PathElement> path = PathFinder.findPath(
 	            avoidSet,
 	            new Point(robot.point.x, robot.point.y),
