@@ -301,10 +301,12 @@ public class DALExecutor extends Executor {
     }
 
     if (formula instanceof JoinFormula) {
+    	
       JoinFormula joinFormula = (JoinFormula) formula;
       if (joinFormula.relation instanceof ValueFormula) {
         String rel = ((ValueFormula<NameValue>) joinFormula.relation).value.id;
         Set<Object> unary = toSet(processSetFormula(joinFormula.child, world));
+        
         return world.has(rel, unary);
       } else if (joinFormula.relation instanceof ReverseFormula) {
         ReverseFormula reverse = (ReverseFormula) joinFormula.relation;
