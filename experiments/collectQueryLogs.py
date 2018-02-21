@@ -8,12 +8,20 @@ import csv
 the whole "special condition" part is becuase there were few mistakes in the experiment
  1. I didn't reset the log file after the tutorial. therefore, it contained their tutorial attempts. that's why we have startingPoints that describe where for each participant the tutorial stops
  2. we were short on time and then two participants had a break before continuing. That assigned them different session ids. THat's why I have artificial session ids now (P1, P2, P3)
+ 
+ ---
+ 
+ also, for it is changed for the second group:
+ 1. one participant continued experimenting even after he finished all the tasks (that's why now it is eliminated if it exceeds the count of his last query)
 """
-sessionIds = {"kamqupluqc":"P1", "4whvuab45y":"P2", "c70jstrl5l":"P2", "mrb7cylagj":"P3", "g8o4jp76a":"P3"}
-startingPoints = {"P1" : 334, "P3" : 210, "P2":345}
+#sessionIds = {"kamqupluqc":"P1", "4whvuab45y":"P2", "c70jstrl5l":"P2", "mrb7cylagj":"P3", "g8o4jp76a":"P3"}
+#startingPoints = {"P1" : 334, "P3" : 210, "P2":345}
+
+sessionIds = {"vmdwsrp3a4":"B1", "brv6imuw4t":"B2", "x1z4imvyyc":"B3", "70wnvrj0uk":"B4" }
+startingPoints = {"B1" : 679, "B3" : 2000, "B2":2000, "B4":2000}
 
 def transformIncomingJson(jsonInput, specialConditions = False):
-    if jsonInput['q'].startswith("(:context"):
+    if jsonInput['q'].startswith("(:context") or jsonInput['q'].startswith("(:def"):
         return None
     if specialConditions == True:
         try:
@@ -22,7 +30,7 @@ def transformIncomingJson(jsonInput, specialConditions = False):
             print(jsonInput["sessionId"])
             print("unkonwn id")
             return None
-        if jsonInput["count"] <= startingPoints[id]:
+        if jsonInput["count"] >= startingPoints[id]:
             return None
         else:
             jsonInput["sessionId"] = id
@@ -37,7 +45,7 @@ def transformIncomingJson(jsonInput, specialConditions = False):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--special_conditions", dest="specialConditions", default = False)
+    parser.add_argument("--special_conditions", dest="specialConditions", action='store_true', default = False)
     parser.add_argument("--query_log_file", dest="queryLogFile", default= "groupA.log")
     parser.add_argument("--cleaned_output_file", dest = "outputFile")
     parser.add_argument("--statistics_file", dest = "statisticsFile", default = "statistics.csv")
@@ -50,6 +58,7 @@ def main():
     outputFile = args.outputFile
     statisticsFile = args.statisticsFile
     group = args.group
+    pdb.set_trace()
     
     if group == None:
         raise Exception("no group was given")
