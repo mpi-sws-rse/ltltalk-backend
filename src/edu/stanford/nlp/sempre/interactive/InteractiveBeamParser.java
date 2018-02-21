@@ -201,6 +201,7 @@ class InteractiveBeamParserState extends ChartParserState {
       addToChart(deriv);
     }
     
+    
     if (Parser.opts.verbose >4){
     	LogInfo.logs("before recursive case:");
     	visualizeChart();	

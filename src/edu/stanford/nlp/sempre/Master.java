@@ -53,6 +53,11 @@ public class Master {
     // Detailed information
     public Map<String, Object> stats = new LinkedHashMap<>();
     public List<String> lines = new ArrayList<>();
+    
+    public boolean isSuggestedFormulaInduced(){
+		Derivation d = getDerivation();
+		return !d.allAnchored();
+	}
 
     public String getFormulaAnswer() {
     	LogInfo.logs("size of derivations = %d", ex.getPredDerivations().size());
@@ -136,6 +141,8 @@ public class Master {
     Server server = new Server(this);
     server.run();;
   }
+  
+  
   
   public void runInteractivePrompt() {
     Session session = getSession("stdin");

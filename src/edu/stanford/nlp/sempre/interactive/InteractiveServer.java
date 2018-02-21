@@ -195,7 +195,7 @@ public class InteractiveServer {
               item.put("value", "[[]]");
             item.put("score", deriv.getScore());
             item.put("prob", deriv.getProb());
-            item.put("anchored", deriv.allAnchored); // used only anchored rules
+            item.put("anchored", deriv.allAnchored()); // used only anchored rules
             item.put("formula", deriv.formula.toLispTree().toString());
             items.add(item);
           }
@@ -266,7 +266,7 @@ public class InteractiveServer {
 
       // Print header
       setHeaders("application/json");
-
+      
       Master.Response masterResponse = null;
       if (query != null) {
         masterResponse = processQuery(session, query);
@@ -293,6 +293,7 @@ public class InteractiveServer {
         jsonMap.put("sessionId", sessionId);
         jsonMap.put("q", query); // backwards compatibility...
         jsonMap.put("lines", responseMap.get("lines"));
+        jsonMap.put("induced", masterResponse.isSuggestedFormulaInduced());
         if (session.isLogging()) {
           logLine(opts.responseLogPath, Json.writeValueAsStringHard(jsonMap));
           if (!Strings.isNullOrEmpty(opts.fullResponseLogPath)) {

@@ -33,7 +33,11 @@ import fig.basic.Ref;
  * An InteractiveMaster supports interactive commands, and grammar induction
  * methods.
  */
+
+
 public class InteractiveMaster extends Master {
+	
+
 	public static class Options {
 		@Option(gloss = "Write out new grammar rules")
 		public String intOutputPath;
@@ -137,7 +141,7 @@ public class InteractiveMaster extends Master {
 			stats.size(ex.predDerivations != null ? ex.predDerivations.size() : 0);
 			stats.status(InteractiveUtils.getParseStatus(ex));
 
-
+			
 			response.ex = ex;
 
 			if (response.ex.predDerivations.size() > 0) {
@@ -162,6 +166,8 @@ public class InteractiveMaster extends Master {
 				LogInfo.logs("responded with lines: %s", response.getLines());
 
 			}
+			
+			
 
 		} else if (command.equals(":qdbg")) {
 			// Create example

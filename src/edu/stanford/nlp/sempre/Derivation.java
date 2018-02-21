@@ -481,6 +481,12 @@ public class Derivation implements SemanticFn.Callable, HasScore {
 
   // for debugging
   public void printDerivationRecursively() {
+	if (allAnchored()) {
+		LogInfo.logs("core");
+	}
+	else {
+		LogInfo.logs("induced");
+	}
     LogInfo.logs("Deriv: %s(%s,%s) %s", cat, start, end, formula);
     for (int i = 0; i < children.size(); i++) {
       LogInfo.begin_track("child %s:", i);
