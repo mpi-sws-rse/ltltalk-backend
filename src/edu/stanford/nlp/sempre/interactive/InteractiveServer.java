@@ -289,30 +289,36 @@ public class InteractiveServer {
       
 
       synchronized (responseLogLock) { // write the response log log
-        Map<String, Object> jsonMap = new LinkedHashMap<>();
-        LocalDateTime responseTime = LocalDateTime.now();
-        // jsonMap.put("responseTime", responseTime.toString());
-        jsonMap.put("time", queryTime.toString());
-        jsonMap.put("ms", String.format("%.3f", java.time.Duration.between(queryTime, responseTime).toNanos() / 1.0e6));
-        jsonMap.put("sessionId", sessionId);
-        jsonMap.put("q", query); // backwards compatibility...
-        jsonMap.put("lines", responseMap.get("lines"));
-        jsonMap.put("count", queryNumber);
-        jsonMap.put("induced", masterResponse.isSuggestedFormulaInduced());
-        if (session.isLogging()) {
-          logLine(opts.responseLogPath, Json.writeValueAsStringHard(jsonMap));
-          if (!Strings.isNullOrEmpty(opts.fullResponseLogPath)) {
-            jsonMap.put("candidates", responseMap.get("candidates"));
-            logLine(opts.fullResponseLogPath, Json.writeValueAsStringHard(jsonMap));
-          }
-        } else {
-          logLine(opts.responseLogPath + ".sandbox", Json.writeValueAsStringHard(jsonMap));
-          if (!Strings.isNullOrEmpty(opts.fullResponseLogPath)) {
-            jsonMap.put("candidates", responseMap.get("candidates"));
-            logLine(opts.fullResponseLogPath + ".sandbox", Json.writeValueAsStringHard(jsonMap));
-          }
-          // LogInfo.log(Json.writeValueAsStringHard(jsonMap));
-        }
+    	  // currently I am only interested in answers to commands (and not contexts)
+    	  if (query.startsWith("(:q")) {
+	    	 Map<String, Object> jsonMap = new LinkedHashMap<>();
+	        LocalDateTime responseTime = LocalDateTime.now();
+	        // jsonMap.put("responseTime", responseTime.toString());
+	        jsonMap.put("time", queryTime.toString());
+	        jsonMap.put("ms", String.format("%.3f", java.time.Duration.between(queryTime, responseTime).toNanos() / 1.0e6));
+	        jsonMap.put("sessionId", sessionId);
+	        jsonMap.put("q", query); // backwards compatibility...
+	        LogInfo.logs("++++++++++++++!!!!!!!!!!!! writing for the query %s", query);
+	        jsonMap.put("lines", responseMap.get("lines"));
+	        jsonMap.put("count", queryNumber);
+	        
+	        	jsonMap.put("induced", masterResponse.isSuggestedFormulaInduced());
+	        
+	        if (session.isLogging()) {
+	          logLine(opts.responseLogPath, Json.writeValueAsStringHard(jsonMap));
+	          if (!Strings.isNullOrEmpty(opts.fullResponseLogPath)) {
+	            jsonMap.put("candidates", responseMap.get("candidates"));
+	            logLine(opts.fullResponseLogPath, Json.writeValueAsStringHard(jsonMap));
+	          }
+	        } else {
+	          logLine(opts.responseLogPath + ".sandbox", Json.writeValueAsStringHard(jsonMap));
+	          if (!Strings.isNullOrEmpty(opts.fullResponseLogPath)) {
+	            jsonMap.put("candidates", responseMap.get("candidates"));
+	            logLine(opts.fullResponseLogPath + ".sandbox", Json.writeValueAsStringHard(jsonMap));
+	          }
+	          // LogInfo.log(Json.writeValueAsStringHard(jsonMap));
+	        }
+    	  }
       }
     }
 
