@@ -298,11 +298,10 @@ public class InteractiveServer {
 	        jsonMap.put("ms", String.format("%.3f", java.time.Duration.between(queryTime, responseTime).toNanos() / 1.0e6));
 	        jsonMap.put("sessionId", sessionId);
 	        jsonMap.put("q", query); // backwards compatibility...
-	        LogInfo.logs("++++++++++++++!!!!!!!!!!!! writing for the query %s", query);
 	        jsonMap.put("lines", responseMap.get("lines"));
 	        jsonMap.put("count", queryNumber);
 	        
-	        	jsonMap.put("induced", masterResponse.isSuggestedFormulaInduced());
+	        jsonMap.put("stats",responseMap.get("stats"));
 	        
 	        if (session.isLogging()) {
 	          logLine(opts.responseLogPath, Json.writeValueAsStringHard(jsonMap));

@@ -54,10 +54,6 @@ public class Master {
     public Map<String, Object> stats = new LinkedHashMap<>();
     public List<String> lines = new ArrayList<>();
     
-    public boolean isSuggestedFormulaInduced(){
-		Derivation d = getDerivation();
-		return !d.allAnchored();
-	}
 
     public String getFormulaAnswer() {
     	LogInfo.logs("size of derivations = %d", ex.getPredDerivations().size());

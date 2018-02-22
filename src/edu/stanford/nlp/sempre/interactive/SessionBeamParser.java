@@ -25,6 +25,7 @@ public class SessionBeamParser extends InteractiveBeamParser {
   @Override
   public synchronized void addRule(Rule rule) {
     SessionRule sRule = new SessionRule(rule);
+    sRule.setInfo(rule);
     
     allRules.add(sRule);
 
