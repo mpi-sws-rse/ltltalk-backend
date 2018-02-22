@@ -242,21 +242,22 @@ public class InteractiveServer {
       session.format = "json";
 
       LocalDateTime queryTime = LocalDateTime.now();
+      
       synchronized (queryLogLock) { // write the query log
-        Map<String, Object> jsonMap = new LinkedHashMap<>();
-        jsonMap.put("count", queryNumber);
-        jsonMap.put("q", query);
-        // jsonMap.put("remote", remoteHost);
-        // jsonMap.put("time", queryTime.toString());
-        jsonMap.put("sessionId", sessionId);
-        reqParams.remove("q");
-        jsonMap.putAll(reqParams);
-        if (session.isLogging()) {
-          logLine(opts.queryLogPath, Json.writeValueAsStringHard(jsonMap));
-        } else {
-          logLine(opts.queryLogPath + ".sandbox", Json.writeValueAsStringHard(jsonMap));
+          Map<String, Object> jsonMap = new LinkedHashMap<>();
+          jsonMap.put("count", queryNumber);
+          jsonMap.put("q", query);
+          // jsonMap.put("remote", remoteHost);
+          jsonMap.put("time", queryTime.toString());
+          jsonMap.put("sessionId", sessionId);
+          reqParams.remove("q");
+          jsonMap.putAll(reqParams);
+          if (session.isLogging()) {
+            logLine(opts.queryLogPath, Json.writeValueAsStringHard(jsonMap));
+          } else {
+            logLine(opts.queryLogPath + ".sandbox", Json.writeValueAsStringHard(jsonMap));
+          }
         }
-      }
 
       // If JSON, don't store cookies.
 
@@ -271,6 +272,8 @@ public class InteractiveServer {
       if (query != null) {
         masterResponse = processQuery(session, query);
       }
+      
+      
 
       Map<String, Object> responseMap = null;
       {
@@ -283,6 +286,7 @@ public class InteractiveServer {
         }
         out.close();
       }
+      
 
       synchronized (responseLogLock) { // write the response log log
         Map<String, Object> jsonMap = new LinkedHashMap<>();
@@ -293,6 +297,7 @@ public class InteractiveServer {
         jsonMap.put("sessionId", sessionId);
         jsonMap.put("q", query); // backwards compatibility...
         jsonMap.put("lines", responseMap.get("lines"));
+        jsonMap.put("count", queryNumber);
         jsonMap.put("induced", masterResponse.isSuggestedFormulaInduced());
         if (session.isLogging()) {
           logLine(opts.responseLogPath, Json.writeValueAsStringHard(jsonMap));
