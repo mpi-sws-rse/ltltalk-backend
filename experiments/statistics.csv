@@ -1,8 +1,8 @@
-participant's id,group,number of queries,number of characters,number of tokens
-P1,A,73,7584,1398
-P3,A,157,16337,2790
-P2,A,159,6723,1220
-B3,B,120,4234,836
-B1,B,123,4935,864
-B2,B,176,8810,1533
-B4,B,155,8222,1498
+participant's id,group,number of queries,number of characters,number of tokens,number of definitions,number of successful queries,number of queries from induced language
+P1,A,73,7584,1398,,,
+P3,A,157,16337,2790,,,
+P2,A,159,6723,1220,,,
+B3,B,120,4234,836,,,
+B1,B,123,4935,864,,,
+B2,B,176,8810,1533,,,
+B4,B,155,8222,1498,,,
