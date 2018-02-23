@@ -1,8 +1,11 @@
-participant's id,group,number of queries,number of characters,number of tokens,number of definitions,number of successful queries,number of queries from induced language
-P1,A,73,7584,1398,,,
-P3,A,157,16337,2790,,,
-P2,A,159,6723,1220,,,
-B3,B,120,4234,836,,,
-B1,B,123,4935,864,,,
-B2,B,176,8810,1533,,,
-B4,B,155,8222,1498,,,
+participant's id,group,number of queries,number of characters,number of tokens,number of definitions,number of unsuccessful queries,number of queries from induced language,number of queries from core language,numberOfCharacters (successful only),number of tokens (successful only)
+A1,A,73,7584,1398,0,17,0,56,6055,1105
+A2,A,159,6723,1220,0,15,0,144,5701,1035
+A3,A,157,16337,2790,0,58,0,99,10867,1853
+BP1,B,119,4116,760,14,51,38,30,2012,375
+BP2,B,169,7557,1364,31,44,64,61,5339,957
+BP3,B,119,4172,822,19,43,47,29,2781,549
+BP4,B,154,8022,1471,4,41,6,107,5756,1063
+A4,A,125,10001,1654,0,37,0,88,6963,1156
+BP5,B,187,8946,1578,8,62,45,80,5413,970
+BP6,B,273,7027,1270,23,53,62,158,5443,985
