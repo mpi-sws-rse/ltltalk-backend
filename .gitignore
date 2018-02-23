@@ -14,7 +14,7 @@ module-classes.txt
 state
 out
 test-output
-
+.pydevproject
 .project
 .classpath
 .settings
