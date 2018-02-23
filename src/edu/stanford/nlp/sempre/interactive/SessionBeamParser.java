@@ -49,7 +49,6 @@ public class SessionBeamParser extends InteractiveBeamParser {
     this.allRules = new LinkedHashSet<>();
     // Repopulate current rules filtering by session
     for (Rule r : oldAllRules) {
-    	LogInfo.logs("rule = %s", r);
       if (r.source == null || sessionId.equals(r.source.uid)) {
          this.addRule(r);
       }

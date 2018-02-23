@@ -142,7 +142,7 @@ public class Rule {
   }
   
   public boolean isInduced() {
-    LogInfo.logs("induced tag: %s", a);
+    String a = getInfoTag("induced");
     return "true".equals(a);
   }
   
