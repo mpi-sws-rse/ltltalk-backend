@@ -44,5 +44,9 @@ public class RuleSource {
   public String toJson() {
     return Json.writeValueAsStringHard(this);
   }
+  
+  public String toString() {
+	  return this.toJson();
+  }
 
 }

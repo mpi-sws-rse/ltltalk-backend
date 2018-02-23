@@ -140,6 +140,7 @@ public class InteractiveMaster extends Master {
 
 			stats.size(ex.predDerivations != null ? ex.predDerivations.size() : 0);
 			stats.status(InteractiveUtils.getParseStatus(ex));
+			stats.author(InteractiveUtils.getAuthorDescription(ex));
 
 			
 			response.ex = ex;

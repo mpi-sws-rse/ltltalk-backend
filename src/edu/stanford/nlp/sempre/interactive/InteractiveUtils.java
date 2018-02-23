@@ -222,6 +222,45 @@ public final class InteractiveUtils {
   public static String getParseStatus(Example ex) {
     return GrammarInducer.getParseStatus(ex).toString();
   }
+  
+  public static enum AuthorDescription{
+	  Self, Other, None;
+  }
+  
+  public static boolean otherAuthors(Derivation d, String id) {
+	  
+	  if (d.rule.source != null && d.rule.source.uid != id) {
+		  
+		  return true;
+	  }
+	  else {
+		  for (Derivation child : d.children) {
+			  if (otherAuthors(child, id) == true) {
+				  return true;
+			  }
+		  }
+		  return false;
+	  }
+	  
+  }
+  
+  // if there is at least one other author involved in the derivations, it is counted as "using other author's definitions"
+  // if it is a core-language command, then the author is None. If it is induced, but only one author (the one who sent a command), then it is Self
+  public static AuthorDescription getAuthorDescription(Example ex){
+	  
+	  for (Derivation d : ex.getPredDerivations()) {
+		 if (d.isInduced() == false) {
+			 return AuthorDescription.None;
+		 }
+		 else if (otherAuthors(d, ex.id)) {
+			  return AuthorDescription.Other;
+		 }
+		 else {
+			  return AuthorDescription.Self;
+		  }
+	  }
+	  return AuthorDescription.None;
+  }
 
   public static void cite(Derivation match, Example ex) {
     CitationTracker tracker = new CitationTracker(ex.id, ex);

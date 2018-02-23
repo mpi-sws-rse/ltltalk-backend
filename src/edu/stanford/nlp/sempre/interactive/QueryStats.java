@@ -1,6 +1,7 @@
 package edu.stanford.nlp.sempre.interactive;
 
 import edu.stanford.nlp.sempre.Master;
+import edu.stanford.nlp.sempre.interactive.InteractiveUtils.AuthorDescription;
 
 public class QueryStats {
   Master.Response response;
@@ -37,5 +38,9 @@ public class QueryStats {
 
   public void error(String msg) {
     put("error", msg);
+  }
+  
+  public void author(AuthorDescription authorDescription) {
+	  put("author", authorDescription);
   }
 }
