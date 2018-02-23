@@ -25,20 +25,28 @@ the whole "special condition" part is becuase there were few mistakes in the exp
 # startingPoints = {"BP1" : 0, "BP3" : 0, "BP2":0, "BP4":0}
 # keyValues = ["BP1", "BP2", "BP3", "BP4"]
 
-sessionIds = {"kzfpiapflq":"A4", "rdd5eqad7b":"BP5", "moyetrwi6i":"BP6" }
-endPoints = {"A4" : 20000, "BP5" : 20000, "BP6":20000}
-startingPoints = {"A4" : 0, "BP5" : 0, "BP6":0}
-keyValues = ["A4", "BP5", "BP6"]
+# sessionIds = {"kzfpiapflq":"A4", "rdd5eqad7b":"BP5", "moyetrwi6i":"BP6" }
+# endPoints = {"A4" : 20000, "BP5" : 20000, "BP6":20000}
+# startingPoints = {"A4" : 0, "BP5" : 0, "BP6":0}
+# keyValues = ["A4", "BP5", "BP6"]
 
+sessionIds = {"0til5ny2qg":"C1", "q173uk0av1":"C2", "spt84ba5di":"C3" }
+endPoints = {"C1" : 20000, "C2" : 20000, "C3":20000}
+startingPoints = {"C1" : 0, "C2" : 0, "C3":0}
+keyValues = ["C1", "C2", "C3"]
+unknownIds = set()
 def transformIncomingJson(jsonInput, specialConditions = False):
+    
     if jsonInput['q'].startswith("(:context"):
         return None
     if specialConditions == True:
         try:
             id = sessionIds[jsonInput["sessionId"]]
         except:
-            print(jsonInput["sessionId"])
-            print("unkonwn id")
+            if jsonInput["sessionId"] not in unknownIds:
+                print(jsonInput["sessionId"])
+                print("unkonwn id")
+                unknownIds.add(jsonInput["sessionId"])
             return None
         if jsonInput["count"] <= startingPoints[id] or jsonInput["count"] >= endPoints[id]:
             return None
@@ -86,6 +94,11 @@ def main():
     kindsOfQueries["Induced"] = defaultdict(lambda:0)
     kindsOfQueries["Nothing"] = defaultdict(lambda:0)
     
+    authors = {}
+    authors["None"] = defaultdict(lambda:0)
+    authors["Self"] = defaultdict(lambda:0)
+    authors["Other"] = defaultdict(lambda:0)
+    
     
     if outputFile == None:
         outputFile = "cleaned_"+queryLogFile
@@ -108,6 +121,7 @@ def main():
             if response == None:
                 continue
             kindOfQuery = response["stats"]["status"]
+            authorInfo = response["stats"]["author"]
             key = response["sessionId"]
             
             query = response["q"]
@@ -123,13 +137,16 @@ def main():
                     numberOfTokensInSuccessful[key] += tokenCount
             
             kindsOfQueries[kindOfQuery][key] += 1 
+            authors[authorInfo][key] += 1
                 
     with open(statisticsFile, "a") as csvfile:
         pdb.set_trace()
         writer = csv.writer(csvfile)
         for keyId in keyValues:
             writer.writerow([keyId, group, numberOfQueries[keyId], lengthOfQueries[keyId], numberOfTokens[keyId], numberOfDefinitions[keyId],\
-                              kindsOfQueries["Nothing"][keyId], kindsOfQueries["Induced"][keyId], kindsOfQueries["Core"][keyId], lengthOfSuccessfulQueries[keyId], numberOfTokensInSuccessful[keyId]])
+                              kindsOfQueries["Nothing"][keyId], kindsOfQueries["Induced"][keyId], kindsOfQueries["Core"][keyId], \
+                              lengthOfSuccessfulQueries[keyId], numberOfTokensInSuccessful[keyId], authors["Other"][keyId], authors["Self"][keyId]])
+            
                 
     
 
