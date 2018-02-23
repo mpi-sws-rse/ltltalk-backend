@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import fig.basic.LogInfo;
 
 import edu.stanford.nlp.sempre.Example;
 import edu.stanford.nlp.sempre.Params;
@@ -48,8 +49,10 @@ public class SessionBeamParser extends InteractiveBeamParser {
     this.allRules = new LinkedHashSet<>();
     // Repopulate current rules filtering by session
     for (Rule r : oldAllRules) {
-      if (r.source == null || sessionId.equals(r.source.uid))
-        this.addRule(r);
+    	LogInfo.logs("rule = %s", r);
+      if (r.source == null || sessionId.equals(r.source.uid)) {
+         this.addRule(r);
+      }
     }
 
     ParserState state = super.parse(params, ex, computeExpectedCounts);

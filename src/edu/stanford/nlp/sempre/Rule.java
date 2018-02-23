@@ -8,7 +8,7 @@ import fig.basic.Pair;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
+import fig.basic.LogInfo;
 /**
  * A rule specifies how to take a right hand of terminals and non-terminals.
  *
@@ -142,7 +142,7 @@ public class Rule {
   }
   
   public boolean isInduced() {
-    String a = getInfoTag("induced");
+    LogInfo.logs("induced tag: %s", a);
     return "true".equals(a);
   }
   

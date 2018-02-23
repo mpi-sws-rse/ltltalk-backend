@@ -82,7 +82,9 @@ public class Master {
     public int getCandidateIndex() { return candidateIndex; }
 
     public Derivation getDerivation() {
-      return ex.getPredDerivations().get(candidateIndex);
+    	if (candidateIndex != -1)
+    		return ex.getPredDerivations().get(candidateIndex);
+    	else return null;
     }
   }
 

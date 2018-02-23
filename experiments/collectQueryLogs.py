@@ -1,6 +1,7 @@
 import pdb
 import argparse
 import json
+from collections import defaultdict
 import csv
 
 
@@ -14,14 +15,23 @@ the whole "special condition" part is becuase there were few mistakes in the exp
  also, for it is changed for the second group:
  1. one participant continued experimenting even after he finished all the tasks (that's why now it is eliminated if it exceeds the count of his last query)
 """
-#sessionIds = {"kamqupluqc":"P1", "4whvuab45y":"P2", "c70jstrl5l":"P2", "mrb7cylagj":"P3", "g8o4jp76a":"P3"}
-#startingPoints = {"P1" : 334, "P3" : 210, "P2":345}
+# sessionIds = {"kamqupluqc":"A1", "4whvuab45y":"A2", "c70jstrl5l":"A2", "mrb7cylagj":"A3", "g8o4jp76a":"A3"}
+# startingPoints = {"A1" : 334, "A3" : 210, "A2":345}
+# endPoints = {"A1":20000, "A2":20000, "A3":20000}
+# keyValues = ["A1", "A2", "A3"]
 
-sessionIds = {"vmdwsrp3a4":"B1", "brv6imuw4t":"B2", "x1z4imvyyc":"B3", "70wnvrj0uk":"B4" }
-startingPoints = {"B1" : 679, "B3" : 2000, "B2":2000, "B4":2000}
+# sessionIds = {"vmdwsrp3a4":"BP1", "brv6imuw4t":"BP2", "x1z4imvyyc":"BP3", "70wnvrj0uk":"BP4" }
+# endPoints = {"BP1" : 679, "BP3" : 2000, "BP2":2000, "BP4":2000}
+# startingPoints = {"BP1" : 0, "BP3" : 0, "BP2":0, "BP4":0}
+# keyValues = ["BP1", "BP2", "BP3", "BP4"]
+
+sessionIds = {"kzfpiapflq":"A4", "rdd5eqad7b":"BP5", "moyetrwi6i":"BP6" }
+endPoints = {"A4" : 20000, "BP5" : 20000, "BP6":20000}
+startingPoints = {"A4" : 0, "BP5" : 0, "BP6":0}
+keyValues = ["A4", "BP5", "BP6"]
 
 def transformIncomingJson(jsonInput, specialConditions = False):
-    if jsonInput['q'].startswith("(:context") or jsonInput['q'].startswith("(:def"):
+    if jsonInput['q'].startswith("(:context"):
         return None
     if specialConditions == True:
         try:
@@ -30,7 +40,7 @@ def transformIncomingJson(jsonInput, specialConditions = False):
             print(jsonInput["sessionId"])
             print("unkonwn id")
             return None
-        if jsonInput["count"] >= startingPoints[id]:
+        if jsonInput["count"] <= startingPoints[id] or jsonInput["count"] >= endPoints[id]:
             return None
         else:
             jsonInput["sessionId"] = id
@@ -46,7 +56,8 @@ def transformIncomingJson(jsonInput, specialConditions = False):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--special_conditions", dest="specialConditions", action='store_true', default = False)
-    parser.add_argument("--query_log_file", dest="queryLogFile", default= "groupA.log")
+    parser.add_argument("--query_log_file", dest="queryLogFile", required = True)
+    parser.add_argument("--query_response_file", dest="queryResponseFile", required = True)
     parser.add_argument("--cleaned_output_file", dest = "outputFile")
     parser.add_argument("--statistics_file", dest = "statisticsFile", default = "statistics.csv")
     parser.add_argument("--group", dest = "group")
@@ -55,17 +66,25 @@ def main():
     
     specialConditions = args.specialConditions
     queryLogFile = args.queryLogFile
+    queryResponseFile = args.queryResponseFile
     outputFile = args.outputFile
     statisticsFile = args.statisticsFile
     group = args.group
-    pdb.set_trace()
     
     if group == None:
         raise Exception("no group was given")
     
-    lengthOfQueries = {}
-    numberOfQueries = {}
-    numberOfTokens = {}
+    lengthOfQueries = defaultdict(lambda:0)
+    lengthOfSuccessfulQueries = defaultdict(lambda:0)
+    numberOfQueries = defaultdict(lambda:0)
+    numberOfTokens = defaultdict(lambda:0)
+    numberOfTokensInSuccessful = defaultdict(lambda:0)
+    numberOfDefinitions = defaultdict(lambda:0)
+    
+    kindsOfQueries = {}
+    kindsOfQueries["Core"] = defaultdict(lambda:0)
+    kindsOfQueries["Induced"] = defaultdict(lambda:0)
+    kindsOfQueries["Nothing"] = defaultdict(lambda:0)
     
     
     if outputFile == None:
@@ -73,28 +92,44 @@ def main():
     with open(queryLogFile) as inputFile:
         with open(outputFile, "w") as outputFile:
             for line in inputFile:
-                transformedJson = transformIncomingJson(json.loads(line), specialConditions) 
-                if not  transformedJson == None:
-                    
-                    key = transformedJson["sessionId"]
-                    
-                    characterCount = len(transformedJson["q"]) - 7
-                    tokenCount = len( transformedJson["q"].split()) - 1 
-                    try:
+                transformedJson = transformIncomingJson(json.loads(line), specialConditions)
+                if transformedJson == None:
+                    continue
+                query = transformedJson["q"]
+                key = transformedJson["sessionId"]
+                if query.startswith("(:def"):
+                    numberOfDefinitions[key] += 1
+        
                         
-                        lengthOfQueries[key] += characterCount
-                        numberOfTokens[key] += tokenCount
-                        numberOfQueries[key] += 1
-                    except: 
-                        print("initializing "+str(key))
-                        lengthOfQueries[key] = characterCount
-                        numberOfQueries[key] = 1
-                        numberOfTokens[key] = tokenCount
                     outputFile.write(json.dumps(transformedJson)+"\n")
+    with open(queryResponseFile) as responseFile:
+        for line in responseFile:
+            response = transformIncomingJson(json.loads(line), specialConditions)
+            if response == None:
+                continue
+            kindOfQuery = response["stats"]["status"]
+            key = response["sessionId"]
+            
+            query = response["q"]
+            if query.startswith("(:q"):
+                characterCount = len(query) - 7
+                tokenCount = len( query.split()) - 1 
+                    
+                lengthOfQueries[key] += characterCount
+                numberOfTokens[key] += tokenCount
+                numberOfQueries[key] += 1
+                if kindOfQuery != "Nothing":
+                    lengthOfSuccessfulQueries[key] += characterCount
+                    numberOfTokensInSuccessful[key] += tokenCount
+            
+            kindsOfQueries[kindOfQuery][key] += 1 
+                
     with open(statisticsFile, "a") as csvfile:
+        pdb.set_trace()
         writer = csv.writer(csvfile)
-        for keyId in lengthOfQueries.keys():
-            writer.writerow([keyId, group, numberOfQueries[keyId], lengthOfQueries[keyId], numberOfTokens[keyId] ])
+        for keyId in keyValues:
+            writer.writerow([keyId, group, numberOfQueries[keyId], lengthOfQueries[keyId], numberOfTokens[keyId], numberOfDefinitions[keyId],\
+                              kindsOfQueries["Nothing"][keyId], kindsOfQueries["Induced"][keyId], kindsOfQueries["Core"][keyId], lengthOfSuccessfulQueries[keyId], numberOfTokensInSuccessful[keyId]])
                 
     
 
