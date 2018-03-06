@@ -1,11 +1,11 @@
-# SEMPRE 3.0-robo: Semantic Parsing with Execution, modified for usage in robotic world 
+# SEMPRE INTERACTIVE - FLIPPER: Semantic Parsing with Execution, modified for usage in robotic world 
 (based on original interactive sempre repository https://github.com/sidaw/sempre-interactive)
 
 ## What is SEMPRE and semantic parsing?
 
 See [SEMPRE-DOCUMENTATION.md](/SEMPRE-DOCUMENTATION.md).
 
-## What does this "robo" version of SEMPRE do?
+## What does this "Flipper" version of SEMPRE do?
 
 This specific version of SEMPRE is a modification of the Voxelurn project which
 uses SEMPRE as the basis for a block-building world where input utterances act
@@ -35,8 +35,8 @@ on how similar your system is.
 
 1. Clone this GitHub repository:
 
-        git clone https://gavran@gitlab.mpi-sws.org/gavran/sempre-interactive.git (https)
-        git clone git-rts@gitlab.mpi-sws.org:gavran/sempre-interactive.git(ssh)
+        git clone https://github.com/mpi-sws-rse/sempre-interactive-flipper.git (https)
+        git clone git@github.com:mpi-sws-rse/sempre-interactive-flipper.git (ssh)
 
 2. Download the minimal core dependencies (all dependencies will be placed in `lib`):
 
@@ -53,7 +53,7 @@ on how similar your system is.
 The command should execute, display some information about the grammar, and
 wait for input from the browser client (server can be stopeed with `Ctrl+D`.
 To go further with running sempre in the context of Robotic world, check
-[ROBO-DOCUMENTATION.md](https://gitlab.mpi-sws.org/gavran/sempre-interactive/blob/master/ROBO-DOCUMENTATION.md)
+[Flipper](http://flipper.mpi-sws.org/#/about)
 
 ### General Troubleshooting
 
@@ -72,4 +72,4 @@ Here are some general tips for troubleshooting:
 # Browser Client
 
 The corresponding browser-based client to this project can be found
-[here](https://gitlab.mpi-sws.org/gavran/naturalizing-robotic-language).
+[here](https://github.com/mpi-sws-rse/flipper).
