@@ -198,7 +198,7 @@ public class InteractiveMaster extends Master {
 				e.printStackTrace();
 				response.lines.add("cannot accept formula: ");
 			}
-
+			targetFormulas = new ArrayList<Formula>( new LinkedHashSet<Formula>(targetFormulas) );
 			Example ex = InteractiveUtils.exampleFromUtterance(utt, session);
 			response.ex = ex;
 
