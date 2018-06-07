@@ -248,7 +248,7 @@ public class Master {
     session.updateContext(ex, opts.contextMaxExchanges);
   }
 
-  private void printDerivation(Derivation deriv) {
+  protected void printDerivation(Derivation deriv) {
     // Print features
     HashMap<String, Double> featureVector = new HashMap<>();
     deriv.incrementAllFeatureVector(1, featureVector);

@@ -155,7 +155,8 @@ public class InteractiveMaster extends Master {
 					LogInfo.logs("formula: \t%s",d.getFormula());
 					
 					if (opts.verbose > 2){
-						d.printDerivationRecursively();
+						//d.printDerivationRecursively();
+						printDerivation(d);
 					}
 					
 				}
