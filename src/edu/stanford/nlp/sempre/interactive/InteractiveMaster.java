@@ -113,7 +113,6 @@ public class InteractiveMaster extends Master {
 	}
 
 	void handleCommand(Session session, String line, Response response) {
-		LogInfo.logs("handle command");
 		LogInfo.begin_track_printAll("InteractiveMaster.handleCommand");
 		LispTree tree = LispTree.proto.parseFromString(line);
 		tree = builder.grammar.applyMacros(tree);
