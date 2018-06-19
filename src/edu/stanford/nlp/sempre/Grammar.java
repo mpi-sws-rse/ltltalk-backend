@@ -110,7 +110,6 @@ public class Grammar {
 	  for (String path: opts.ruleRecoveryPaths) {
 		  jsonStrings.addAll(IOUtils.readLinesEasy(path));
 	  }
-	  LogInfo.logs("%s induced rules read", jsonStrings.size());
 	  return jsonStrings;
   }
   

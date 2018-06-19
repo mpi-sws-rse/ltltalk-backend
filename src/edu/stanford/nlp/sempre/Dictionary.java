@@ -36,7 +36,7 @@ public class Dictionary {
 	 * @return all induced rules in the grammar.log.json file in the form of
 	 * 			a List<DictionaryEntry>
 	 */
-	public static List<DictionaryEntry> compileDictionary() {
+	private static List<DictionaryEntry> compileDictionary() {
 		//will contain all the dictionary entries
 		List<DictionaryEntry> dictionary = new ArrayList<DictionaryEntry>();
 		//read rules from grammar log

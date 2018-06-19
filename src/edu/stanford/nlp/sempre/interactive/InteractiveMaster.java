@@ -14,6 +14,7 @@ import com.google.common.collect.Lists;
 import edu.stanford.nlp.sempre.Builder;
 import edu.stanford.nlp.sempre.ContextValue;
 import edu.stanford.nlp.sempre.Derivation;
+import edu.stanford.nlp.sempre.Dictionary;
 import edu.stanford.nlp.sempre.Example;
 import edu.stanford.nlp.sempre.Formula;
 import edu.stanford.nlp.sempre.Formulas;
@@ -23,11 +24,13 @@ import edu.stanford.nlp.sempre.Parser;
 import edu.stanford.nlp.sempre.Rule;
 import edu.stanford.nlp.sempre.RuleSource;
 import edu.stanford.nlp.sempre.Session;
+import edu.stanford.nlp.sempre.Grammar;
 import fig.basic.IOUtils;
 import fig.basic.LispTree;
 import fig.basic.LogInfo;
 import fig.basic.Option;
 import fig.basic.Ref;
+
 
 /**
  * An InteractiveMaster supports interactive commands, and grammar induction
@@ -91,13 +94,13 @@ public class InteractiveMaster extends Master {
 	}
 
 	@Override
-	public Response processQuery(Session session, String line) {
-		
+	public Response processQuery(Session session, String line) {		
 		if (opts.verbose > 1) {
 			
 			LogInfo.logs("session %s", session.id);
 			LogInfo.logs("query %s", line);
 		}
+
 		line = line.trim();
 		Response response = new Response();
 		if (line.startsWith("(:")) {
@@ -116,13 +119,14 @@ public class InteractiveMaster extends Master {
 		LogInfo.logs("handle command");
 		LogInfo.begin_track_printAll("InteractiveMaster.handleCommand");
 		LispTree tree = LispTree.proto.parseFromString(line);
+
 		tree = builder.grammar.applyMacros(tree);
 
 		String command = tree.child(0).value;
 		QueryStats stats = new QueryStats(response, command);
 
 		// Start of interactive commands
-		if (command.equals(":q")) {
+		if (command.equals(":q")) {		
 			LogInfo.logs("received a command");
 			
 			// Create example
@@ -305,6 +309,12 @@ public class InteractiveMaster extends Master {
 								tree.children.get(1).toString()));
 				response.stats.put("context_length", tree.children.get(1).toString().length());
 			}
+			
+		//Send list of induced rules to front end
+		} else if (command.equals(":dictionary")) {
+			String dictionary = Dictionary.jSonDictionary();
+			stats.put("dictionary", dictionary);
+			LogInfo.logs("Dictionary request "+ dictionary);
 		} else {
 			LogInfo.log("Invalid command: " + tree);
 		}
@@ -381,6 +391,7 @@ public class InteractiveMaster extends Master {
 		
 		return inducedRules.stream().collect(Collectors.toList());
 	}
+	
 
 	private static boolean isNonsense(Example exHead) {
 		List<String> tokens = exHead.getTokens();
