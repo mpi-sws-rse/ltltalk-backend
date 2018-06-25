@@ -17,7 +17,7 @@ import edu.stanford.nlp.sempre.DictionaryEntry;
  * Dictionary class that handles the logic of collecting the induced rules 
  * and formatting them for the Flipper dictionary
  * @author aaniche
- *
+ * Notes: uses Json.java to write the Object in JSon format
  */
 public class Dictionary {
 	private Dictionary() {}
@@ -33,6 +33,7 @@ public class Dictionary {
 	
 	/**
 	 * Reads the induced grammar and formats it into a Dictionary of DictionaryEntries
+	 * Uses the function Grammar.readInducedGrammar() to read the grammar log.
 	 * @return all induced rules in the grammar.log.json file in the form of
 	 * 			a List<DictionaryEntry>
 	 */

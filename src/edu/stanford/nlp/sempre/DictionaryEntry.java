@@ -1,10 +1,9 @@
 package edu.stanford.nlp.sempre;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * DictionaryEntry that represents a single induced rule in the Dictionary class 
+ * A DictionaryEntry represents a single induced rule in the Dictionary class 
  * after trimming it to the information necessary for Flipper.
  * @author aaniche
  *

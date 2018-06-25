@@ -314,7 +314,7 @@ public class InteractiveMaster extends Master {
 		} else if (command.equals(":dictionary")) {
 			String dictionary = Dictionary.jSonDictionary();
 			stats.put("dictionary", dictionary);
-			LogInfo.logs("Dictionary request "+ dictionary);
+			LogInfo.logs("Dictionary requested");
 		} else {
 			LogInfo.log("Invalid command: " + tree);
 		}
