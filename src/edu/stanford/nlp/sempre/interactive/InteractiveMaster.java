@@ -124,6 +124,7 @@ public class InteractiveMaster extends Master {
 
 		String command = tree.child(0).value;
 		QueryStats stats = new QueryStats(response, command);
+		
 
 		// Start of interactive commands
 		if (command.equals(":q")) {		
@@ -315,6 +316,25 @@ public class InteractiveMaster extends Master {
 			String dictionary = Dictionary.jSonDictionary();
 			stats.put("dictionary", dictionary);
 			LogInfo.logs("Dictionary requested");
+		} else if(command.equals(":delete")) {
+			//get the index from the query and adjust by 1 to the index in a list
+			int index = Integer.parseInt(tree.children.get(1).value) - 1;
+			LogInfo.logs("Deleting a rule " + index);
+			
+			//Read the induced rules, and remove the rule we want to delete
+			List<String> inducedRules = Grammar.readInducedGrammar();
+			inducedRules.remove(index);
+
+			//open the grammar log file and overwrite the rules with the new list
+			if (session.isWritingGrammar()) {
+				PrintWriter out = IOUtils.openOutHard(
+						Paths.get(InteractiveMaster.opts.intOutputPath, InteractiveMaster.opts.grammarLogFile)
+								.toString());
+				for (String rule : inducedRules) {
+					out.println(rule);
+				}
+				out.close();
+			}
 		} else {
 			LogInfo.log("Invalid command: " + tree);
 		}
