@@ -602,5 +602,27 @@ public class Grammar {
     fn.init(tree);
     return fn;
   }
+  
+  /* 
+   * Function to parse a Json string into a Rule 
+   * (used for example for converting a single String for grammar.log.json)
+   */
+  public Rule ruleFromJson(String string){
+	  TypeReference<HashMap<String,Object>> typeRef = new TypeReference<HashMap<String,Object>>() {};
+	  Map<String, Object> json = Json.readValueHard(string, typeRef);
+      SemanticFn sem = parseSemanticFn(
+          LispTree.proto.parseFromString((String) json.get("sem")));
+      Rule rule = new Rule((String) json.get("lhs"), (List<String>) json.get("rhs"), sem);
+      rule.addInfo("anchored", (String) json.get("anchored"));
+      rule.addInfo("induced", (String) json.get("induced"));
+      Map<String, Object> sourceMap = (Map<String, Object>) json.get("source");
+      RuleSource source = new RuleSource(
+          (String) sourceMap.get("uid"),
+          (String) sourceMap.get("head"),
+          (List<String>) sourceMap.get("body")
+      );
+      rule.source = source;
+      return rule;
+  }
 
 }
