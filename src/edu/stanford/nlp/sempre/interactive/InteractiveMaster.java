@@ -316,25 +316,41 @@ public class InteractiveMaster extends Master {
 			String dictionary = Dictionary.jSonDictionary();
 			stats.put("dictionary", dictionary);
 			LogInfo.logs("Dictionary requested");
+			
+		//Deletion of an induced rule
 		} else if(command.equals(":delete")) {
 			//get the index from the query and adjust by 1 to the index in a list
 			int index = Integer.parseInt(tree.children.get(1).value) - 1;
 			LogInfo.logs("Deleting a rule " + index);
-			
-			//Read the induced rules, and remove the rule we want to delete
+
+			//Read the list of induced rules
 			List<String> inducedRules = Grammar.readInducedGrammar();
+
+			//Precondition checks
+			if (inducedRules.size() <= index) {
+				String message = "File reading error";
+				stats.error(message);
+				response.lines.add(message);
+				return;
+			} else if (!session.isWritingGrammar()) {
+				String message = "Impossible to delete a rule";
+				stats.error(message);
+				response.lines.add(message);
+				return;
+			}
+
+			//Remove the rule from the induced rules list
 			inducedRules.remove(index);
 
 			//open the grammar log file and overwrite the rules with the new list
-			if (session.isWritingGrammar()) {
 				PrintWriter out = IOUtils.openOutHard(
 						Paths.get(InteractiveMaster.opts.intOutputPath, InteractiveMaster.opts.grammarLogFile)
-								.toString());
-				for (String rule : inducedRules) {
-					out.println(rule);
-				}
-				out.close();
+							.toString());
+			for (String rule : inducedRules) {
+				out.println(rule);
 			}
+			out.close();
+
 		} else {
 			LogInfo.log("Invalid command: " + tree);
 		}
