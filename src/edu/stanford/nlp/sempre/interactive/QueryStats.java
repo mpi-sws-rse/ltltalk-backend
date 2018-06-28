@@ -8,7 +8,7 @@ public class QueryStats {
   QueryType type;
 
   public enum QueryType {
-    q, def, accept, reject, other
+    q, def, accept, reject, other, dictionary
   };
 
   public QueryStats(Master.Response response) {
