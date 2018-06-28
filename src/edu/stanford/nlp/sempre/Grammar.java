@@ -101,6 +101,18 @@ public class Grammar {
     }
   }
   
+  
+  /* Method used to read the list of induced grammar rules to create the dictionary list
+   * returns a list of JSon strings corresponding to the rules.
+   */
+  public static List<String> readInducedGrammar() {
+	  List<String> jsonStrings = new ArrayList<>();
+	  for (String path: opts.ruleRecoveryPaths) {
+		  jsonStrings.addAll(IOUtils.readLinesEasy(path));
+	  }
+	  return jsonStrings;
+  }
+  
   private void verifyValid() {
     // Make sure that all the categories which are used are actually defined.
     Set<String> defined = new HashSet<>();
