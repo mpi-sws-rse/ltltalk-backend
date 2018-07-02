@@ -321,7 +321,7 @@ public class InteractiveMaster extends Master {
 		} else if(command.equals(":delete")) {
 			//get the index from the query and adjust by 1 to the index in a list
 			int index = Integer.parseInt(tree.children.get(1).value) - 1;
-			LogInfo.logs("Deleting a rule " + index);
+			LogInfo.logs("Deleting rule " + index);
 
 			//Read the list of induced rules
 			List<String> inducedRules = Grammar.readInducedGrammar();
@@ -339,15 +339,20 @@ public class InteractiveMaster extends Master {
 				return;
 			}
 
+			//Remove the rule from the cached induced grammar in the parser
+			String jsonRule = inducedRules.get(index);
+			Rule rule = builder.grammar.ruleFromJson(jsonRule);
+			InteractiveUtils.removeRuleInteractive(rule, builder.parser);
+			
 			//Remove the rule from the induced rules list
 			inducedRules.remove(index);
 
 			//open the grammar log file and overwrite the rules with the new list
-				PrintWriter out = IOUtils.openOutHard(
+			PrintWriter out = IOUtils.openOutHard(
 						Paths.get(InteractiveMaster.opts.intOutputPath, InteractiveMaster.opts.grammarLogFile)
 							.toString());
-			for (String rule : inducedRules) {
-				out.println(rule);
+			for (String json : inducedRules) {
+				out.println(json);
 			}
 			out.close();
 
