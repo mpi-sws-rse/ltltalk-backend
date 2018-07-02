@@ -11,7 +11,7 @@ A list of DictionaryEntries is generated and converted into a JSON string by the
 The communication with the front end is handled by `InteractiveMaster.handleCommand` (case command.equals(":dictionary"))`. 
 `Dictionary.jsonDictionary` is called and the returned String is put in the response that is sent back to front end (using `stats.put` defined in `QueryStats.java`). 
 
-##Deleting a rule
+## Deleting a rule
 We will allow the user to delete a rule they have defined themselves. 
 Relevant files are `InteractiveBeamParser.java`, `Trie.java`, `Parser.java`. Relevant functions are `InteractiveMaster.handleCommand` and `InteractiveUtils.removeRuleInteractive`.
 
