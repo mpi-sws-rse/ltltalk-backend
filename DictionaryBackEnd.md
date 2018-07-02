@@ -11,8 +11,6 @@ A list of DictionaryEntries is generated and converted into a JSON string by the
 The communication with the front end is handled by `InteractiveMaster.handleCommand` (case command.equals(":dictionary"))`. 
 `Dictionary.jsonDictionary` is called and the returned String is put in the response that is sent back to front end (using `stats.put` defined in `QueryStats.java`). 
 
-Read more about implementing Dictionary in the front end [here](https://github.com/akshalaniche/flipper/blob/master/documentation/explanations/DictionaryFrontEnd.md) 
-
 ##Deleting a rule
 We will allow the user to delete a rule they have defined themselves. 
 Relevant files are `InteractiveBeamParser.java`, `Trie.java`, `Parser.java`. Relevant functions are `InteractiveMaster.handleCommand` and `InteractiveUtils.removeRuleInteractive`.
@@ -27,3 +25,5 @@ The grammar is not read each time a command is parsed, but rather stored by the 
 The parser that is used by `InteractiveMaster` is `InteractiveBeamParser` where the grammar is stored in an ArrayList for cat-unary rules and in a Trie for non cat-unary rules, and `Parser.removeRule` is overriden in `InteractiveBeamParser.java`.
 `InteractiveMaster.java` calls `InteractiveUtils.removeRuleInteractive` from where `InteractiveBeamParser.removeRule` is called or an Exception is thrown if the Parser used is not of the subclass `InteractiveBeamParser`. (similar to `addRuleinteractive`)
 The function `Trie.remove` in `Trie.java` handles the removal of a rule from a Trie and the clean up that follows, and is used when deleting a non cat-unary rule.
+
+Read more about implementing Dictionary in the front end [here](https://github.com/akshalaniche/flipper/blob/master/documentation/explanations/DictionaryFrontEnd.md) 
