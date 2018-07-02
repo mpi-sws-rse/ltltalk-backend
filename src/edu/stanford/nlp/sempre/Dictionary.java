@@ -43,9 +43,8 @@ public class Dictionary {
 		//read rules from grammar log
 		List<String> jsonLog = Grammar.readInducedGrammar();
 
-		int index = 0;
-		for (String rule: jsonLog) {
-			index ++;
+		for (int index = 0; index < jsonLog.size(); index++) {
+			String rule = jsonLog.get(index);
 			DictionaryEntry entry = filterJson(rule, index);
 			dictionary.add(entry);
 		}

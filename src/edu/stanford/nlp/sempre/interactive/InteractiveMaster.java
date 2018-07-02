@@ -319,8 +319,8 @@ public class InteractiveMaster extends Master {
 			
 		//Deletion of an induced rule
 		} else if(command.equals(":delete")) {
-			//get the index from the query and adjust by 1 to the index in a list
-			int index = Integer.parseInt(tree.children.get(1).value) - 1;
+			//get the index from the query
+			int index = Integer.parseInt(tree.children.get(1).value);
 			LogInfo.logs("Deleting rule " + index);
 
 			//Read the list of induced rules
