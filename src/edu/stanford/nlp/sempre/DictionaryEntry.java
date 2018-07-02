@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * A DictionaryEntry represents a single induced rule in the Dictionary class 
  * after trimming it to the information necessary for Flipper.
- * @author aaniche
+ * @author Akshal Aniche
  *
  */
 public class DictionaryEntry {

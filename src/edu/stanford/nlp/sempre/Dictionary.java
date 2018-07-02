@@ -16,7 +16,7 @@ import edu.stanford.nlp.sempre.DictionaryEntry;
 /**
  * Dictionary class that handles the logic of collecting the induced rules 
  * and formatting them for the Flipper dictionary
- * @author aaniche
+ * @author Akshal Aniche
  * Notes: uses Json.java to write the Object in JSon format
  */
 public class Dictionary {
