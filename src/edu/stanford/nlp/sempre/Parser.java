@@ -112,6 +112,12 @@ public abstract class Parser {
     if (rule.isCatUnary())
       catUnaryRules.add(rule);
   }
+  
+  // Delete a rule from the parser
+  public synchronized void removeRule(Rule rule) {
+	  if (rule.isCatUnary())
+		  catUnaryRules.removeAll(Collections.singletonList(rule));
+  }
 
   protected void computeCatUnaryRules() {
     // Handle catUnaryRules

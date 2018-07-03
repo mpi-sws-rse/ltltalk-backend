@@ -97,6 +97,27 @@ public class InteractiveBeamParser extends Parser {
     }
   }
   
+  /** Deletes rule from parser, depending on if the rule is cat-unary or not
+   * @author Akshal Aniche
+   * @param rule
+   */
+  @Override
+  public synchronized void removeRule(Rule rule){
+	 
+	  if (!allRules.contains(rule)) {
+	  	return;
+	  }
+
+	  List<Rule> list = Collections.singletonList(rule);
+	  allRules.removeAll(list);
+
+	  if (!rule.isCatUnary()) {
+		  trie.remove(rule);
+	  } else {
+		  interactiveCatUnaryRules.removeAll(list);
+	  }
+  }
+  
   @Override
   public List<Rule> getCatUnaryRules() {
     return interactiveCatUnaryRules;

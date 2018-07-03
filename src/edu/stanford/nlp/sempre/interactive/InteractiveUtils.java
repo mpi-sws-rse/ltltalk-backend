@@ -195,9 +195,22 @@ public final class InteractiveUtils {
     if (parser instanceof InteractiveBeamParser) {
       parser.addRule(rule);
     } else {
-      throw new RuntimeException("interactively adding rule not supported for paser " + parser.getClass().toString());
+      throw new RuntimeException("interactively adding rule not supported for parser " + parser.getClass().toString());
     }
   }
+  
+  /**
+   * Deletes a rule interactively from the parser
+   * @param rule to be deleted
+   * @param parser from where to delete it
+   */
+  public static synchronized void removeRuleInteractive(Rule rule, Parser parser) {
+	    if (parser instanceof InteractiveBeamParser) {
+	      parser.removeRule(rule);
+	    } else {
+	      throw new RuntimeException("interactively removing rule not supported for parser " + parser.getClass().toString());
+	    }
+	  }
 
   static Rule blockRule(ActionFormula.Mode mode) {
     BlockFn b = new BlockFn(mode);
