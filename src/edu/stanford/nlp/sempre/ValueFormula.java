@@ -22,13 +22,13 @@ public class ValueFormula<T extends Value> extends PrimitiveFormula {
   public String prettyString(){
 	  //LogInfo.logs("value is %s of class %s and its sortString is %s", this.value, this.value.getClass(), this.value.sortString());
 	  if (value.sortString().equals("items?property")){
-		  return "has";
+		  return "is";
 	  }
 	  else if (value.sortString().equals("triangle") || value.sortString().equals("circle") || value.sortString().equals("square")){
-		  return "shape "+this.value.contentString();
+		  return this.value.contentString();
 	  }
 	  else if (value.sortString().equals("red") || value.sortString().equals("blue") || value.sortString().equals("green") || value.sortString().equals("yellow")){
-		  return "color "+this.value.contentString();
+		  return this.value.contentString();
 	  }
 	  else if (value.sortString().equals("all_rooms")){
 		  return "rooms";

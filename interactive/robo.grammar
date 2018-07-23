@@ -12,7 +12,7 @@
 ( rule $KEYWORD_TOKEN (in) in (anchored true))
 (rule $KEYWORD_TOKEN (containing) containing (anchored true))
 (rule $KEYWORD_TOKEN (visit) visit (anchored true))
-(rule $KEYWORD_TOKEN (has) has (anchored true))
+(rule $KEYWORD_TOKEN (is) is (anchored true))
 (rule $KEYWORD_TOKEN (repeat) repeat (anchored true))
 (rule $KEYWORD_TOKEN (while) while (anchored true))
 (rule $KEYWORD_TOKEN (if) if (anchored true))
@@ -302,7 +302,7 @@
 #function RoboWorld.has
 (rule 
 	$PropertySet 
-	(has $Rel $Property) 
+	($Rel $Property) 
 	(lambda r 
 		(lambda c 
 			(
@@ -344,38 +344,11 @@
 	) 
 	(anchored true)
 )
+
 (rule $PropertySets ($PropertySets or $PropertySet) (lambda s1 (lambda s2
 					(or (var s1) (var s2)))) (anchored true))
 
-
-(rule 
-	$RelColor 
-	(color) 
-	items?property 
-	(anchored true)
-)
-
-(rule 
-	$Rel 
-	($RelColor) 
-	(IdentityFn) 
-	(anchored true)
-)
-
-
-(rule 
-	$RelShape 
-	(shape) 
-	items?property
-	(anchored true)
-)
-
-(rule 
-	$Rel 
-	($RelShape) 
-	(IdentityFn)
-	(anchored true)
-)
+(rule $Rel (is) items?property (anchored true))
 
 
 ### Data type definitions ###
