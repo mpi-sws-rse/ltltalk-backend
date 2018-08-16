@@ -72,7 +72,9 @@ public class GrammarInducer {
 
   public List<Derivation> matches;
 
-  
+//  private induceFromPacking(Derivation def, ) {
+//	  
+//  }
   public GrammarInducer(List<String> headTokens, Derivation def1, List<Derivation> chartListArg){
 	  this(headTokens, def1, chartListArg, null, null, null);
   }
@@ -106,7 +108,7 @@ public class GrammarInducer {
     this.headTokens = headTokens;
     int numTokens = headTokens.size();
     LinkedList<Derivation> derivationsToTry = new LinkedList<Derivation>();
-    derivationsToTry.add(originalDerivation);
+    //derivationsToTry.add(originalDerivation);
     
     boolean loopRewriting = opts.useLoopRewriting && parser != null;
     
@@ -129,20 +131,14 @@ public class GrammarInducer {
     }
     
     inducedRules = new ArrayList<>();
-    
-    for (Derivation def : derivationsToTry){
-    	
-    	List<Derivation> chartList = chartListArg;
-    	if (opts.verbose > 1){
-    		LogInfo.logs("Grammar inducer: examining derivation %s", def.toString());
-    	}
+    List<Derivation> chartList = chartListArg;
+	this.matches = new ArrayList<>();
+    addMatches(originalDerivation, makeChartMap(chartList));
+    Collections.reverse(this.matches);
+    if (allHead && opts.useSimplePacking) {
     	
     	
-    	this.matches = new ArrayList<>();
-        addMatches(def, makeChartMap(chartList));
-        Collections.reverse(this.matches);
-    
-	    if (allHead && opts.useSimplePacking) {
+        
 	      List<Derivation> filteredMatches = this.matches.stream().filter(d -> {
 	        return opts.simpleCats.contains(getCategoryStringFromDerivation(d)) && d.allAnchored() && d.end - d.start == 1;
 	      }).collect(Collectors.toList());
@@ -166,24 +162,67 @@ public class GrammarInducer {
 	      
 	
 	      HashMap<String, String> formulaToCat = new HashMap<>();
-	      packing.forEach(d -> formulaToCat.put(catFormulaKey(d), varName(d, def)));
-	      buildFormula(def, formulaToCat);
+	      packing.forEach(d -> formulaToCat.put(catFormulaKey(d), varName(d, originalDerivation)));
+	      buildFormula(originalDerivation, formulaToCat);
 	      
-	      List<Rule> simpleInduced = induceRules(packing, def);
+	      List<Rule> simpleInduced = induceRules(packing, originalDerivation);
 	      for (Rule rule : simpleInduced) {
 	        rule.addInfo("simple_packing", "true");
 	        filterRule(rule);
 	      }
 	
 	      if (opts.verbose > 1) {
-	        LogInfo.logs("Simple Packing", chartList.size());
 	        LogInfo.logs("chartList.size = %d", chartList.size());
 	        LogInfo.log("Potential packings: ");
 	        this.matches.forEach(d -> LogInfo.logs("%f: %s\t %s", d.getScore(), d.formula, d.allAnchored()));
 	        LogInfo.logs("packing: %s", packing);
 	        LogInfo.logs("formulaToCat: %s", formulaToCat);
 	      }
+	    }  
+    
+    if (opts.useBestPacking) {
+	      List<Derivation> bestPacking = bestPackingDP(this.matches, numTokens);
+	      HashMap<String, String> formulaToCat = new HashMap<>();
+	      bestPacking.forEach(d -> formulaToCat.put(catFormulaKey(d), varName(d, originalDerivation)));
+	      buildFormula(originalDerivation, formulaToCat);
+	      for (Rule rule : induceRules(bestPacking, originalDerivation)) {
+	        // ALTER : I am not sure why this is here, but it prevents some use cases from being defined
+	        //if (rule.rhs.stream().allMatch(s -> Rule.isCat(s)))
+	          //continue;
+	        filterRule(rule);
+	      }
+	      
+	      if (opts.useSpecialTokens) {
+	    	  for (String headToken : headTokens) {
+	    		  ValueFormula<NameValue> stringFormula = new ValueFormula<NameValue>(new NameValue(headToken));
+	    		  Rule specialRule = new Rule("KEYWORD_TOKEN", Lists.newArrayList(headToken), new ConstantFn(stringFormula) );
+	    		  specialRule.addInfo("anchored", "true");
+	    		  filterRule(specialRule);
+	    	  }
+	      }
+	
+	      if (opts.verbose > 1) {
+	        LogInfo.logs("chartList.size = %d", chartList.size());
+	        LogInfo.log("Potential packings: ");
+	        this.matches.forEach(d -> LogInfo.logs("%f: %s\t", d.getScore(), d.formula));
+	        LogInfo.logs("BestPacking: %s", bestPacking);
+	        LogInfo.logs("formulaToCat: %s", formulaToCat);
+	      }
 	    }
+    
+    for (Derivation def : derivationsToTry){
+    	
+    	chartList = chartListArg;
+    	if (opts.verbose > 1){
+    		LogInfo.logs("Grammar inducer: examining derivation %s", def.toString());
+    	}
+    	
+    	
+    	this.matches = new ArrayList<>();
+        addMatches(def, makeChartMap(chartList));
+        Collections.reverse(this.matches);
+    
+
 	    if (opts.useBestPacking) {
 	      List<Derivation> bestPacking = bestPackingDP(this.matches, numTokens);
 	      HashMap<String, String> formulaToCat = new HashMap<>();
