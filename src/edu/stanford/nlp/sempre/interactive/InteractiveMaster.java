@@ -92,6 +92,8 @@ public class InteractiveMaster extends Master {
 		InteractiveServer server = new InteractiveServer(this);
 		server.run();
 	}
+	
+	String lastAnswer = "";
 
 	@Override
 	public Response processQuery(Session session, String line) {		
@@ -152,6 +154,7 @@ public class InteractiveMaster extends Master {
 			if (response.ex.predDerivations.size() > 0) {
 				response.candidateIndex = 0;
 			}
+			lastAnswer = response.getAnswer();
 			if (opts.verbose >= 1) {
 				LogInfo.logs("all derivations sent to client");
 				for (Derivation d : response.ex.getPredDerivations()) {
@@ -255,7 +258,7 @@ public class InteractiveMaster extends Master {
 				stats.put("json_len", jsonDef.length());
 				try {
 					inducedRules.addAll(induceRulesHelper(command, head, jsonDef, builder.parser, builder.params,
-							session, new Ref<Response>(response)));
+							session, new Ref<Response>(response), lastAnswer));
 					stats.put("num_rules", inducedRules.size());
 				} catch (BadInteractionException e) {
 					stats.put("num_rules", 0);
@@ -364,7 +367,7 @@ public class InteractiveMaster extends Master {
 	}
 
 	public static List<Rule> induceRulesHelper(String command, String head, String jsonDef, Parser parser,
-			Params params, Session session, Ref<Response> refResponse) throws BadInteractionException {
+			Params params, Session session, Ref<Response> refResponse, String executionAnswer) throws BadInteractionException {
 		Example exHead = InteractiveUtils.exampleFromUtterance(head, session);
 
 		if (exHead.getTokens() == null || exHead.getTokens().size() == 0)
@@ -396,7 +399,7 @@ public class InteractiveMaster extends Master {
 
 		Set<Rule> inducedRules = new LinkedHashSet<>();
 		GrammarInducer grammarInducer = new GrammarInducer(exHead.getTokens(), bodyDeriv, state.chartList, parser,
-				params, session);
+				params, session, executionAnswer);
 		inducedRules.addAll(grammarInducer.getRules());
 		if (opts.verbose > 2) {
 			LogInfo.logs("induced rules before alignment = %s", inducedRules);

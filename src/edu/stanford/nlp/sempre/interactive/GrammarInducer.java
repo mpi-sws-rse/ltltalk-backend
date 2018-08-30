@@ -34,7 +34,8 @@ import edu.stanford.nlp.sempre.NameValue;
 import fig.basic.LispTree;
 import fig.basic.LogInfo;
 import fig.basic.Option;
-import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.SimpleEquivalentRewriting;
+import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.SimpleLoopRewriting;
+import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.MovesToVisitRewriting;
 /**
  * Takes two examples, and induce Rules
  *
@@ -63,6 +64,8 @@ public class GrammarInducer {
     public boolean useEquivalentRewriting = false;
     @Option(gloss="whether to use special token category in order to keep track of keywords")
     public boolean useSpecialTokens = false;
+    @Option(gloss="whether to use rewriting of move formulas into single visit formulas")
+    public boolean useMovesToVisitRewriting = false;
   }
 
   public static Options opts = new Options();
@@ -78,13 +81,30 @@ public class GrammarInducer {
 //	  
 //  }
   public GrammarInducer(List<String> headTokens, Derivation def1, List<Derivation> chartListArg){
-	  this(headTokens, def1, chartListArg, null, null, null);
+	  this(headTokens, def1, chartListArg, null, null, null, null);
+  }
+  
+  public GrammarInducer(List<String> headTokens, Derivation def1, List<Derivation> chartListArg, Parser parser, Params params, Session session) {
+	  this(headTokens, def1, chartListArg, parser, params, session, "");
   }
   
   
+  private Derivation createInducedDerivationFromFormula(Formula f, Parser parser, Params params, Session session) {
+	Derivation equivalentDerivation = InteractiveUtils.derivFromUtteranceAndFormula(f.prettyString(), f, parser,
+			params, session);
+
+	if (equivalentDerivation.grammarInfo.start == -1) {
+		equivalentDerivation.grammarInfo.start = 0;
+		equivalentDerivation.grammarInfo.end = headTokens.size();
+
+	}
+	return equivalentDerivation;
+
+  }
+  
   // induce rule if possible,
   // otherwise set the correct status
-  public GrammarInducer(List<String> headTokens, Derivation def1, List<Derivation> chartListArg, Parser parser, Params params, Session session) {
+  public GrammarInducer(List<String> headTokens, Derivation def1, List<Derivation> chartListArg, Parser parser, Params params, Session session,String executionAnswer) {
     // grammarInfo start and end is used to indicate partial, when using aligner
     boolean allHead = false;
     if (def1.grammarInfo.start == -1) {
@@ -97,6 +117,9 @@ public class GrammarInducer {
       throw new RuntimeException("The head is empty, refusing to define.");
     }
     
+    if(executionAnswer.equals("") && opts.useMovesToVisitRewriting) {
+    	throw new RuntimeException("When using rewriting, the execution path must not be empty");
+    }
     //take this into account!
     chartListArg.removeIf(d -> d.start == def1.grammarInfo.start && d.end == def1.grammarInfo.end);
     Derivation originalDerivation = def1;
@@ -108,23 +131,30 @@ public class GrammarInducer {
     
 
     boolean loopRewriting = opts.useEquivalentRewriting && opts.useLoopRewriting && parser != null;
-    
+    List<Formula> equivalentFormulas;
     if (loopRewriting == true){
 
-    	SimpleEquivalentRewriting rewriting = new SimpleEquivalentRewriting(originalDerivation, headTokens);
+    	SimpleLoopRewriting rewriting = new SimpleLoopRewriting(originalDerivation, headTokens);
 	    
-	    List<Formula> equivalentFormulas = rewriting.getEquivalentFormulas();
+	    equivalentFormulas = rewriting.getEquivalentFormulas();
 	    for (Formula f : equivalentFormulas){
-	    	Derivation equivalentDerivation  = InteractiveUtils.derivFromUtteranceAndFormula(f.prettyString(), f, parser, params, session);
-		    
-		    if (equivalentDerivation.grammarInfo.start == -1) {
-		        equivalentDerivation.grammarInfo.start = 0;
-		        equivalentDerivation.grammarInfo.end = headTokens.size();
-		        allHead = true;
-		      }
+	    	Derivation equivalentDerivation  = createInducedDerivationFromFormula(f, parser, params, session);		    		   
 		    equivalentDerivationsToTry.add(equivalentDerivation);
+		    allHead = true;
 	    }	   
     }
+    
+    if (opts.useMovesToVisitRewriting == true) {
+    	MovesToVisitRewriting movesRewriting = new MovesToVisitRewriting(originalDerivation, headTokens, executionAnswer, session);
+    	equivalentFormulas = movesRewriting.getEquivalentFormulas();
+    	for (Formula f : equivalentFormulas){
+	    	Derivation equivalentDerivation  = createInducedDerivationFromFormula(f, parser, params, session);		    		   
+		    equivalentDerivationsToTry.add(equivalentDerivation);
+		    allHead = true;
+	    }
+    }
+    
+    LogInfo.logs("equivalent derivations = %s", equivalentDerivationsToTry);
     
     inducedRules = new ArrayList<>();
     List<Derivation> chartList = chartListArg;
@@ -218,14 +248,20 @@ public class GrammarInducer {
 	        Collections.reverse(this.matches);
 	        Packing bestScoredPacking = bestPackingDP(this.matches, numTokens);
 		    List<Derivation> bestPacking = bestScoredPacking.packing;
-		    
+		    if (opts.verbose > 1) {
+		    	LogInfo.logs("best packing score = %f", bestScoredPacking.score );
+		    }
 		    if (bestScoredPacking.score > overallBestScore) {
 		    	bestScoringEquivalentPacking = bestPacking;
 		    	bestScoringEquivalentDefinition = def;
+		    	overallBestScore = bestScoredPacking.score;
 		    }
 	    }
 	    
 	    Derivation finalDefinition = bestScoringEquivalentDefinition;
+	    if (opts.verbose > 0) {
+	    	LogInfo.logs("best scoring equivalent definition = %s", finalDefinition);
+	    }
 		    
 		      
 	    HashMap<String, String> formulaToCat = new HashMap<>();

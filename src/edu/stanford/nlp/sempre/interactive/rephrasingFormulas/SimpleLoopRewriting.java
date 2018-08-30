@@ -7,7 +7,7 @@ import edu.stanford.nlp.sempre.interactive.InteractiveUtils;
 import fig.basic.LogInfo;
 import fig.basic.Option;
 
-public class SimpleEquivalentRewriting extends EquivalentFormulas {
+public class SimpleLoopRewriting extends EquivalentFormulas {
 	
 	public static class Options {
 	    @Option(gloss = "verbose")
@@ -61,7 +61,7 @@ public class SimpleEquivalentRewriting extends EquivalentFormulas {
 		return formulaToAdd;
 	}
 	  
-	public SimpleEquivalentRewriting(Derivation deriv, List<String> headTokens){
+	public SimpleLoopRewriting(Derivation deriv, List<String> headTokens){
 	if (opts.verbose > 1){
 		LogInfo.logs(deriv.toString());
 		deriv.printDerivationRecursively();

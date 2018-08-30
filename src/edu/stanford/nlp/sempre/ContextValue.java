@@ -70,6 +70,10 @@ public class ContextValue extends Value {
   public ContextValue(KnowledgeGraph graph) {
     this(null, null, new ArrayList(), graph);
   }
+  
+  public ContextValue() {
+	  this (null, null, new ArrayList(), null);
+  }
 
   // Example:
   //   (context (user pliang)
