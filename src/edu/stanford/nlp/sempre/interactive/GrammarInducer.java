@@ -153,8 +153,9 @@ public class GrammarInducer {
 		    allHead = true;
 	    }
     }
-    
-    LogInfo.logs("equivalent derivations = %s", equivalentDerivationsToTry);
+    if (opts.verbose > 0) {
+    	LogInfo.logs("equivalent derivations = %s", equivalentDerivationsToTry);
+    }
     
     inducedRules = new ArrayList<>();
     List<Derivation> chartList = chartListArg;

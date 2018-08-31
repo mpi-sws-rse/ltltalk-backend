@@ -255,7 +255,7 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('Formula.precisePrettyPrinting', true),
 
   o('SimpleLoopRewriting.verbose', 0),
-  o('MovesToVisitRewriting.verbose', 1),
+  o('MovesToVisitRewriting.verbose', 0),
 
   o('NumberFn.allowedRange', -99, 99),
   o('SimpleLexicon.inPaths', "./#{$path}/simple_colors.lexicon"),
