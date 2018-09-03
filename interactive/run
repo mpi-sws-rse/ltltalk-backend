@@ -240,6 +240,7 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('GrammarInducer.useEquivalentRewriting', true),
   o('GrammarInducer.useMovesToVisitRewriting', true),
   o('GrammarInducer.useVisitDestinationRewriting', true),
+  o('GrammarInducer.usePickingAndDroppingRewriting', false),
   o('GrammarInducer.maxNonterminals', 4),
   o('GrammarInducer.simpleCats', 'Number', 'Color',  'Direction', 'Shape', 'Point'),
 
@@ -257,6 +258,7 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
 
   o('SimpleLoopRewriting.verbose', 0),
   o('MovesToVisitRewriting.verbose', 0),
+  o('VisitDestinationRewriting.verbose', 0),
 
   o('NumberFn.allowedRange', -99, 99),
   o('SimpleLexicon.inPaths', "./#{$path}/simple_colors.lexicon"),

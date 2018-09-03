@@ -424,41 +424,48 @@ public abstract class Formulas {
 		return itemsWithPropertyFormula;
 	}
 
-	public static Formula createFormulaFromTwoProperties(String property1, String property2) {
+	
+
+	
+	
+	public static Formula createFilteredAreaFormula(Formula filter) {
+		ValueFormula worldFormula = Formulas.newNameFormula("world");
+		CallFormula filteredAreaFormula = new CallFormula("filterArea",
+				Arrays.asList(worldFormula, filter));
+		return filteredAreaFormula;
+	}
+	
+	public static Formula createPropertyFormula(String property) {
+		if (property == null) {
+			CallFormula allItemsFormula = new CallFormula("allItems", new ArrayList<Formula>());
+			return allItemsFormula;
+
+		} else {
+			JoinFormula itemsWithPropertyFormula = createItemsWithPropertyFormula(property);
+			return itemsWithPropertyFormula;
+		}
+	}
+	
+	public static Formula createPropertyCombinationFormula(String property1, String property2) {
 		JoinFormula itemsWithPropertyFormula1 = createItemsWithPropertyFormula(property1);
 		JoinFormula itemsWithPropertyFormula2 = createItemsWithPropertyFormula(property2);
 		MergeFormula propertiesCombinationFormula = new MergeFormula(MergeFormula.Mode.and, itemsWithPropertyFormula1,
 				itemsWithPropertyFormula2);
-		ValueFormula worldFormula = Formulas.newNameFormula("world");
-		CallFormula worldWithItems = new CallFormula("filterArea",
-				Arrays.asList(worldFormula, propertiesCombinationFormula));
-		ValueFormula visitAreaFormula = Formulas.newNameFormula("visitArea");
-		ActionFormula visitOccupiedPoint = new ActionFormula(ActionFormula.Mode.primitive,
-				Arrays.asList(visitAreaFormula, worldWithItems));
-		return visitOccupiedPoint;
+		return propertiesCombinationFormula;
 	}
 
-
-	public static Formula createFormulaFromProperty(String property) {
-		if (property == null) {
-			ValueFormula worldFormula = new ValueFormula(new NameValue("world", null));
-			CallFormula allItemsFormula = new CallFormula("allItems", new ArrayList<Formula>());
-
-			CallFormula worldWithItems = new CallFormula("filterArea", Arrays.asList(worldFormula, allItemsFormula));
-			ValueFormula visitAreaFormula = new ValueFormula(new NameValue("visitArea", null));
-			ActionFormula visitOccupiedPoint = new ActionFormula(ActionFormula.Mode.primitive,
-					Arrays.asList(visitAreaFormula, worldWithItems));
-			return visitOccupiedPoint;
+	public static Formula createLimitItemsFormula(String quantifier) {
+		int limit;
+		if (quantifier.equals("every")) {
+			limit = -1;
 		} else {
-			JoinFormula itemsWithPropertyFormula = createItemsWithPropertyFormula(property);
-			ValueFormula worldFormula = Formulas.newNameFormula("world");
-			CallFormula worldWithItems = new CallFormula("filterArea",
-					Arrays.asList(worldFormula, itemsWithPropertyFormula));
-			ValueFormula visitAreaFormula = Formulas.newNameFormula("visitArea");
-			ActionFormula visitOccupiedPoint = new ActionFormula(ActionFormula.Mode.primitive,
-					Arrays.asList(visitAreaFormula, worldWithItems));
-			return visitOccupiedPoint;
+			limit = 1;
 		}
+		ValueFormula limitValueFormula = new ValueFormula(new NumberValue(limit));
+		return limitValueFormula;
 	}
 
+	public static Formula createQuantifiedItemFormula(Formula limitingItemNumberFormula, Formula itemClassSpecificationFormula) {
+		return new CallFormula("setLimit", Arrays.asList(limitingItemNumberFormula, itemClassSpecificationFormula));
+	}
 }

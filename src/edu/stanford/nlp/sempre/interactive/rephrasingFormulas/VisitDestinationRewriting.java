@@ -25,6 +25,9 @@ public class VisitDestinationRewriting extends EquivalentFormulas {
 	public List<Formula> equivalentFormulas = new LinkedList<Formula>();
 
 	public List<Formula> getEquivalentFormulas() {
+		if (opts.verbose > 1) {
+			LogInfo.logs("VisitDestinationRewriting: equivalent formulas are %s", equivalentFormulas);
+		}
 		return equivalentFormulas;
 		}
 	
@@ -37,8 +40,30 @@ public class VisitDestinationRewriting extends EquivalentFormulas {
 		}
 		return true;
 	}
+	private Formula createVisitFormulaFromTwoProperties(String property1, String property2) {
+		JoinFormula itemsWithPropertyFormula1 = Formulas.createItemsWithPropertyFormula(property1);
+		JoinFormula itemsWithPropertyFormula2 = Formulas.createItemsWithPropertyFormula(property2);
+		MergeFormula propertiesCombinationFormula = new MergeFormula(MergeFormula.Mode.and, itemsWithPropertyFormula1,
+				itemsWithPropertyFormula2);
+		ValueFormula worldFormula = Formulas.newNameFormula("world");
+		CallFormula worldWithItems = new CallFormula("filterArea",
+				Arrays.asList(worldFormula, propertiesCombinationFormula));
+		ValueFormula visitAreaFormula = Formulas.newNameFormula("visitArea");
+		ActionFormula visitOccupiedPoint = new ActionFormula(ActionFormula.Mode.primitive,
+				Arrays.asList(visitAreaFormula, worldWithItems));
+		return visitOccupiedPoint;
+	}
 	
-	
+	private Formula createVisitFormulaFromProperty(String property) {
+		ValueFormula worldFormula = new ValueFormula(new NameValue("world", property));
+		Formula allItemsWithPropertyFormula = Formulas.createPropertyFormula(property);
+		Formula worldWithItems = new CallFormula("filterArea", Arrays.asList(worldFormula, allItemsWithPropertyFormula));
+		
+		ValueFormula visitAreaFormula = Formulas.newNameFormula("visitArea");
+		ActionFormula visitOccupiedPoint = new ActionFormula(ActionFormula.Mode.primitive,
+				Arrays.asList(visitAreaFormula, worldWithItems));
+		return visitOccupiedPoint;
+}
 	
 	public VisitDestinationRewriting(Derivation deriv, List<String> headTokens, String executionAnswer, Session session){
 		if (opts.verbose > 0) {
@@ -60,19 +85,19 @@ public class VisitDestinationRewriting extends EquivalentFormulas {
 			
 			
 			for (Item itemAtPoint : itemsAtLastPoint) {
-				Formula visitPointWithColorPropertyFormula = Formulas.createFormulaFromProperty(itemAtPoint.color);
+				Formula visitPointWithColorPropertyFormula = createVisitFormulaFromProperty(itemAtPoint.color);
 				equivalentFormulas.add(visitPointWithColorPropertyFormula);
 				
-				Formula visitPointWithShapePropertyFormula = Formulas.createFormulaFromProperty(itemAtPoint.shape);
+				Formula visitPointWithShapePropertyFormula = createVisitFormulaFromProperty(itemAtPoint.shape);
 				equivalentFormulas.add(visitPointWithShapePropertyFormula);
 				
-				Formula visitPointWithBothShapeAndColorFormula = Formulas.createFormulaFromTwoProperties(itemAtPoint.color, itemAtPoint.shape);
+				Formula visitPointWithBothShapeAndColorFormula = createVisitFormulaFromTwoProperties(itemAtPoint.color, itemAtPoint.shape);
 				equivalentFormulas.add(visitPointWithBothShapeAndColorFormula);
 								
 			}
 			
 			if (itemsAtLastPoint.size() > 0) {
-				Formula visitPointWithItemFormula = Formulas.createFormulaFromProperty(null);
+				Formula visitPointWithItemFormula = createVisitFormulaFromProperty(null);
 				equivalentFormulas.add(visitPointWithItemFormula);
 			}
 
