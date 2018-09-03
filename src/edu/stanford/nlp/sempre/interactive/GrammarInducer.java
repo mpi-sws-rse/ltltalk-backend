@@ -36,6 +36,7 @@ import fig.basic.LogInfo;
 import fig.basic.Option;
 import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.SimpleLoopRewriting;
 import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.MovesToVisitRewriting;
+import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.VisitDestinationRewriting;
 /**
  * Takes two examples, and induce Rules
  *
@@ -66,6 +67,8 @@ public class GrammarInducer {
     public boolean useSpecialTokens = false;
     @Option(gloss="whether to use rewriting of move formulas into single visit formulas")
     public boolean useMovesToVisitRewriting = false;
+    @Option(gloss="whether to use rewriting of destination")
+    public boolean useVisitDestinationRewriting = false;
   }
 
   public static Options opts = new Options();
@@ -147,6 +150,15 @@ public class GrammarInducer {
     if (opts.useMovesToVisitRewriting == true) {
     	MovesToVisitRewriting movesRewriting = new MovesToVisitRewriting(originalDerivation, headTokens, executionAnswer, session);
     	equivalentFormulas = movesRewriting.getEquivalentFormulas();
+    	for (Formula f : equivalentFormulas){
+	    	Derivation equivalentDerivation  = createInducedDerivationFromFormula(f, parser, params, session);		    		   
+		    equivalentDerivationsToTry.add(equivalentDerivation);
+		    allHead = true;
+	    }
+    }
+    if (opts.useVisitDestinationRewriting == true) {
+    	VisitDestinationRewriting destinationRewriting = new VisitDestinationRewriting(originalDerivation, headTokens, executionAnswer, session);
+    	equivalentFormulas = destinationRewriting.getEquivalentFormulas();
     	for (Formula f : equivalentFormulas){
 	    	Derivation equivalentDerivation  = createInducedDerivationFromFormula(f, parser, params, session);		    		   
 		    equivalentDerivationsToTry.add(equivalentDerivation);
@@ -438,7 +450,7 @@ public class GrammarInducer {
         if (bestEndsAtI.get(j).score >= bestOverall.score)
           bestOverall = bestEndsAtI.get(j);
       }
-      if (opts.verbose > 1)
+      if (opts.verbose > 2)
         LogInfo.logs("maximalAtI[%d] = %f: %s, BlockingIndex: %d", i, bestOverall.score, bestOverall.packing,
             blockingIndex(matches, i));
       if (bestOverall.score > Double.NEGATIVE_INFINITY)

@@ -68,7 +68,6 @@ public class MovesToVisitRewriting extends EquivalentFormulas {
 		}
 
 		if (! actionF.mode.equals(ActionFormula.Mode.sequential)) {
-			LogInfo.logs("wasn't a sequence");
 			return false;
 		}
 		// if not just one move, then the first argument should be a sequence, while the second one should be one move
