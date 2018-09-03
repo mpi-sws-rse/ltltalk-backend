@@ -38,46 +38,7 @@ public class VisitDestinationRewriting extends EquivalentFormulas {
 		return true;
 	}
 	
-	private JoinFormula createItemsWithPropertyFormula(String property) {
-		ValueFormula propertyFormula = new ValueFormula(new NameValue(property, null));
-		JoinFormula itemsWithPropertyFormula = new JoinFormula("items?property", propertyFormula);
-		return itemsWithPropertyFormula;
-		
-	}
 	
-	private Formula createFormulaFromTwoProperties(String property1, String property2) {
-		JoinFormula itemsWithPropertyFormula1 = createItemsWithPropertyFormula(property1);
-		JoinFormula itemsWithPropertyFormula2 = createItemsWithPropertyFormula(property2);
-		MergeFormula propertiesCombinationFormula = new MergeFormula(MergeFormula.Mode.and, itemsWithPropertyFormula1, itemsWithPropertyFormula2);
-		ValueFormula worldFormula = Formulas.newNameFormula("world");
-		CallFormula worldWithItems = new CallFormula("filterArea", Arrays.asList(worldFormula, propertiesCombinationFormula));
-		ValueFormula visitAreaFormula = Formulas.newNameFormula("visitArea");
-		ActionFormula visitOccupiedPoint = new ActionFormula(ActionFormula.Mode.primitive, 
-															 Arrays.asList(visitAreaFormula, worldWithItems));
-		return visitOccupiedPoint;
-	}
-	
-	private Formula createFormulaFromProperty(String property) {
-		if (property == null) {
-			ValueFormula worldFormula = new ValueFormula(new NameValue("world", null));
-			CallFormula allItemsFormula = new CallFormula("allItems", new ArrayList<Formula>());
-			
-			CallFormula worldWithItems = new CallFormula("filterArea", Arrays.asList(worldFormula, allItemsFormula));
-			ValueFormula visitAreaFormula = new ValueFormula(new NameValue("visitArea", null));
-			ActionFormula visitOccupiedPoint = new ActionFormula(ActionFormula.Mode.primitive, 
-																 Arrays.asList(visitAreaFormula, worldWithItems));
-			return visitOccupiedPoint;
-		}
-		else {
-			JoinFormula itemsWithPropertyFormula = createItemsWithPropertyFormula(property);
-			ValueFormula worldFormula = Formulas.newNameFormula("world");
-			CallFormula worldWithItems = new CallFormula("filterArea", Arrays.asList(worldFormula, itemsWithPropertyFormula));
-			ValueFormula visitAreaFormula = Formulas.newNameFormula("visitArea");
-			ActionFormula visitOccupiedPoint = new ActionFormula(ActionFormula.Mode.primitive, 
-																 Arrays.asList(visitAreaFormula, worldWithItems));
-			return visitOccupiedPoint;
-		}
-	}
 	
 	public VisitDestinationRewriting(Derivation deriv, List<String> headTokens, String executionAnswer, Session session){
 		if (opts.verbose > 0) {
@@ -99,35 +60,25 @@ public class VisitDestinationRewriting extends EquivalentFormulas {
 			
 			
 			for (Item itemAtPoint : itemsAtLastPoint) {
-				Formula visitPointWithColorPropertyFormula = createFormulaFromProperty(itemAtPoint.color);
+				Formula visitPointWithColorPropertyFormula = Formulas.createFormulaFromProperty(itemAtPoint.color);
 				equivalentFormulas.add(visitPointWithColorPropertyFormula);
 				
-				Formula visitPointWithShapePropertyFormula = createFormulaFromProperty(itemAtPoint.shape);
+				Formula visitPointWithShapePropertyFormula = Formulas.createFormulaFromProperty(itemAtPoint.shape);
 				equivalentFormulas.add(visitPointWithShapePropertyFormula);
 				
-				Formula visitPointWithBothShapeAndColorFormula = createFormulaFromTwoProperties(itemAtPoint.color, itemAtPoint.shape);
+				Formula visitPointWithBothShapeAndColorFormula = Formulas.createFormulaFromTwoProperties(itemAtPoint.color, itemAtPoint.shape);
 				equivalentFormulas.add(visitPointWithBothShapeAndColorFormula);
 								
 			}
 			
 			if (itemsAtLastPoint.size() > 0) {
-				Formula visitPointWithItemFormula = createFormulaFromProperty(null);
+				Formula visitPointWithItemFormula = Formulas.createFormulaFromProperty(null);
 				equivalentFormulas.add(visitPointWithItemFormula);
 			}
 
 		}
 		
-//		if (isFormulaSequenceOfMoves(deriv.getFormula()) == true) {
-//			Object lastElementObject = path.get(path.size()-1);
-//			ArrayList lastElement = (ArrayList)lastElementObject;
-//			int x =  ((Integer)lastElement.get(0)).intValue();
-//			int y = ((Integer) lastElement.get(1)).intValue();
-//			ActionFormula visitFormula = createVisitConstantFieldFormula(x, y);
-//			if (opts.verbose > 0) {
-//				LogInfo.logs("created formula = %s", visitFormula);
-//			}
-//			equivalentFormulas.add(visitFormula);
-//		}
+
 		
 			
 			
