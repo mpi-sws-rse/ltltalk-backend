@@ -18,6 +18,7 @@ import edu.stanford.nlp.sempre.ActionFormula;
 import edu.stanford.nlp.sempre.ConstantFn;
 import edu.stanford.nlp.sempre.Derivation;
 import edu.stanford.nlp.sempre.Example;
+import edu.stanford.nlp.sempre.Executor;
 import edu.stanford.nlp.sempre.Formula;
 import edu.stanford.nlp.sempre.ValueFormula;
 import edu.stanford.nlp.sempre.Formulas;
@@ -37,6 +38,7 @@ import fig.basic.Option;
 import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.SimpleLoopRewriting;
 import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.MovesToVisitRewriting;
 import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.VisitDestinationRewriting;
+import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.PickingAndDroppingRewriting;
 /**
  * Takes two examples, and induce Rules
  *
@@ -69,6 +71,8 @@ public class GrammarInducer {
     public boolean useMovesToVisitRewriting = false;
     @Option(gloss="whether to use rewriting of destination")
     public boolean useVisitDestinationRewriting = false;
+    @Option(gloss="whether to use rewriting of picking and dropping")
+    public boolean usePickingAndDroppingRewriting = false;
   }
 
   public static Options opts = new Options();
@@ -159,6 +163,15 @@ public class GrammarInducer {
     if (opts.useVisitDestinationRewriting == true) {
     	VisitDestinationRewriting destinationRewriting = new VisitDestinationRewriting(originalDerivation, headTokens, executionAnswer, session);
     	equivalentFormulas = destinationRewriting.getEquivalentFormulas();
+    	for (Formula f : equivalentFormulas){
+	    	Derivation equivalentDerivation  = createInducedDerivationFromFormula(f, parser, params, session);		    		   
+		    equivalentDerivationsToTry.add(equivalentDerivation);
+		    allHead = true;
+	    }
+    }
+    if (opts.usePickingAndDroppingRewriting == true) {
+    	PickingAndDroppingRewriting PNDRewriting = new PickingAndDroppingRewriting(parser, originalDerivation, headTokens, executionAnswer, session);
+    	equivalentFormulas = PNDRewriting.getEquivalentFormulas();
     	for (Formula f : equivalentFormulas){
 	    	Derivation equivalentDerivation  = createInducedDerivationFromFormula(f, parser, params, session);		    		   
 		    equivalentDerivationsToTry.add(equivalentDerivation);

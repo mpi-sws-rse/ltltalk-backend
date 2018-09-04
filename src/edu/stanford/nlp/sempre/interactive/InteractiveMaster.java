@@ -25,6 +25,7 @@ import edu.stanford.nlp.sempre.Rule;
 import edu.stanford.nlp.sempre.RuleSource;
 import edu.stanford.nlp.sempre.Session;
 import edu.stanford.nlp.sempre.Grammar;
+import edu.stanford.nlp.sempre.Executor;
 import fig.basic.IOUtils;
 import fig.basic.LispTree;
 import fig.basic.LogInfo;
