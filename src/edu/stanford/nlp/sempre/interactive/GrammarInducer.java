@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import com.beust.jcommander.internal.Lists;
@@ -35,6 +36,7 @@ import edu.stanford.nlp.sempre.NameValue;
 import fig.basic.LispTree;
 import fig.basic.LogInfo;
 import fig.basic.Option;
+import edu.stanford.nlp.sempre.interactive.embeddings.Embeddings;
 import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.SimpleLoopRewriting;
 import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.MovesToVisitRewriting;
 import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.VisitDestinationRewriting;
@@ -73,6 +75,9 @@ public class GrammarInducer {
     public boolean useVisitDestinationRewriting = false;
     @Option(gloss="whether to use rewriting of picking and dropping")
     public boolean usePickingAndDroppingRewriting = false;
+    @Option(gloss="whether to use similarity when deciding which rewriting to use")
+    public boolean useSemanticSimilarityOfSentences = false;
+    
   }
 
   public static Options opts = new Options();
@@ -81,6 +86,7 @@ public class GrammarInducer {
 
   List<String> headTokens;
   String id;
+  
 
   public List<Derivation> matches;
 
@@ -93,6 +99,10 @@ public class GrammarInducer {
   
   public GrammarInducer(List<String> headTokens, Derivation def1, List<Derivation> chartListArg, Parser parser, Params params, Session session) {
 	  this(headTokens, def1, chartListArg, parser, params, session, "");
+  }
+  
+  public GrammarInducer(List<String> headTokens, Derivation def1, List<Derivation> chartListArg, Parser parser, Params params, Session session,String executionAnswer) {
+	  this(headTokens, def1, chartListArg, parser, params, session, executionAnswer, null);
   }
   
   
@@ -111,7 +121,7 @@ public class GrammarInducer {
   
   // induce rule if possible,
   // otherwise set the correct status
-  public GrammarInducer(List<String> headTokens, Derivation def1, List<Derivation> chartListArg, Parser parser, Params params, Session session,String executionAnswer) {
+  public GrammarInducer(List<String> headTokens, Derivation def1, List<Derivation> chartListArg, Parser parser, Params params, Session session,String executionAnswer, Embeddings embeddings) {
     // grammarInfo start and end is used to indicate partial, when using aligner
     boolean allHead = false;
     if (def1.grammarInfo.start == -1) {
@@ -119,6 +129,8 @@ public class GrammarInducer {
       def1.grammarInfo.end = headTokens.size();
       allHead = true;
     }
+    
+    
     // dont want weird cat unary rules with strange semantics
     if (headTokens == null || headTokens.isEmpty()) {
       throw new RuntimeException("The head is empty, refusing to define.");
@@ -135,7 +147,7 @@ public class GrammarInducer {
     this.headTokens = headTokens;
     int numTokens = headTokens.size();
     LinkedList<Derivation> equivalentDerivationsToTry = new LinkedList<Derivation>();
-    
+    equivalentDerivationsToTry.add(originalDerivation);
 
     boolean loopRewriting = opts.useEquivalentRewriting && opts.useLoopRewriting && parser != null;
     List<Formula> equivalentFormulas;
@@ -154,6 +166,7 @@ public class GrammarInducer {
     if (opts.useMovesToVisitRewriting == true) {
     	MovesToVisitRewriting movesRewriting = new MovesToVisitRewriting(originalDerivation, headTokens, executionAnswer, session);
     	equivalentFormulas = movesRewriting.getEquivalentFormulas();
+    	LogInfo.logs("++++++++++++formula from moves rewriting = %s", equivalentFormulas);
     	for (Formula f : equivalentFormulas){
 	    	Derivation equivalentDerivation  = createInducedDerivationFromFormula(f, parser, params, session);		    		   
 		    equivalentDerivationsToTry.add(equivalentDerivation);
@@ -163,7 +176,9 @@ public class GrammarInducer {
     if (opts.useVisitDestinationRewriting == true) {
     	VisitDestinationRewriting destinationRewriting = new VisitDestinationRewriting(originalDerivation, headTokens, executionAnswer, session);
     	equivalentFormulas = destinationRewriting.getEquivalentFormulas();
+    	LogInfo.logs("formula from destination rewriting = %s", equivalentFormulas);
     	for (Formula f : equivalentFormulas){
+    		
 	    	Derivation equivalentDerivation  = createInducedDerivationFromFormula(f, parser, params, session);		    		   
 		    equivalentDerivationsToTry.add(equivalentDerivation);
 		    allHead = true;
@@ -229,41 +244,41 @@ public class GrammarInducer {
     	}
     }  
     
-    if (opts.useBestPacking) {
-    	  Packing bestScoredPacking = bestPackingDP(this.matches, numTokens);
-	      List<Derivation> bestPacking = bestScoredPacking.packing;
-	      HashMap<String, String> formulaToCat = new HashMap<>();
-	      bestPacking.forEach(d -> formulaToCat.put(catFormulaKey(d), varName(d, originalDerivation)));
-	      buildFormula(originalDerivation, formulaToCat);
-	      for (Rule rule : induceRules(bestPacking, originalDerivation)) {
-	        // ALTER : I am not sure why this is here, but it prevents some use cases from being defined
-	        //if (rule.rhs.stream().allMatch(s -> Rule.isCat(s)))
-	          //continue;
-	        filterRule(rule);
-	      }
-	      
-	      if (opts.useSpecialTokens) {
-	    	  for (String headToken : headTokens) {
-	    		  ValueFormula<NameValue> stringFormula = new ValueFormula<NameValue>(new NameValue(headToken));
-	    		  Rule specialRule = new Rule("KEYWORD_TOKEN", Lists.newArrayList(headToken), new ConstantFn(stringFormula) );
-	    		  specialRule.addInfo("anchored", "true");
-	    		  filterRule(specialRule);
-	    	  }
-	      }
-	
-	      if (opts.verbose > 1) {
-	        LogInfo.logs("chartList.size = %d", chartList.size());
-	        LogInfo.log("Potential packings: ");
-	        this.matches.forEach(d -> LogInfo.logs("%f: %s\t", d.getScore(), d.formula));
-	        LogInfo.logs("BestPacking: %s", bestPacking);
-	        LogInfo.logs("formulaToCat: %s", formulaToCat);
-	      }
-    }
+//    if (opts.useBestPacking) {
+//    	  Packing bestScoredPacking = bestPackingDP(this.matches, numTokens);
+//	      List<Derivation> bestPacking = bestScoredPacking.packing;
+//	      HashMap<String, String> formulaToCat = new HashMap<>();
+//	      bestPacking.forEach(d -> formulaToCat.put(catFormulaKey(d), varName(d, originalDerivation)));
+//	      buildFormula(originalDerivation, formulaToCat);
+//	      for (Rule rule : induceRules(bestPacking, originalDerivation)) {
+//	        // ALTER : I am not sure why this is here, but it prevents some use cases from being defined
+//	        //if (rule.rhs.stream().allMatch(s -> Rule.isCat(s)))
+//	          //continue;
+//	        filterRule(rule);
+//	      }
+//	      
+//	      if (opts.useSpecialTokens) {
+//	    	  for (String headToken : headTokens) {
+//	    		  ValueFormula<NameValue> stringFormula = new ValueFormula<NameValue>(new NameValue(headToken));
+//	    		  Rule specialRule = new Rule("KEYWORD_TOKEN", Lists.newArrayList(headToken), new ConstantFn(stringFormula) );
+//	    		  specialRule.addInfo("anchored", "true");
+//	    		  filterRule(specialRule);
+//	    	  }
+//	      }
+//	
+//	      if (opts.verbose > 1) {
+//	        LogInfo.logs("chartList.size = %d", chartList.size());
+//	        LogInfo.log("Potential packings: ");
+//	        this.matches.forEach(d -> LogInfo.logs("%f: %s\t", d.getScore(), d.formula));
+//	        LogInfo.logs("BestPacking: %s", bestPacking);
+//	        LogInfo.logs("formulaToCat: %s", formulaToCat);
+//	      }
+//    }
     
-    if (opts.useBestPacking && opts.useEquivalentRewriting && equivalentDerivationsToTry.size() > 0) {
 	    double overallBestScore = -1.0;
 	    List<Derivation> bestScoringEquivalentPacking = null;
 	    Derivation bestScoringEquivalentDefinition = null;
+	    // now this will always contain at least the original derivation
 	    for (Derivation def : equivalentDerivationsToTry){	    	
 	    	chartList = chartListArg;
 	    	if (opts.verbose > 1){
@@ -277,10 +292,14 @@ public class GrammarInducer {
 		    if (opts.verbose > 1) {
 		    	LogInfo.logs("best packing score = %f", bestScoredPacking.score );
 		    }
-		    if (bestScoredPacking.score > overallBestScore) {
+		    double currentScore =combinedScore(bestScoredPacking, headTokens, def, embeddings); 
+		    if ( currentScore  > overallBestScore)
+		    //if (bestScoredPacking.score > overallBestScore) 
+		    {
+		    	LogInfo.logs("taking over %s", def);
 		    	bestScoringEquivalentPacking = bestPacking;
 		    	bestScoringEquivalentDefinition = def;
-		    	overallBestScore = bestScoredPacking.score;
+		    	overallBestScore = currentScore;
 		    }
 	    }
 	    
@@ -317,12 +336,43 @@ public class GrammarInducer {
 	        LogInfo.logs("BestPacking: %s", bestScoringEquivalentPacking);
 	        LogInfo.logs("formulaToCat: %s", formulaToCat);
 	    }
-    }
+    
   }
 
 
   Set<String> RHSs = new HashSet<>();
 
+  private double combinedScore(Packing bestScoredPacking, List<String> headTokens, Derivation def, Embeddings embeddings) {
+	  String prettyFormula = def.getFormula().prettyString();
+	  Set<String> noiseWords = new HashSet<>(Arrays.asList("is", "and", "containing", "in", "item", "items"));
+	  LogInfo.logs("pretty formula = %s", prettyFormula);
+	  String replacedCharacters = prettyFormula.replaceAll("[\\{\\}]+", "").trim();
+	  replacedCharacters = replacedCharacters.replaceAll("[,; ]+", " ").trim();
+	  LogInfo.logs("formula after replaced characters = %s", replacedCharacters);
+	  String[] words = replacedCharacters.split(" ");
+	  List<String> formulaAsASentence = new LinkedList();
+	  for (int i = 0; i < words.length; ++i) {
+		  
+		  String singleWord = words[i];
+		  
+		  if (noiseWords.contains(singleWord)) {
+			  continue;
+		  }
+		  
+		  formulaAsASentence.add(singleWord);
+	  }
+	  LogInfo.logs("formula as a sentence is %s", formulaAsASentence);
+	  double bagOfWordsSimilarity = 0.0;
+	  if (embeddings != null) {
+		  LogInfo.logs("calculating similarity between %s and %s", headTokens, formulaAsASentence);
+		  bagOfWordsSimilarity = embeddings.sentenceSimilarity(headTokens, formulaAsASentence);
+	  }
+	  LogInfo.logs("bag of words similarity = %f", bagOfWordsSimilarity);
+	  LogInfo.logs("packing score = %f", bestScoredPacking.score);
+	  return bagOfWordsSimilarity + bestScoredPacking.score;
+	  
+  }
+  
   private void filterRule(Rule rule) {
     if (rule.isCatUnary()) {
       LogInfo.logs("GrammarInducer.filterRule: not allowing CatUnary rules %s", rule.toString());

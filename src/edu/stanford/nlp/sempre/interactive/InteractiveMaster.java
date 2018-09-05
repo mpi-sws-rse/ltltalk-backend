@@ -31,6 +31,7 @@ import fig.basic.LispTree;
 import fig.basic.LogInfo;
 import fig.basic.Option;
 import fig.basic.Ref;
+import edu.stanford.nlp.sempre.interactive.embeddings.Embeddings;
 
 
 /**
@@ -41,7 +42,7 @@ import fig.basic.Ref;
 
 public class InteractiveMaster extends Master {
 	
-
+	static Embeddings embeddings = null;
 	public static class Options {
 		@Option(gloss = "Write out new grammar rules")
 		public String intOutputPath;
@@ -67,12 +68,18 @@ public class InteractiveMaster extends Master {
 
 		@Option(gloss = "verbosity level")
 		public int verbose = 0;
+		@Option(gloss="which file of word embeddings to use")
+	    public String wordEmbeddingsFilePath = null;
 	}
 
 	public static Options opts = new Options();
 
 	public InteractiveMaster(Builder builder) {
 		super(builder);
+		if (opts.wordEmbeddingsFilePath != null) {
+	    	embeddings = new Embeddings(opts.wordEmbeddingsFilePath);
+	    }
+		
 	}
 
 	@Override
@@ -401,7 +408,7 @@ public class InteractiveMaster extends Master {
 
 		Set<Rule> inducedRules = new LinkedHashSet<>();
 		GrammarInducer grammarInducer = new GrammarInducer(exHead.getTokens(), bodyDeriv, state.chartList, parser,
-				params, session, executionAnswer);
+				params, session, executionAnswer, embeddings);
 		inducedRules.addAll(grammarInducer.getRules());
 		if (opts.verbose > 2) {
 			LogInfo.logs("induced rules before alignment = %s", inducedRules);
