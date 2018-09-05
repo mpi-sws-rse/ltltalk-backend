@@ -84,6 +84,10 @@ public class RoboWorld extends World {
     itemActions.put("pick", (x) -> pick(x));
     itemActions.put("drop", (x) -> drop(x));
   }
+  
+  public Robot getRobotInfo() {
+	  return this.robot;
+  }
 
   /**
    * Create a deep copy of the world
@@ -380,8 +384,13 @@ public class RoboWorld extends World {
 	  return roomsWithItems;
   }
   
-
- 
+/* returns all items contained at a particular point*/
+  public Set<Item> itemsAtPoint(Point p){
+	  Set<Item> allItems = (Set<Item>)this.items;
+	  return allItems.stream()
+			  .filter(i -> (! i.isCarried() && i.point.equals(p)))
+			  .collect(Collectors.toSet());
+  }
   
   public Set<Set<Point>> areasFromItems(Set<Set<Point>> areaSet, Set<Item> itemSet){
 		    Set<Point> itemArea = itemSet.stream()

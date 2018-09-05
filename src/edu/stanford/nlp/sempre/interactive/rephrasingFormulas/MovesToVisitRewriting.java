@@ -50,6 +50,7 @@ public class MovesToVisitRewriting extends EquivalentFormulas {
 		}
 	}
 	
+	
 	private boolean isFormulaSequenceOfMoves(Formula f) {
 		if (opts.verbose > 0) {
 			LogInfo.logs("receives formula %s", f);
@@ -62,13 +63,16 @@ public class MovesToVisitRewriting extends EquivalentFormulas {
 		}
 		ActionFormula actionF = (ActionFormula) f;
 		
+		if (actionF.mode.equals(ActionFormula.Mode.repeat) && isFormulaSequenceOfMoves(actionF.args.get(1))) {
+			return true;
+		}
+		
 		// if formula is only one move
 		if (isPrimitiveMove(actionF)) {
 			return true;
 		}
 
 		if (! actionF.mode.equals(ActionFormula.Mode.sequential)) {
-			LogInfo.logs("wasn't a sequence");
 			return false;
 		}
 		// if not just one move, then the first argument should be a sequence, while the second one should be one move
