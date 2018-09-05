@@ -33,7 +33,6 @@ public class Embeddings {
 	
 	private Word sumOfWords(Word w1, Word w2) {
 		if (w1.scalars.size() != w2.scalars.size()) {
-			LogInfo.logs("one size of %s is %d, the other of %s is %d",  w1.name, w1.scalars.size(), w2.name, w2.scalars.size());
 			throw new IllegalArgumentException("The two vectors need to have the same dimension in a similarity computation.");
 		}
 		Word sum = Word.zeroWordLike("--sumOfWords--", w1);
@@ -64,7 +63,6 @@ public class Embeddings {
 	 */
 	public Word getWord (String word) {
 		Word zeroWord = Word.zeroWordOfSize(this.vectorSize);
-		LogInfo.logs("providing zero word of size %d", this.vectorSize);
 		return dict.entries.getOrDefault(word, zeroWord);
 	}
 	
