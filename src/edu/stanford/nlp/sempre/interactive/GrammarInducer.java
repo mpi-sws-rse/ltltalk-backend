@@ -320,6 +320,9 @@ public class GrammarInducer {
 
 	private double combinedScore(Packing bestScoredPacking, List<String> headTokens, Derivation def,
 			Embeddings embeddings) {
+		if (embeddings == null) {
+			return bestScoredPacking.score;
+		}
 		String prettyFormula = def.getFormula().prettyString();
 		Set<String> noiseWords = new HashSet<>(Arrays.asList("is", "and", "containing", "in", "item", "items"));
 		String replacedCharacters = prettyFormula.replaceAll("[\\{\\}\\[\\],;]+", " ").trim();
