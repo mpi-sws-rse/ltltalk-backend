@@ -50,6 +50,7 @@ public class MovesToVisitRewriting extends EquivalentFormulas {
 		}
 	}
 	
+	
 	private boolean isFormulaSequenceOfMoves(Formula f) {
 		if (opts.verbose > 0) {
 			LogInfo.logs("receives formula %s", f);
@@ -61,6 +62,10 @@ public class MovesToVisitRewriting extends EquivalentFormulas {
 			return false;
 		}
 		ActionFormula actionF = (ActionFormula) f;
+		
+		if (actionF.mode.equals(ActionFormula.Mode.repeat) && isFormulaSequenceOfMoves(actionF.args.get(1))) {
+			return true;
+		}
 		
 		// if formula is only one move
 		if (isPrimitiveMove(actionF)) {
