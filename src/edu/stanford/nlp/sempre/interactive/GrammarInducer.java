@@ -77,6 +77,10 @@ public class GrammarInducer {
 		public boolean usePickingAndDroppingRewriting = false;
 		@Option(gloss = "whether to use similarity when deciding which rewriting to use")
 		public boolean useSemanticSimilarityOfSentences = false;
+		@Option(gloss = "weight to put to semantic similarity of sentences")
+		public double wordEmbeddingsWeight = 1.0;
+		@Option(gloss = "weight to put to the score of packing (learnt model)")
+		public double packingScoreWeight = 1.0;
 
 	}
 
@@ -344,7 +348,7 @@ public class GrammarInducer {
 			LogInfo.logs("bag of words similarity = %f", bagOfWordsSimilarity);
 			LogInfo.logs("packing score = %f", bestScoredPacking.score);
 		}
-		return bagOfWordsSimilarity + bestScoredPacking.score;
+		return opts.wordEmbeddingsWeight * bagOfWordsSimilarity + opts.packingScoreWeight * bestScoredPacking.score;
 
 	}
 
