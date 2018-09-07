@@ -197,7 +197,13 @@ public class GrammarInducer {
 		}
 		if (opts.verbose > 0) {
 			LogInfo.logs("equivalent derivations = %s", equivalentDerivationsToTry);
+			LogInfo.logs("candidate formulas are:");
+			for (Derivation dEq : equivalentDerivationsToTry) {
+				
+				LogInfo.logs("%s", dEq.getFormula().prettyString());
+			}
 		}
+		
 
 		inducedRules = new ArrayList<>();
 		List<Derivation> chartList = chartListArg;
@@ -246,7 +252,8 @@ public class GrammarInducer {
 			}
 		}
 
-		double overallBestScore = -1.0;
+		double overallBestPackingScore = -1.0;
+		double overallBestSemScore = -1.0;
 		List<Derivation> bestScoringEquivalentPacking = null;
 		Derivation bestScoringEquivalentDefinition = null;
 		// now this will always contain at least the original derivation
@@ -263,11 +270,17 @@ public class GrammarInducer {
 			if (opts.verbose > 1) {
 				LogInfo.logs("best packing score = %f", bestScoredPacking.score);
 			}
-			double currentScore = combinedScore(bestScoredPacking, headTokens, def, embeddings);
-			if (currentScore > overallBestScore) {
+			double currentSemScore = semanticScore(headTokens, def, embeddings);
+			double currentPackingScore = bestScoredPacking.score;
+			if (opts.verbose > 1) {
+				LogInfo.logs("++ packScore = %f, semScore = %f", currentPackingScore, currentSemScore);
+			}
+					
+			if (greaterScore(currentSemScore, currentPackingScore,overallBestSemScore, overallBestPackingScore)) {
 				bestScoringEquivalentPacking = bestPacking;
 				bestScoringEquivalentDefinition = def;
-				overallBestScore = currentScore;
+				overallBestSemScore = currentSemScore;
+				overallBestPackingScore = currentPackingScore;
 			}
 		}
 
@@ -317,12 +330,14 @@ public class GrammarInducer {
 			return true;
 		}
 	}
+	
+	private boolean greaterScore(double currentSemScore, double currentPackingScore, double overallBestSemScore, double overallBestPackingScore) {
+		return (currentPackingScore > overallBestPackingScore || (currentPackingScore == overallBestPackingScore && currentSemScore > overallBestSemScore));
+	}
 
-	private double combinedScore(Packing bestScoredPacking, List<String> headTokens, Derivation def,
+	private double semanticScore(List<String> headTokens, Derivation def,
 			Embeddings embeddings) {
-		if (embeddings == null) {
-			return bestScoredPacking.score;
-		}
+		
 		String prettyFormula = def.getFormula().prettyString();
 		Set<String> noiseWords = new HashSet<>(Arrays.asList("is", "and", "containing", "in", "item", "items"));
 		String replacedCharacters = prettyFormula.replaceAll("[\\{\\}\\[\\],;]+", " ").trim();
@@ -349,9 +364,8 @@ public class GrammarInducer {
 		}
 		if (opts.verbose > 1) {
 			LogInfo.logs("bag of words similarity = %f", bagOfWordsSimilarity);
-			LogInfo.logs("packing score = %f", bestScoredPacking.score);
 		}
-		return opts.wordEmbeddingsWeight * bagOfWordsSimilarity + opts.packingScoreWeight * bestScoredPacking.score;
+		return bagOfWordsSimilarity;
 
 	}
 
