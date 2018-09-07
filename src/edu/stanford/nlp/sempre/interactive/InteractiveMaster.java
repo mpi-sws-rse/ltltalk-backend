@@ -66,6 +66,8 @@ public class InteractiveMaster extends Master {
 		@Option(gloss = "allow regular commands specified in Master")
 		public boolean allowRegularCommands = false;
 
+		@Option(gloss = "whether it is a single user test")
+		public boolean singleUserTest = false;
 		@Option(gloss = "verbosity level")
 		public int verbose = 0;
 		@Option(gloss="which file of word embeddings to use")
@@ -325,8 +327,16 @@ public class InteractiveMaster extends Master {
 			
 		//Send list of induced rules to front end
 		} else if (command.equals(":dictionary")) {
-			String dictionary = Dictionary.jSonDictionary();
-			stats.put("dictionary", dictionary);
+			if (opts.singleUserTest == true) {
+				String dictionary = Dictionary.jsonDictionary(session.id);
+				stats.put("dictionary", dictionary);
+			}
+			else
+			{
+				String dictionary = Dictionary.jsonDictionary(null);
+				stats.put("dictionary", dictionary);
+			}
+			
 			LogInfo.logs("Dictionary requested");
 			
 		//Deletion of an induced rule
