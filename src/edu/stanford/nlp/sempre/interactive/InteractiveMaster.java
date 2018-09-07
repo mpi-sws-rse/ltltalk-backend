@@ -25,11 +25,13 @@ import edu.stanford.nlp.sempre.Rule;
 import edu.stanford.nlp.sempre.RuleSource;
 import edu.stanford.nlp.sempre.Session;
 import edu.stanford.nlp.sempre.Grammar;
+import edu.stanford.nlp.sempre.Executor;
 import fig.basic.IOUtils;
 import fig.basic.LispTree;
 import fig.basic.LogInfo;
 import fig.basic.Option;
 import fig.basic.Ref;
+import edu.stanford.nlp.sempre.interactive.embeddings.Embeddings;
 
 
 /**
@@ -40,7 +42,7 @@ import fig.basic.Ref;
 
 public class InteractiveMaster extends Master {
 	
-
+	static Embeddings embeddings = null;
 	public static class Options {
 		@Option(gloss = "Write out new grammar rules")
 		public String intOutputPath;
@@ -64,14 +66,22 @@ public class InteractiveMaster extends Master {
 		@Option(gloss = "allow regular commands specified in Master")
 		public boolean allowRegularCommands = false;
 
+		@Option(gloss = "whether it is a single user test")
+		public boolean singleUserTest = false;
 		@Option(gloss = "verbosity level")
 		public int verbose = 0;
+		@Option(gloss="which file of word embeddings to use")
+	    public String wordEmbeddingsFilePath = null;
 	}
 
 	public static Options opts = new Options();
 
 	public InteractiveMaster(Builder builder) {
 		super(builder);
+		if (opts.wordEmbeddingsFilePath != null) {
+	    	embeddings = new Embeddings(opts.wordEmbeddingsFilePath);
+	    }
+		
 	}
 
 	@Override
@@ -92,6 +102,8 @@ public class InteractiveMaster extends Master {
 		InteractiveServer server = new InteractiveServer(this);
 		server.run();
 	}
+	
+	String lastAnswer = "";
 
 	@Override
 	public Response processQuery(Session session, String line) {		
@@ -152,11 +164,13 @@ public class InteractiveMaster extends Master {
 			if (response.ex.predDerivations.size() > 0) {
 				response.candidateIndex = 0;
 			}
+			lastAnswer = response.getAnswer();
 			if (opts.verbose >= 1) {
 				LogInfo.logs("all derivations sent to client");
 				for (Derivation d : response.ex.getPredDerivations()) {
 					LogInfo.logs("derivation: \t%s",d.getFormula().prettyString());
 					LogInfo.logs("formula: \t%s",d.getFormula());
+					d.getFormula().printFormulaRecursively();
 					
 					if (opts.verbose > 2){
 						//d.printDerivationRecursively();
@@ -255,7 +269,7 @@ public class InteractiveMaster extends Master {
 				stats.put("json_len", jsonDef.length());
 				try {
 					inducedRules.addAll(induceRulesHelper(command, head, jsonDef, builder.parser, builder.params,
-							session, new Ref<Response>(response)));
+							session, new Ref<Response>(response), lastAnswer));
 					stats.put("num_rules", inducedRules.size());
 				} catch (BadInteractionException e) {
 					stats.put("num_rules", 0);
@@ -313,8 +327,16 @@ public class InteractiveMaster extends Master {
 			
 		//Send list of induced rules to front end
 		} else if (command.equals(":dictionary")) {
-			String dictionary = Dictionary.jSonDictionary();
-			stats.put("dictionary", dictionary);
+			if (opts.singleUserTest == true) {
+				String dictionary = Dictionary.jsonDictionary(session.id);
+				stats.put("dictionary", dictionary);
+			}
+			else
+			{
+				String dictionary = Dictionary.jsonDictionary(null);
+				stats.put("dictionary", dictionary);
+			}
+			
 			LogInfo.logs("Dictionary requested");
 			
 		//Deletion of an induced rule
@@ -364,7 +386,7 @@ public class InteractiveMaster extends Master {
 	}
 
 	public static List<Rule> induceRulesHelper(String command, String head, String jsonDef, Parser parser,
-			Params params, Session session, Ref<Response> refResponse) throws BadInteractionException {
+			Params params, Session session, Ref<Response> refResponse, String executionAnswer) throws BadInteractionException {
 		Example exHead = InteractiveUtils.exampleFromUtterance(head, session);
 
 		if (exHead.getTokens() == null || exHead.getTokens().size() == 0)
@@ -396,7 +418,7 @@ public class InteractiveMaster extends Master {
 
 		Set<Rule> inducedRules = new LinkedHashSet<>();
 		GrammarInducer grammarInducer = new GrammarInducer(exHead.getTokens(), bodyDeriv, state.chartList, parser,
-				params, session);
+				params, session, executionAnswer, embeddings);
 		inducedRules.addAll(grammarInducer.getRules());
 		if (opts.verbose > 2) {
 			LogInfo.logs("induced rules before alignment = %s", inducedRules);
