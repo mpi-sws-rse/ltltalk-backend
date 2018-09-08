@@ -170,10 +170,11 @@ public class InteractiveMaster extends Master {
 				for (Derivation d : response.ex.getPredDerivations()) {
 					LogInfo.logs("derivation: \t%s",d.getFormula().prettyString());
 					LogInfo.logs("formula: \t%s",d.getFormula());
-					d.getFormula().printFormulaRecursively();
+					
 					
 					if (opts.verbose > 2){
 						//d.printDerivationRecursively();
+						d.getFormula().printFormulaRecursively();
 						printDerivation(d);
 					}
 					

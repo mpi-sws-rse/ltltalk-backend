@@ -48,7 +48,6 @@ public class Dictionary {
 
 		for (int index = 0; index < jsonLog.size(); index++) {
 			String rule = jsonLog.get(index);
-			LogInfo.logs("read rule = %s", rule);
 			
 			if(idToFilter != null) {
 				String stringToLookFor = "\"uid\":\""+idToFilter+"\"";
