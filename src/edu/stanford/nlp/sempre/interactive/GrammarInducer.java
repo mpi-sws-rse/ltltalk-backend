@@ -292,12 +292,18 @@ public class GrammarInducer {
 		HashMap<String, String> formulaToCat = new HashMap<>();
 		bestScoringEquivalentPacking.forEach(d -> formulaToCat.put(catFormulaKey(d), varName(d, finalDefinition)));
 		buildFormula(finalDefinition, formulaToCat);
+		boolean rewritingHappened = false;
+		if (! finalDefinition.toString().equals(originalDerivation.toString())) {
+			rewritingHappened = true;
+		}
 		for (Rule rule : induceRules(bestScoringEquivalentPacking, finalDefinition)) {
 			// ALTER : I am not sure why this is here, but it prevents some use cases from
 			// being defined
 			// if (rule.rhs.stream().allMatch(s -> Rule.isCat(s)))
 			// continue;
-			rule.addInfo("rewriting", "true");
+			if (rewritingHappened == true) {
+				rule.addInfo("rewriting", "true");
+			}
 			filterRule(rule);
 		}
 
