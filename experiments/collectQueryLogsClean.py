@@ -101,7 +101,7 @@ def main():
     with open(statisticsFile, "a") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["id", "group", "number of queries", "length of queries", "number of tokens", "number of definitions", "number of unparsable queries",\
-                         "number of induced queries", "number of core language queries", "length of successful queries", "tokens in unsuccessful", "queries by others", "queries by self"])
+                         "number of induced queries", "number of core language queries", "length of successful queries", "tokens in successful", "queries by others", "queries by self"])
         for keyId in keyValues:
             writer.writerow([keyId, group, numberOfQueries[keyId], lengthOfQueries[keyId], numberOfTokens[keyId], numberOfDefinitions[keyId],\
                               kindsOfQueries["Nothing"][keyId], kindsOfQueries["Induced"][keyId], kindsOfQueries["Core"][keyId], \
