@@ -5,6 +5,7 @@ import edu.stanford.nlp.sempre.*;
 import edu.stanford.nlp.sempre.Executor;
 import edu.stanford.nlp.sempre.interactive.robolurn.RoboWorld;
 import edu.stanford.nlp.sempre.interactive.robolurn.Item;
+import edu.stanford.nlp.sempre.interactive.DALExecutor;
 import edu.stanford.nlp.sempre.ActionFormula;
 import java.util.*;
 import edu.stanford.nlp.sempre.interactive.InteractiveUtils;
@@ -56,9 +57,10 @@ public class PickingAndDroppingRewriting extends EquivalentFormulas {
 	}
 	
 	public boolean compareTwoFormulas(Formula f1, Formula f2, Executor executor, ContextValue context) {
-		  String a1 = executor.execute(f1, context).value.toString();
-		  String a2 = executor.execute(f2, context).value.toString();
-		  return a1.equals(a2);
+		  DALExecutor dalExec = (DALExecutor)executor;
+		  RoboWorld w1 = dalExec.worldAfterExecution(f1, context);
+		  RoboWorld w2 = dalExec.worldAfterExecution(f2, context);
+		  return RoboWorld.compareWorlds(w1,w2);
 	  }
 
 	

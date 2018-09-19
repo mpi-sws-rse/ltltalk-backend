@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -67,6 +68,26 @@ public class RoboWorld extends World {
   
   public RoboWorld(Robot robot, Set<Wall> walls, Set<Item> items) {
     this(robot, walls, items, new HashMap<>());
+  }
+  
+  public static boolean compareWorlds(RoboWorld w1, RoboWorld w2){
+	  
+	  //LogInfo.logs("comparing %s and %s", w1, w2);
+	  if (!Objects.deepEquals(w1.walls, w2.walls)){
+		  //LogInfo.logs("walls not the same");
+		  return false;
+		  
+	  }
+	  if  (!(w1.items.equals(w2.items))){
+		  //LogInfo.logs("items not the same - %s, %s", w1.items, w2.items);
+		  return false;		
+	  }
+	  if (!((w1.robot.point.x == w2.robot.point.x) && (w1.robot.point.y == w2.robot.point.y))){
+		  //LogInfo.logs("robot not the same - %s, %s", w1.robot.point, w2.robot.point);
+		  return false;
+	  }
+	  return true;
+	  
   }
   
   public RoboWorld(Robot robot, Set<Wall> walls, Set<Item> items, Map<String, Set<Point>> rooms) {
@@ -141,7 +162,13 @@ public class RoboWorld extends World {
    */
   @Override
   public String toJSON() {
-    return "NOT YET SUPPORTED";
+	  return "NOT YET SUPPORTED";
+  }
+  
+  public String toString(){
+	  String stringRepresentation = "robot: "+this.robot.toString()+",  walls = "+this.walls.toString()+", items = "+this.items.toString()+", rooms = "+this.rooms.toString();
+	  return stringRepresentation;
+	  
   }
 
   @Override
