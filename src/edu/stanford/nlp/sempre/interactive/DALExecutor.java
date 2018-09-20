@@ -85,6 +85,13 @@ public class DALExecutor extends Executor {
 
   public static Options opts = new Options();
 
+  public RoboWorld worldAfterExecution(Formula formula, ContextValue context){
+	  RoboWorld world = (RoboWorld)World.fromContext(opts.worldType, context);
+	  formula = Formulas.betaReduction(formula);
+	  performActions((ActionFormula)formula, world);
+	  return world;
+  }
+  
   @Override
   public Response execute(Formula formula, ContextValue context) {
     // We can do beta reduction here since macro substitution preserves the
@@ -107,7 +114,8 @@ public class DALExecutor extends Executor {
       return new Response(ErrorValue.badJava(e.toString()));
     }
   }
-
+  
+  
   // Return whether that action was able to be realized
   @SuppressWarnings("rawtypes")
   private boolean performActions(ActionFormula f, final World world) {

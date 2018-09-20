@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Objects;
 import fig.basic.LogInfo;
 
 import org.testng.collections.Lists;
@@ -31,6 +32,28 @@ public class Item extends RoboBlock {
     this.color = color;
     this.shape = shape;
     this.carried = carried;
+  }
+  
+  @Override
+  public boolean equals(Object o){
+	  if (o == this){
+		  return true;
+	  }
+	  
+	  if (!(o instanceof Item)){
+		  return false;
+	  }
+	  
+	  Item otherItem = (Item)o;
+	  
+	  return this.color.equals(otherItem.color) && this.shape.equals(otherItem.shape) && this.carried == otherItem.carried && 
+			  this.point.x == otherItem.point.x && this.point.y == otherItem.point.y;
+	  
+  }
+  
+  @Override
+  public int hashCode(){
+	  return Objects.hash(point, color, shape, carried);
   }
   
   @Override

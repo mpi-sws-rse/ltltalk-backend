@@ -10,6 +10,10 @@ public class Robot {
     this.point = point;
   }
   
+  public String toString(){	  
+	  return this.point.toString();
+  }
+  
   public Robot clone() {
     return new Robot(new Point(point));
   }
