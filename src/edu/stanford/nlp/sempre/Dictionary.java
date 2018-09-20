@@ -12,6 +12,8 @@ import edu.stanford.nlp.sempre.Grammar;
 import edu.stanford.nlp.sempre.Json;
 import edu.stanford.nlp.sempre.DictionaryEntry;
 
+import fig.basic.LogInfo;
+
 
 /**
  * Dictionary class that handles the logic of collecting the induced rules 
@@ -25,11 +27,12 @@ public class Dictionary {
 	/**
 	 * @return String JSon format of all the induced rules
 	 */
-	public static String jSonDictionary() {
-		List<DictionaryEntry> dictionary = compileDictionary();
+	public static String jsonDictionary(String filterOnId) {
+		List<DictionaryEntry> dictionary = compileDictionary(filterOnId);
 		String json = Json.writeValueAsStringHard(dictionary);
 		return json;
 	}
+	
 	
 	/**
 	 * Reads the induced grammar and formats it into a Dictionary of DictionaryEntries
@@ -37,7 +40,7 @@ public class Dictionary {
 	 * @return all induced rules in the grammar.log.json file in the form of
 	 * 			a List<DictionaryEntry>
 	 */
-	private static List<DictionaryEntry> compileDictionary() {
+	private static List<DictionaryEntry> compileDictionary(String idToFilter) {
 		//will contain all the dictionary entries
 		List<DictionaryEntry> dictionary = new ArrayList<DictionaryEntry>();
 		//read rules from grammar log
@@ -45,8 +48,19 @@ public class Dictionary {
 
 		for (int index = 0; index < jsonLog.size(); index++) {
 			String rule = jsonLog.get(index);
-			DictionaryEntry entry = filterJson(rule, index);
-			dictionary.add(entry);
+			
+			if(idToFilter != null) {
+				String stringToLookFor = "\"uid\":\""+idToFilter+"\"";
+				if ( rule.indexOf(stringToLookFor) != -1 ) {
+					
+					DictionaryEntry entry = filterJson(rule, index);
+					dictionary.add(entry);
+				}
+			}
+			else {
+				DictionaryEntry entry = filterJson(rule, index);
+				dictionary.add(entry);
+			}
 		}
 		return dictionary;
 	}
