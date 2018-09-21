@@ -381,10 +381,10 @@ public class GrammarInducer {
 			return;
 		}
 
-		if (RHSs.contains(rule.rhs.toString())) {
-			LogInfo.logs("GrammarInducer.filterRule: already have %s", rule.toString());
-			return;
-		}
+//		if (RHSs.contains(rule.rhs.toString())) {
+//			LogInfo.logs("GrammarInducer.filterRule: already have %s", rule.toString());
+//			return;
+//		}
 		int numNT = 0;
 		for (String t : rule.rhs) {
 			if (Rule.isCat(t))
