@@ -57,9 +57,11 @@ public class PickingAndDroppingRewriting extends EquivalentFormulas {
 	}
 	
 	public boolean compareTwoFormulas(Formula f1, Formula f2, Executor executor, ContextValue context) {
+		
 		  DALExecutor dalExec = (DALExecutor)executor;
 		  RoboWorld w1 = dalExec.worldAfterExecution(f1, context);
 		  RoboWorld w2 = dalExec.worldAfterExecution(f2, context);
+		  
 		  return RoboWorld.compareWorlds(w1,w2);
 	  }
 
