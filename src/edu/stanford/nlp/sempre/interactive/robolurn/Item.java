@@ -34,21 +34,10 @@ public class Item extends RoboBlock {
     this.carried = carried;
   }
   
-  @Override
-  public boolean equals(Object o){
-	  if (o == this){
-		  return true;
-	  }
-	  
-	  if (!(o instanceof Item)){
-		  return false;
-	  }
-	  
-	  Item otherItem = (Item)o;
-	  
+  
+  public boolean equalCharacteristics(Item otherItem) {
 	  return this.color.equals(otherItem.color) && this.shape.equals(otherItem.shape) && this.carried == otherItem.carried && 
 			  this.point.x == otherItem.point.x && this.point.y == otherItem.point.y;
-	  
   }
   
   @Override

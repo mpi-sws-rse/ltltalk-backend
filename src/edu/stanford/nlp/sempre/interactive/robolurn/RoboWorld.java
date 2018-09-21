@@ -72,22 +72,52 @@ public class RoboWorld extends World {
   
   public static boolean compareWorlds(RoboWorld w1, RoboWorld w2){
 	  
-	  //LogInfo.logs("comparing %s and %s", w1, w2);
 	  if (!Objects.deepEquals(w1.walls, w2.walls)){
-		  //LogInfo.logs("walls not the same");
-		  return false;
-		  
+		//  LogInfo.logs("walls not the same");
+		  return false;		  
 	  }
-	  if  (!(w1.items.equals(w2.items))){
+//	  if  (!(w1.items.equals(w2.items))){
+//		  //LogInfo.logs("items not the same - %s, %s", w1.items, w2.items);
+//		  return false;		
+//	  }
+	  
+	  if (!(RoboWorld.compareItemSets((Set<Item>)w1.items, (Set<Item>)w2.items))) {
 		  //LogInfo.logs("items not the same - %s, %s", w1.items, w2.items);
-		  return false;		
+		  return false;
 	  }
+	  
 	  if (!((w1.robot.point.x == w2.robot.point.x) && (w1.robot.point.y == w2.robot.point.y))){
 		  //LogInfo.logs("robot not the same - %s, %s", w1.robot.point, w2.robot.point);
 		  return false;
 	  }
 	  return true;
 	  
+  }
+  
+  
+  private static boolean setContains(Set<Item> S, Item x) {
+	  for (Item it : S){
+		 if (x.equalCharacteristics(it)) {
+			 return true;
+		 }
+	  }
+	  return false;
+  }
+  
+  private static boolean compareItemSets(Set<Item> a, Set<Item> b) {
+	  for (Item it : a) {
+		  if (!(RoboWorld.setContains(b, it))){
+			  return false;
+		  }
+	  }
+	  
+	  for (Item it : b) {
+		  if (!RoboWorld.setContains(a, it)) {
+			  return false;
+		  }
+	  }
+	  
+	  return true;
   }
   
   public RoboWorld(Robot robot, Set<Wall> walls, Set<Item> items, Map<String, Set<Point>> rooms) {
@@ -251,7 +281,6 @@ public class RoboWorld extends World {
     }
     if (qualifiedRel.length < 2)
       throw new RuntimeException(rel + " must be qualified with items?rel or walls?rel");
-
     if ("items".equals(qualifiedRel[0])) {
       if ("color".equals(qualifiedRel[1])
           || "shape".equals(qualifiedRel[1])) {
