@@ -131,6 +131,9 @@ public class GrammarInducer {
 			def1.grammarInfo.end = headTokens.size();
 			allHead = true;
 		}
+		
+		Packing bestScoredPacking;
+		List<Derivation> bestPacking;
 
 		// dont want weird cat unary rules with strange semantics
 		if (headTokens == null || headTokens.isEmpty()) {
@@ -147,7 +150,6 @@ public class GrammarInducer {
 		this.headTokens = headTokens;
 		int numTokens = headTokens.size();
 		LinkedList<Derivation> equivalentDerivationsToTry = new LinkedList<Derivation>();
-		equivalentDerivationsToTry.add(originalDerivation);
 
 		List<Formula> equivalentFormulas;
 		if (opts.useEquivalentRewriting == true && parser != null) {
@@ -199,11 +201,10 @@ public class GrammarInducer {
 			LogInfo.logs("equivalent derivations = %s", equivalentDerivationsToTry);
 			LogInfo.logs("candidate formulas are:");
 			for (Derivation dEq : equivalentDerivationsToTry) {
-				
+
 				LogInfo.logs("%s", dEq.getFormula().prettyString());
 			}
 		}
-		
 
 		inducedRules = new ArrayList<>();
 		List<Derivation> chartList = chartListArg;
@@ -233,9 +234,10 @@ public class GrammarInducer {
 				LogInfo.logs("packing = %s", packing.toString());
 			}
 
-			HashMap<String, String> formulaToCat = new HashMap<>();
-			packing.forEach(d -> formulaToCat.put(catFormulaKey(d), varName(d, originalDerivation)));
-			buildFormula(originalDerivation, formulaToCat);
+			HashMap<String, String> formulaToCatSimple;
+			formulaToCatSimple = new HashMap<>();
+			packing.forEach(d -> formulaToCatSimple.put(catFormulaKey(d), varName(d, originalDerivation)));
+			buildFormula(originalDerivation, formulaToCatSimple);
 
 			List<Rule> simpleInduced = induceRules(packing, originalDerivation);
 			for (Rule rule : simpleInduced) {
@@ -248,63 +250,94 @@ public class GrammarInducer {
 				LogInfo.log("Potential packings: ");
 				this.matches.forEach(d -> LogInfo.logs("%f: %s\t %s", d.getScore(), d.formula, d.allAnchored()));
 				LogInfo.logs("packing: %s", packing);
-				LogInfo.logs("formulaToCat: %s", formulaToCat);
+				LogInfo.logs("formulaToCatSimple: %s", formulaToCatSimple);
 			}
 		}
 
-		double overallBestPackingScore = -1.0;
-		double overallBestSemScore = -1.0;
-		List<Derivation> bestScoringEquivalentPacking = null;
-		Derivation bestScoringEquivalentDefinition = null;
-		// now this will always contain at least the original derivation
-		for (Derivation def : equivalentDerivationsToTry) {
+		if (opts.useBestPacking == true) {
+			// first, use best packing on the original definition
 			chartList = chartListArg;
-			if (opts.verbose > 1) {
-				LogInfo.logs("Grammar inducer: examining derivation %s", def.toString());
-			}
 			this.matches = new ArrayList<>();
-			addMatches(def, makeChartMap(chartList));
+			addMatches(originalDerivation, makeChartMap(chartList));
 			Collections.reverse(this.matches);
-			Packing bestScoredPacking = bestPackingDP(this.matches, numTokens);
-			List<Derivation> bestPacking = bestScoredPacking.packing;
-			if (opts.verbose > 1) {
-				LogInfo.logs("best packing score = %f", bestScoredPacking.score);
+			bestScoredPacking = bestPackingDP(this.matches, numTokens);
+			double originalDerivationPackingScore = bestScoredPacking.score;
+			bestPacking = bestScoredPacking.packing;
+			HashMap<String, String> formulaToCatOriginalBestPacking = new HashMap<>();
+			
+			bestPacking.forEach(d -> formulaToCatOriginalBestPacking.put(catFormulaKey(d), varName(d, originalDerivation)));
+			buildFormula(originalDerivation, formulaToCatOriginalBestPacking);
+			for (Rule rule : induceRules(bestPacking, originalDerivation)) {
+				filterRule(rule);
 			}
-			double currentSemScore = semanticScore(headTokens, def, embeddings);
-			double currentPackingScore = bestScoredPacking.score;
-			if (opts.verbose > 1) {
-				LogInfo.logs("++ packScore = %f, semScore = %f", currentPackingScore, currentSemScore);
-			}
-					
-			if (greaterScore(currentSemScore, currentPackingScore,overallBestSemScore, overallBestPackingScore)) {
-				bestScoringEquivalentPacking = bestPacking;
-				bestScoringEquivalentDefinition = def;
-				overallBestSemScore = currentSemScore;
-				overallBestPackingScore = currentPackingScore;
-			}
-		}
+			// then, find the best equivalent packing
+			if (opts.useEquivalentRewriting == true) {
+				double overallBestPackingScore = -1.0;
+				double overallBestSemScore = -1.0;
+				List<Derivation> bestScoringEquivalentPacking = null;
+				Derivation bestScoringEquivalentDefinition = null;
+				for (Derivation def : equivalentDerivationsToTry) {
+					chartList = chartListArg;
+					if (opts.verbose > 1) {
+						LogInfo.logs("Grammar inducer: examining derivation %s", def.toString());
+					}
+					this.matches = new ArrayList<>();
+					addMatches(def, makeChartMap(chartList));
+					Collections.reverse(this.matches);
+					bestScoredPacking = bestPackingDP(this.matches, numTokens);
+					bestPacking = bestScoredPacking.packing;
+					if (opts.verbose > 1) {
+						LogInfo.logs("best packing score = %f", bestScoredPacking.score);
+					}
+					double currentSemScore = semanticScore(headTokens, def, embeddings);
+					double currentPackingScore = bestScoredPacking.score;
+					if (opts.verbose > 1) {
+						LogInfo.logs("++ packScore = %f, semScore = %f", currentPackingScore, currentSemScore);
+					}
 
-		Derivation finalDefinition = bestScoringEquivalentDefinition;
-		if (opts.verbose > 0) {
-			LogInfo.logs("best scoring equivalent definition = %s", finalDefinition);
-		}
+					if (greaterScore(currentSemScore, currentPackingScore, overallBestSemScore,
+							overallBestPackingScore)) {
+						bestScoringEquivalentPacking = bestPacking;
+						bestScoringEquivalentDefinition = def;
+						overallBestSemScore = currentSemScore;
+						overallBestPackingScore = currentPackingScore;
+					}
+				}
 
-		HashMap<String, String> formulaToCat = new HashMap<>();
-		bestScoringEquivalentPacking.forEach(d -> formulaToCat.put(catFormulaKey(d), varName(d, finalDefinition)));
-		buildFormula(finalDefinition, formulaToCat);
-		boolean rewritingHappened = false;
-		if (! finalDefinition.toString().equals(originalDerivation.toString())) {
-			rewritingHappened = true;
-		}
-		for (Rule rule : induceRules(bestScoringEquivalentPacking, finalDefinition)) {
-			// ALTER : I am not sure why this is here, but it prevents some use cases from
-			// being defined
-			// if (rule.rhs.stream().allMatch(s -> Rule.isCat(s)))
-			// continue;
-			if (rewritingHappened == true) {
-				rule.addInfo("rewriting", "true");
+				Derivation finalDefinition = bestScoringEquivalentDefinition;
+				if (opts.verbose > 0) {
+					LogInfo.logs("best scoring equivalent definition = %s", finalDefinition);
+				}
+				HashMap<String, String> formulaToCatBestEquivalent = new HashMap<>();
+				bestScoringEquivalentPacking
+						.forEach(d -> formulaToCatBestEquivalent.put(catFormulaKey(d), varName(d, finalDefinition)));
+				buildFormula(finalDefinition, formulaToCatBestEquivalent);
+				if (opts.verbose > 1) {
+					LogInfo.logs("chartList.size = %d", chartList.size());
+					LogInfo.log("Potential packings: ");
+					this.matches.forEach(d -> LogInfo.logs("%f: %s\t", d.getScore(), d.formula));
+					LogInfo.logs("BestPacking: %s", bestScoringEquivalentPacking);
+					LogInfo.logs("formulaToCat: %s", formulaToCatBestEquivalent);
+				}
+				double originalDerivationSemScore = semanticScore(headTokens, originalDerivation, embeddings);
+				if (opts.verbose > 0) {
+					LogInfo.logs("equivalent derivation sem score= %f, equivalent derivation packing score = %f, original def sem score = %f, original def pack score = %f",overallBestSemScore, overallBestPackingScore, originalDerivationSemScore, originalDerivationPackingScore);
+				}
+				
+				// if the best equivalent packing is good enough (better score than original packing), induce it, too
+				if (greaterScore(overallBestSemScore, overallBestPackingScore, originalDerivationSemScore, originalDerivationPackingScore)) {
+					for (Rule rule : induceRules(bestScoringEquivalentPacking, finalDefinition)) {
+						// ALTER : I am not sure why this is here, but it prevents some use cases from
+						// being defined
+						// if (rule.rhs.stream().allMatch(s -> Rule.isCat(s)))
+						// continue;
+						rule.addInfo("rewriting", "true");
+						filterRule(rule);
+					}
+				}
+				
+
 			}
-			filterRule(rule);
 		}
 
 		if (opts.useSpecialTokens) {
@@ -317,13 +350,7 @@ public class GrammarInducer {
 			}
 		}
 
-		if (opts.verbose > 1) {
-			LogInfo.logs("chartList.size = %d", chartList.size());
-			LogInfo.log("Potential packings: ");
-			this.matches.forEach(d -> LogInfo.logs("%f: %s\t", d.getScore(), d.formula));
-			LogInfo.logs("BestPacking: %s", bestScoringEquivalentPacking);
-			LogInfo.logs("formulaToCat: %s", formulaToCat);
-		}
+		
 
 	}
 
@@ -336,14 +363,15 @@ public class GrammarInducer {
 			return true;
 		}
 	}
-	
-	private boolean greaterScore(double currentSemScore, double currentPackingScore, double overallBestSemScore, double overallBestPackingScore) {
-		return (currentPackingScore > overallBestPackingScore || (currentPackingScore == overallBestPackingScore && currentSemScore > overallBestSemScore));
+
+	private boolean greaterScore(double currentSemScore, double currentPackingScore, double overallBestSemScore,
+			double overallBestPackingScore) {
+		return (currentPackingScore > overallBestPackingScore
+				|| (currentPackingScore == overallBestPackingScore && currentSemScore > overallBestSemScore));
 	}
 
-	private double semanticScore(List<String> headTokens, Derivation def,
-			Embeddings embeddings) {
-		
+	private double semanticScore(List<String> headTokens, Derivation def, Embeddings embeddings) {
+
 		String prettyFormula = def.getFormula().prettyString();
 		Set<String> noiseWords = new HashSet<>(Arrays.asList("is", "and", "containing", "in", "item", "items"));
 		String replacedCharacters = prettyFormula.replaceAll("[\\{\\}\\[\\],;]+", " ").trim();
@@ -381,10 +409,10 @@ public class GrammarInducer {
 			return;
 		}
 
-//		if (RHSs.contains(rule.rhs.toString())) {
-//			LogInfo.logs("GrammarInducer.filterRule: already have %s", rule.toString());
-//			return;
-//		}
+		// if (RHSs.contains(rule.rhs.toString())) {
+		// LogInfo.logs("GrammarInducer.filterRule: already have %s", rule.toString());
+		// return;
+		// }
 		int numNT = 0;
 		for (String t : rule.rhs) {
 			if (Rule.isCat(t))
