@@ -446,11 +446,19 @@ public abstract class Formulas {
 		}
 	}
 	
-	public static Formula createPropertyCombinationFormula(String property1, String property2) {
+	public static Formula createPropertyCombinationFormula(String property1, String property2, String connector) {
+		MergeFormula propertiesCombinationFormula;
 		JoinFormula itemsWithPropertyFormula1 = createItemsWithPropertyFormula(property1);
 		JoinFormula itemsWithPropertyFormula2 = createItemsWithPropertyFormula(property2);
-		MergeFormula propertiesCombinationFormula = new MergeFormula(MergeFormula.Mode.and, itemsWithPropertyFormula1,
+		if (connector.equals("or")) {
+			propertiesCombinationFormula = new MergeFormula(MergeFormula.Mode.or, itemsWithPropertyFormula1,
+					itemsWithPropertyFormula2);
+		}
+		else
+		{
+		propertiesCombinationFormula = new MergeFormula(MergeFormula.Mode.and, itemsWithPropertyFormula1,
 				itemsWithPropertyFormula2);
+		}
 		return propertiesCombinationFormula;
 	}
 

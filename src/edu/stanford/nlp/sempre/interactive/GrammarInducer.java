@@ -268,6 +268,7 @@ public class GrammarInducer {
 			bestPacking.forEach(d -> formulaToCatOriginalBestPacking.put(catFormulaKey(d), varName(d, originalDerivation)));
 			buildFormula(originalDerivation, formulaToCatOriginalBestPacking);
 			for (Rule rule : induceRules(bestPacking, originalDerivation)) {
+				
 				filterRule(rule);
 			}
 			// then, find the best equivalent packing
@@ -373,7 +374,7 @@ public class GrammarInducer {
 	private double semanticScore(List<String> headTokens, Derivation def, Embeddings embeddings) {
 
 		String prettyFormula = def.getFormula().prettyString();
-		Set<String> noiseWords = new HashSet<>(Arrays.asList("is", "and", "containing", "in", "item", "items"));
+		Set<String> noiseWords = new HashSet<>(Arrays.asList("is", "containing", "in", "item", "items"));
 		String replacedCharacters = prettyFormula.replaceAll("[\\{\\}\\[\\],;]+", " ").trim();
 		replacedCharacters = replacedCharacters.replaceAll("[ ]+", " ").trim();
 		headTokens = headTokens.stream().filter(t -> notSyntaxHelper(t)).collect(Collectors.toList());
