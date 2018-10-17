@@ -50,6 +50,18 @@ public class PickingAndDroppingRewriting extends EquivalentFormulas {
 		return relevantItems;
 	}
 	
+	
+	private Set<List<String>> getAllPossibleItems(RoboWorld w){
+		Set<List<String>> allPossibleItems = new HashSet<List<String>>();
+		for (String color : w.getAllColors()) {
+			for (String shape : w.getAllShapes()) {
+				allPossibleItems.add(Arrays.asList(color, shape));
+			}
+		}
+		return allPossibleItems;
+		
+	}
+	
 	private Formula createActionFormulaBasedOnProperty(Formula limitNumberFormula, Formula classSpecificationFormula, Formula actionTypeFormula) {
 		Formula quantifiedFormula = Formulas.createQuantifiedItemFormula(limitNumberFormula, classSpecificationFormula);
 		Formula finalFormula = new ActionFormula( ActionFormula.Mode.primitive, Arrays.asList( Formulas.newNameFormula("itemActionHandler"), actionTypeFormula, quantifiedFormula ) );
@@ -76,7 +88,8 @@ public class PickingAndDroppingRewriting extends EquivalentFormulas {
 		ArrayList path = (ArrayList)jsonMapping.get("path");
 		
 		Point robotsPoint = worldBefore.getRobotInfo().point;
-		Set<List<String>> relevantItems = getRelevantItems(path);
+		//Set<List<String>> relevantItems = getRelevantItems(path);
+		Set<List<String>> relevantItems = getAllPossibleItems(worldBefore);
 		Formula limitingItemNumberFormula;
 		Formula actionTypeFormula;
 		Formula itemClassSpecificationFormula;
@@ -117,9 +130,11 @@ public class PickingAndDroppingRewriting extends EquivalentFormulas {
 					formulasUnderConsideration.add(finalFormula);
 					
 					// add candidates referred by both color and shape
-					itemClassSpecificationFormula = Formulas.createPropertyCombinationFormula(colorShapePair.get(0), colorShapePair.get(1));
-					finalFormula = createActionFormulaBasedOnProperty(limitingItemNumberFormula, itemClassSpecificationFormula, actionTypeFormula);
-					formulasUnderConsideration.add(finalFormula);
+					for (String connector : Arrays.asList("and", "or")) {
+						itemClassSpecificationFormula = Formulas.createPropertyCombinationFormula(colorShapePair.get(0), colorShapePair.get(1), connector);
+						finalFormula = createActionFormulaBasedOnProperty(limitingItemNumberFormula, itemClassSpecificationFormula, actionTypeFormula);
+						formulasUnderConsideration.add(finalFormula);
+					}
 					
 				}
 				

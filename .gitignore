@@ -47,3 +47,6 @@ interactive/.ipynb_checkpoints
 community-server/data
 community-server/data-backup
 data/glove
+
+# all logs
+**.log

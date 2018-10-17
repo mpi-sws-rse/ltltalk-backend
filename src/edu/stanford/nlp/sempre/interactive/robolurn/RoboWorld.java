@@ -186,6 +186,24 @@ public class RoboWorld extends World {
     return this.highCorner;
   }
   
+  public Set<String> getAllColors(){
+	  Set<String> colors = new HashSet<String>();
+	  for (Item i : (Set<Item>)this.items){
+		  colors.add(i.color);
+	  }
+	  return colors;
+	  
+  }
+  
+  
+  public Set<String> getAllShapes(){
+	  Set<String> shapes = new HashSet<String>();
+	  for (Item i : (Set<Item>)this.items){
+		  shapes.add(i.shape);
+	  }
+	  return shapes;
+	  
+  }
   /*
    * This is not curently needed because the world only has to return the
    * robot's path (i.e., the delta to the next state of the wolrd).
