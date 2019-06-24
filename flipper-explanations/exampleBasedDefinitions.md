@@ -2,8 +2,8 @@
 
 The setup differs from classical Flipper/sempre-interactive: instead of providing 
 a definition, users give an example when Flipper can't parse their utterance.
-Having only one example makes generalization much more difficult. That means
-that more actions are needed in order to recover the original formula.
+Having only one example makes generalization much more difficult. Therefore,
+we want recover the formula that the user had in mind through interaction with the user.
 
 ## Pseudocode
 
@@ -26,7 +26,8 @@ These hints are propositional variables recognized in the utterance. NOT IMPLEME
 - Line 2 comes up with n candidate specifications based on the examples t
 and hints h. Parameter n should be large enought to ensure the correct specification
 is among the candidates, yet small enough to make further disambiguation between the 
-candidates quick. Implemented in [this repository](https://gitlab.mpi-sws.org/gavran/flipper-ltl-language/tree/hintsLearning).
+candidates quick. Implemented in [this repository](https://gitlab.mpi-sws.org/gavran/flipper-ltl-language/tree/hintsLearning).  
+(The implementation is still missing a check for semantic equivalence: we don't want to have two candidates that are exactly the same)
 - Line 3 uses a SAT solver to create the world for which there is a trace modelling each
 of the candidate specifications and *it is likely* that the trace user would show would only
 model one candidate specification (and the ones implied by it). NOT IMPLEMENTED
