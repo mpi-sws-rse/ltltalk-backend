@@ -49,8 +49,8 @@ Thus, in the worst case, one candidate specification is eliminated per each step
 
 The goal is to find a world for which the user would likely show us an example
 (trace) that would be consistent with only one candidate specifications. 
-This is not always possible (a problem with implications, as described in the previous paragraph),
-we can't assume which traces the user will pick (will it be the shortest?). 
+This is not always possible (a problem with implications, as described in the previous paragraph).
+Furthermore, we can't assume which traces the user will pick (will it be the shortest? or some other?). 
 The final problem is that we don't really want to calculate *for all traces modelling f_i, they are not modelling f_j*, 
 but an approximation of that. In this case, we want the trace found by a SAT solver as 
 the one modelling `f_i` not to be a model for `f_j`.  
