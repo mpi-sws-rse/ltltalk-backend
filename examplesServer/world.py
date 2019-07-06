@@ -1,4 +1,5 @@
 import pdb
+import constants
 from collections import defaultdict
 
 class World:
@@ -64,7 +65,9 @@ class World:
         for item_label in dict_of_items_on_floor:
             pos = dict_of_items_on_floor[item_label]
             s += "{} === {}: {}\n".format(item_label, pos, dict(self.items_on_the_floor[pos]))
-        s +="\nitems at robot:\n"
+
+        s +="\nrobot_position: {}\n".format(self.robot_position)
+        s +="items at robot:\n"
         if len(self.items_on_robot) == 0:
             s += "None\n"
         else:
@@ -76,25 +79,25 @@ class World:
     def move(self, direction):
         roboX = self.robot_position[0]
         roboY = self.robot_position[1]
-        if direction == "left":
+        if direction == constants.LEFT:
             if roboX == 0:
                 raise ValueError("Can't move {} when robot is at the position {}".format(direction, self.robot_position))
             else:
                 newPosition = (roboX-1, roboY)
 
-        elif direction == "right":
+        elif direction == constants.RIGHT:
             if roboX == self.width - 1:
                 raise ValueError("Can't move {} when robot is at the position {}".format(direction, self.robot_position))
             else:
                 newPosition = (roboX+1, roboY)
 
-        elif direction == "up":
+        elif direction == constants.UP:
             if roboY == self.height - 1:
                 raise ValueError("Can't move {} when robot is at the position {}".format(direction, self.robot_position))
             else:
                 newPosition = (roboX, roboY+1)
 
-        elif direction == "down":
+        elif direction == constants.DOWN:
             if roboY == 0:
                 raise ValueError("Can't move {} when robot is at the position {}".format(direction, self.robot_position))
             else:
@@ -121,6 +124,92 @@ class World:
 
         self.items_on_robot = new_items_on_robot
         self.items_on_the_floor[self.robot_position] = new_items_at_pos
+
+    def _get_num_items(self, items_from_a_position, color = None, shape = None):
+        num_items = 0
+        for item_description in items_from_a_position:
+            item_color = item_description[0]
+            item_shape = item_description[1]
+            if (color is None or item_color == color) and (shape is None or item_shape == shape):
+                num_items += items_from_a_position[item_description]
+
+        return num_items
+
+    def execute_and_emit_events(self, sequence_of_actions):
+        for event, next_event in zip(sequence_of_actions, sequence_of_actions[1:]):
+            if event[0] == constants.PICK and next_event[0] == constants.PICK:
+                raise ValueError("No two consecutive {} events allowed".format(constants.PICK))
+
+        events = []
+
+        if not self.robot_position in self.water:
+            events.append(["dry"])
+        else:
+            events.append([])
+
+
+        for action in sequence_of_actions:
+
+
+            action_events = []
+
+
+
+            if action[0] == constants.MOVE:
+
+
+                self.move(action[1])
+                if not self.robot_position in self.water:
+                    action_events.append("dry")
+
+            elif action[0] == constants.PICK:
+                # when the robot is picking the state is not changing (if it was dry, it will remain dry)
+                if len(events) > 0 and "dry" in events[-1]:
+                    action_events.append("dry")
+
+                action_events.append("picked_single_x_x_item")
+
+                old_field_items = self.items_on_the_floor[self.robot_position].copy()
+                
+                self.pick(action[1])
+                new_field_items = self.items_on_the_floor[self.robot_position]
+
+                # the second part of conjunctions should always be true anyway
+                # (there should be no picking from empty field)
+                if self._get_num_items(new_field_items) == 0:
+                    action_events.append("picked_every_x_x_item")                                        
+
+                for color in constants.COLORS:
+                    if self._get_num_items(old_field_items, color=color) > 0 and self._get_num_items(new_field_items, color=color) == 0:
+                        action_events.append("picked_every_{}_x_item".format(color))
+                    if self._get_num_items(old_field_items, color=color) - self._get_num_items(new_field_items, color=color) == 1:
+                        action_events.append("picked_single_{}_x_item".format(color))
+                        
+                for shape in constants.SHAPES:
+                    if self._get_num_items(old_field_items, shape=shape) > 0 and self._get_num_items(new_field_items, shape=shape) == 0:
+                        action_events.append("picked_every_x_{}_item".format(shape))
+                    if self._get_num_items(old_field_items, shape=shape) - self._get_num_items(new_field_items, shape=shape) == 1:
+                        action_events.append("picked_single_x_{}_item".format(shape))
+
+                for color in constants.COLORS:
+                    for shape in constants.SHAPES:
+                        if self._get_num_items(old_field_items, color=color, shape=shape) > 0 and self._get_num_items(new_field_items, color=color, shape=shape) == 0:
+                            action_events.append("picked_every_{}_{}_item".format(color, shape))
+                        if self._get_num_items(old_field_items, color=color, shape=shape) - self._get_num_items(new_field_items, color=color, shape=shape) == 1:
+                            action_events.append("picked_single_{}_{}_item".format(color, shape))
+
+            events.append(action_events)
+
+        return events
+                        
+
+
+
+
+
+
+
+
 
 
 
