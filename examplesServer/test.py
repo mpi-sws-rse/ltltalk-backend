@@ -6,11 +6,12 @@ from world import World
 import json
 import pdb
 import nlp_helpers
+from utils import create_json_spec
 
 def main():
 
     hints = nlp_helpers.get_hints_from_utterance("pick me all red items")
-    pdb.set_trace()
+
     with open("temp.json") as world_file:
         w = json.load(world_file)
         test_world = World(w)
@@ -29,8 +30,9 @@ def main():
 
 
         emitted_events = test_world.execute_and_emit_events(sequence_of_actions)
-        print(emitted_events)
-        print(test_world)
+
+        create_json_spec(file_name="data/exampleWithHints.json", emitted_events=emitted_events, hints = hints)
+
 
 if __name__ == '__main__':
     main()
