@@ -263,13 +263,13 @@ public class RoboWorld extends World {
     RoboWorld world = new RoboWorld(robot, walls, items);
     
     // Load the room definitions as specified by the client
-    Set<Point> points;
-    for (Entry<String, List<List<Integer>>> entry
-        : ((Map<String, List<List<Integer>>>) ctxMap.get("rooms")).entrySet()) {
-      points = entry.getValue().stream()
-          .map(p -> new Point(p.get(0), p.get(1))).collect(Collectors.toSet());
-      world.rooms.put(entry.getKey(), points);
-    }
+//    Set<Point> points;
+//    for (Entry<String, List<List<Integer>>> entry
+//        : ((Map<String, List<List<Integer>>>) ctxMap.get("rooms")).entrySet()) {
+//      points = entry.getValue().stream()
+//          .map(p -> new Point(p.get(0), p.get(1))).collect(Collectors.toSet());
+//      world.rooms.put(entry.getKey(), points);
+//    }
     
     return world;
   }
