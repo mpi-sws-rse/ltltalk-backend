@@ -29,9 +29,9 @@ def main():
         sequence_of_actions += [("pick", [("red", "circle"), ("red", "circle"), ("blue", "circle"), ("green", "square")])]
 
 
-        emitted_events = test_world.execute_and_emit_events(sequence_of_actions)
+        (emitted_events, locations) = test_world.execute_and_emit_events(sequence_of_actions)
 
-        create_json_spec(file_name="data/exampleWithHints.json", emitted_events=emitted_events, hints = hints)
+        create_json_spec(file_name="data/exampleWithHints.json", emitted_events=emitted_events, hints = hints, locations=locations)
 
 
 if __name__ == '__main__':
