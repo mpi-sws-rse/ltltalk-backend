@@ -111,9 +111,13 @@ class World:
 
         return self.robot_position
 
-    def pick(self, color_shape_pairs):
-        new_items_on_robot = self.items_on_robot.copy()
-        new_items_at_pos = self.items_on_the_floor[self.robot_position].copy()
+    def pick(self, color_shape_pairs, speculative = False, items_on_robot = None, items_at_pos=None):
+        if speculative == False:
+            new_items_on_robot = self.items_on_robot.copy()
+            new_items_at_pos = self.items_on_the_floor[self.robot_position].copy()
+        else:
+            new_items_on_robot = items_on_robot.copy()
+            new_items_at_pos = items_at_pos.copy()
 
         for item_description in color_shape_pairs:
             if new_items_at_pos[item_description] == 0:
@@ -122,8 +126,11 @@ class World:
                 new_items_at_pos[item_description] -= 1
                 new_items_on_robot[item_description] += 1
 
-        self.items_on_robot = new_items_on_robot
-        self.items_on_the_floor[self.robot_position] = new_items_at_pos
+        if speculative == False:
+            self.items_on_robot = new_items_on_robot
+            self.items_on_the_floor[self.robot_position] = new_items_at_pos
+
+        return new_items_on_robot, new_items_at_pos
 
     def _get_num_items(self, items_from_a_position, color = None, shape = None):
         num_items = 0
@@ -141,6 +148,7 @@ class World:
                 raise ValueError("No two consecutive {} events allowed".format(constants.PICK))
 
         events = []
+        collection_of_negative_events = []
         locations = []
 
         if not self.robot_position in self.water:
@@ -165,60 +173,79 @@ class World:
 
             elif action[0] == constants.PICK:
                 locations.append(self.robot_position)
-                # when the robot is picking the state is not changing (if it was dry, it will remain dry)
-                if len(events) > 0 and "dry" in events[-1]:
-                    action_events.append("dry")
-
-                action_events.append("{}_one_x_x_item_{}".format(constants.PICK, self.robot_position))
-
                 old_field_items = self.items_on_the_floor[self.robot_position].copy()
-                
+                print(old_field_items)
+                old_robot_items = self.items_on_robot.copy()
                 self.pick(action[1])
                 new_field_items = self.items_on_the_floor[self.robot_position]
+                action_events = self._get_action_events(events, old_field_items, new_field_items, self.robot_position)
 
-                # the second part of conjunctions should always be true anyway
-                # (there should be no picking from empty field)
-                if self._get_num_items(new_field_items) == 0:
-                    action_events.append("{}_every_x_x_item_{}".format(constants.PICK, self.robot_position))
-
-                numbersToWords = {1: "one", 2: "two", 3: "three"}
-
-                for color in constants.COLORS:
-                    if self._get_num_items(old_field_items, color=color) > 0 and self._get_num_items(new_field_items, color=color) == 0:
-                        action_events.append("{}_every_{}_x_item_{}".format(constants.PICK,color, self.robot_position))
-                    for number in numbersToWords:
-                        if self._get_num_items(old_field_items, color=color) - self._get_num_items(new_field_items, color=color) == number:
-                            action_events.append("{}_{}_{}_x_item_{}".format(constants.PICK, numbersToWords[number], color,  self.robot_position))
-                        
-                for shape in constants.SHAPES:
-                    if self._get_num_items(old_field_items, shape=shape) > 0 and self._get_num_items(new_field_items, shape=shape) == 0:
-                        action_events.append("{}_every_x_{}_item_{}".format(constants.PICK,shape, self.robot_position))
-                    for number in numbersToWords:
-                        if self._get_num_items(old_field_items, shape=shape) - self._get_num_items(new_field_items, shape=shape) == number:
-                            action_events.append("{}_{}_x_{}_item_{}".format(constants.PICK, numbersToWords[number], shape, self.robot_position))
-
-                for color in constants.COLORS:
-                    for shape in constants.SHAPES:
-                        if self._get_num_items(old_field_items, color=color, shape=shape) > 0 and self._get_num_items(new_field_items, color=color, shape=shape) == 0:
-                            action_events.append("{}_every_{}_{}_item_{}".format(constants.PICK, color, shape, self.robot_position))
-                        for number in numbersToWords:
-                            if self._get_num_items(old_field_items, color=color, shape=shape) - self._get_num_items(new_field_items, color=color, shape=shape) == number:
-                                action_events.append("{}_{}_{}_{}_item_{}".format(constants.PICK,numbersToWords[number],color, shape, self.robot_position))
+                """
+                here I'd like to exclude one item from the set of picked items and emit those events as negative events.
+                The assumption is that if any picking was unnecessary, the user would not do it at all
+            
+                """
+                for item_desc in action[1]:
+                    modified_collection = action[1].copy()
+                    modified_collection.remove(item_desc)
+                    (speculative_new_robot_items, speculative_new_field_items) = self.pick(modified_collection, speculative=True,
+                                                                                           items_on_robot=old_robot_items , items_at_pos=old_field_items)
+                    speculative_action_events = self._get_action_events(events, old_field_items, speculative_new_field_items, self.robot_position)
+                    forked_events = events.copy()
+                    forked_events.append(speculative_action_events)
+                    collection_of_negative_events.append(forked_events)
 
             events.append(action_events)
+        collection_of_negative_events.append(events[:-1])
 
-        return (events, locations)
-                        
+        return (events, locations, collection_of_negative_events)
 
+    def _get_action_events(self, events, old_field_items, new_field_items, robot_position):
 
+        action_events = []
+        # when the robot is picking the state is not changing (if it was dry, it will remain dry)
+        if len(events) > 0 and "dry" in events[-1]:
+            action_events.append("dry")
 
+        action_events.append("{}_one_x_x_item_{}".format(constants.PICK, robot_position))
+        # the second part of conjunctions should always be true anyway
+        # (there should be no picking from empty field)
+        if self._get_num_items(new_field_items) == 0:
+            action_events.append("{}_every_x_x_item_{}".format(constants.PICK, robot_position))
 
+        numbersToWords = {1: "one", 2: "two", 3: "three"}
 
+        for color in constants.COLORS:
+            if self._get_num_items(old_field_items, color=color) > 0 and self._get_num_items(new_field_items,
+                                                                                             color=color) == 0:
+                action_events.append("{}_every_{}_x_item_{}".format(constants.PICK, color, robot_position))
+            for number in numbersToWords:
+                if self._get_num_items(old_field_items, color=color) - self._get_num_items(new_field_items,
+                                                                                           color=color) == number:
+                    action_events.append(
+                        "{}_{}_{}_x_item_{}".format(constants.PICK, numbersToWords[number], color, robot_position))
 
+        for shape in constants.SHAPES:
+            if self._get_num_items(old_field_items, shape=shape) > 0 and self._get_num_items(new_field_items,
+                                                                                             shape=shape) == 0:
+                action_events.append("{}_every_x_{}_item_{}".format(constants.PICK, shape, robot_position))
+            for number in numbersToWords:
+                if self._get_num_items(old_field_items, shape=shape) - self._get_num_items(new_field_items,
+                                                                                           shape=shape) == number:
+                    action_events.append(
+                        "{}_{}_x_{}_item_{}".format(constants.PICK, numbersToWords[number], shape, robot_position))
 
+        for color in constants.COLORS:
+            for shape in constants.SHAPES:
+                if self._get_num_items(old_field_items, color=color, shape=shape) > 0 and self._get_num_items(
+                        new_field_items, color=color, shape=shape) == 0:
+                    action_events.append(
+                        "{}_every_{}_{}_item_{}".format(constants.PICK, color, shape, robot_position))
+                for number in numbersToWords:
+                    if self._get_num_items(old_field_items, color=color, shape=shape) - self._get_num_items(
+                            new_field_items, color=color, shape=shape) == number:
+                        action_events.append(
+                            "{}_{}_{}_{}_item_{}".format(constants.PICK, numbersToWords[number], color, shape,
+                                                         robot_position))
 
-
-
-
-
-
+        return action_events
