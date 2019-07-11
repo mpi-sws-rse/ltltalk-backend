@@ -149,7 +149,8 @@ class World:
 
         events = []
         collection_of_negative_events = []
-        locations = []
+        pickup_locations = []
+        all_locations = []
 
         if not self.robot_position in self.water:
             events.append(["dry"])
@@ -158,7 +159,6 @@ class World:
 
 
         for action in sequence_of_actions:
-
 
             action_events = []
 
@@ -170,9 +170,11 @@ class World:
                 self.move(action[1])
                 if not self.robot_position in self.water:
                     action_events.append("dry")
+                action_events.append("at_"+str(self.robot_position))
+                all_locations.append(self.robot_position)
 
             elif action[0] == constants.PICK:
-                locations.append(self.robot_position)
+                pickup_locations.append(self.robot_position)
                 old_field_items = self.items_on_the_floor[self.robot_position].copy()
                 print(old_field_items)
                 old_robot_items = self.items_on_robot.copy()
@@ -198,7 +200,7 @@ class World:
             events.append(action_events)
         collection_of_negative_events.append(events[:-1])
 
-        return (events, locations, collection_of_negative_events)
+        return (events, pickup_locations, collection_of_negative_events, all_locations)
 
     def _get_action_events(self, events, old_field_items, new_field_items, robot_position):
 
@@ -213,7 +215,8 @@ class World:
         if self._get_num_items(new_field_items) == 0:
             action_events.append("{}_every_x_x_item_{}".format(constants.PICK, robot_position))
 
-        numbersToWords = {1: "one", 2: "two", 3: "three"}
+        numbersToWords = {num: constants.numbersToWords[num] for num in constants.numbersToWords if constants.numbersToWords[num] in constants.QUANTIFIERS}
+        print(numbersToWords)
 
         for color in constants.COLORS:
             if self._get_num_items(old_field_items, color=color) > 0 and self._get_num_items(new_field_items,

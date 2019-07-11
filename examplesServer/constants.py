@@ -10,14 +10,20 @@ HEIGHT = 10
 
 COLORS = ["red", "green", "blue"]
 SHAPES = ["square", "circle", "triangle"]
-QUANTIFIERS = ["one","two", "three", "every"]
+QUANTIFIERS = ["one","two", "every"]
+numbersToWords = {1: "one", 2: "two", 3: "three"}
+
+
 
 # x is sa symbol for don't care
 PICKUP_EVENTS = ["{}_{}_{}_{}_item".format(PICK, quantifier, color, shape)
                 for quantifier in QUANTIFIERS
                 for color in COLORS+["x"]
                 for shape in SHAPES+["x"]]
+
 STATE_EVENTS = ["dry"]
+
+AT_EVENTS_PER_LOCATION ={(i,j): "at_{}_{}".format(i,j) for i in range(WIDTH) for j in range(HEIGHT)}
 
 PICKUP_EVENTS_PER_LOCATION = {}
 for x in range(WIDTH):

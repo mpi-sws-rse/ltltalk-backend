@@ -7,6 +7,7 @@ import json
 import pdb
 import nlp_helpers
 from utils import create_json_spec
+import constants
 from samples2LTL.experiment import start_experiment
 
 """
@@ -35,14 +36,20 @@ def main():
 
         sequence_of_actions += [("move", "right") for _ in range(5)]
         #sequence_of_actions += [("pick", [("red", "circle"),("red", "circle"),("blue", "circle"), ("green", "square"), ("green", "circle")])]
-        sequence_of_actions += [("pick", [("red", "circle"), ("red", "circle"), ("blue", "circle"), ("green", "circle")])]
+        #sequence_of_actions += [("pick", [("red", "circle"), ("red", "circle"), ("blue", "circle"), ("green", "circle"), ("green","square")])]
+        sequence_of_actions += [("pick", [("red", "circle"),("green", "circle")])]
+        sequence_of_actions +=[("move", "up")]
 
 
-        (emitted_events, locations) = test_world.execute_and_emit_events(sequence_of_actions)
-        hints = nlp_helpers.get_hints_from_utterance("pick me all circle items from [7,4]")
-        hintsWithLocations = {hint+"_"+str(l) : hints[hint] for hint in hints for l in locations}
+        (emitted_events, pickup_locations, collection_of_negative, all_locations) = test_world.execute_and_emit_events(sequence_of_actions)
+
+
+
+        hints = nlp_helpers.get_hints_from_utterance("pick two circle items and then go to (7,5)")
+        hintsWithLocations = {hint+"_"+str(l) : hints[hint] for hint in hints for l in pickup_locations}
         print(hintsWithLocations)
-        create_json_spec(file_name="data/exampleWithHints.json", emitted_events=emitted_events, hints = hintsWithLocations, locations=locations)
+        create_json_spec(file_name="data/exampleWithHints.json", emitted_events=emitted_events, hints = hintsWithLocations,
+                         pickup_locations=pickup_locations, all_locations=all_locations, negative_sequences=collection_of_negative)
 
         start_experiment(experiment_specification = "data/exampleWithHints.json")
 
