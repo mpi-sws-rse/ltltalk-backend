@@ -27,7 +27,7 @@ of individual subwords.
     scores = {}
     for prop_variable in constants.EVENTS:
         score = 0
-        list_of_descriptors = [lemmatizer.lemmatize(el) for el in prop_variable.split("_") if not (el == "x" or el == "item")]
+        list_of_descriptors = [lemmatizer.lemmatize(el) for el in prop_variable.split("_")[:-1] if not (el == "x" or el == "item")]
 
         for desc in list_of_descriptors:
             candidates = [desc]

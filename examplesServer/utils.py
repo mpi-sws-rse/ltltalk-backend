@@ -13,7 +13,6 @@ def create_json_spec(file_name, emitted_events, hints, locations, num_formulas =
         example_info = {}
         literals = constants.STATE_EVENTS
         for loc in locations:
-            pdb.set_trace()
             literals += constants.PICKUP_EVENTS_PER_LOCATION[loc]
         example_info["literals"] = literals
         example_info["number-of-formulas"] = num_formulas
@@ -21,5 +20,10 @@ def create_json_spec(file_name, emitted_events, hints, locations, num_formulas =
         example_info["max-depth-of-formula"] = max_depth
         example_info["operators"] = constants.OPERATORS
         example_info["hints"] = [[h, hints[h]] for h in hints]
-        example_info["positive"] = [";".join( [ ",".join([ e for e in timestep_events ]) for timestep_events in emitted_events] )]
+        positive = [";".join( [ ",".join([ e for e in timestep_events ]) for timestep_events in emitted_events] )]
+        example_info["positive"] = positive
+        negative = [";".join( [ ",".join([ e for e in timestep_events ]) for timestep_events in emitted_events[:-1]] )]
+        example_info["negative"] = negative
+
+
         json.dump(example_info, exampleJsonFile)
