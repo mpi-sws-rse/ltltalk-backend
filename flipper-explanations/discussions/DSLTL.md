@@ -108,3 +108,4 @@ Possible commands one can express using the language:
 - *Reach location (2,2) but never step in the water*: `dry Ux at_[2,2]` 
 - *Pick one green circle from (2,4) and all items from (3,3), in any order*: `F(picked_1_green_circle_[2,4]) and F(pick_every_[3,3])`
 - *Pick an item from (7,5) and take it to (2,2)*: `F(picked_1_[7,6]) & E(at_[2,2])`
+- *Pick a green circle from (7,5) and a red triangle*: `E(picked_1_green_circle_[7,5]) & E(picked_1_red_triangle_[7,5])`
