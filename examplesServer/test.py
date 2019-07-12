@@ -44,10 +44,21 @@ def main():
         (emitted_events, pickup_locations, collection_of_negative, all_locations) = test_world.execute_and_emit_events(sequence_of_actions)
 
 
+        utterance = "pick two circle items and then go to (7,5)"
+        hints = nlp_helpers.get_hints_from_utterance(utterance)
+        relevant_locations = nlp_helpers.get_locations_from_utterance(utterance)
 
-        hints = nlp_helpers.get_hints_from_utterance("pick two circle items and then go to (7,5)")
+
+
         hintsWithLocations = {hint+"_"+str(l) : hints[hint] for hint in hints for l in pickup_locations}
+        maxHintsWithLocations = max(hintsWithLocations.values())
+        minHintsWithLocations = min(hintsWithLocations.values())
+        middleValue = (maxHintsWithLocations + minHintsWithLocations)/2
+
+        atLocationsHints = {"at_{}".format(str(loc)) :middleValue for loc in relevant_locations}
+        hintsWithLocations.update(atLocationsHints)
         print(hintsWithLocations)
+        pdb.set_trace()
         create_json_spec(file_name="data/exampleWithHints.json", emitted_events=emitted_events, hints = hintsWithLocations,
                          pickup_locations=pickup_locations, all_locations=all_locations, negative_sequences=collection_of_negative)
 

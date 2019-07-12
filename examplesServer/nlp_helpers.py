@@ -2,12 +2,26 @@ import constants
 import nltk
 nltk.download('punkt')
 nltk.download('wordnet')
+import re
 
 
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 
 
+def get_locations_from_utterance(nl_utterance):
+    locations_strings = re.findall(r"(\d,[\n\t ]*\d)", nl_utterance)
+
+    locations = []
+    for loc in locations_strings:
+        print(loc)
+        try:
+            location_pair = loc.split(',')
+            locations.append((int(location_pair[0]), int(location_pair[1])))
+        except:
+            continue
+
+    return locations
 
 def get_hints_from_utterance(nl_utterance):
 
@@ -20,6 +34,10 @@ of individual subwords.
     :param nl_utterance: string
     :return: dictionary {prop_variable: weight}
     """
+
+
+
+
 
     lemmatizer = WordNetLemmatizer()
 
@@ -48,6 +66,7 @@ of individual subwords.
     max_dict_value = max(scores.values())
     second_max_value = max( [value for value in scores.values() if value < max_dict_value] )
     hints = {k : (1 + scores[k]) for k in scores if (scores[k] == max_dict_value or scores[k] == second_max_value)}
+
     return hints
 
 

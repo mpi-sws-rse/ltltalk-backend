@@ -23,7 +23,7 @@ PICKUP_EVENTS = ["{}_{}_{}_{}_item".format(PICK, quantifier, color, shape)
 
 STATE_EVENTS = ["dry"]
 
-AT_EVENTS_PER_LOCATION ={(i,j): "at_{}_{}".format(i,j) for i in range(WIDTH) for j in range(HEIGHT)}
+AT_EVENTS_PER_LOCATION ={(i,j): "at_{}".format((i,j)) for i in range(WIDTH) for j in range(HEIGHT)}
 
 PICKUP_EVENTS_PER_LOCATION = {}
 for x in range(WIDTH):
