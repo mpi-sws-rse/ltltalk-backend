@@ -1,0 +1,237 @@
+{
+	"info": {
+		"_postman_id": "67f76873-cb98-420f-a060-39294e77b79e",
+		"name": "flipper-examples-backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "sendContext",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseIP}}:8410/sempre?format=lisp2json&q=(:context \"{\\\"robot\\\":[2,4,[]],\\\"world\\\":[[-1,9,\\\"wall\\\",null,null],[0,9,\\\"wall\\\",null,null],[1,9,\\\"wall\\\",null,null],[2,9,\\\"wall\\\",null,null],[3,9,\\\"wall\\\",null,null],[4,9,\\\"wall\\\",null,null],[5,9,\\\"wall\\\",null,null],[6,9,\\\"wall\\\",null,null],[7,9,\\\"wall\\\",null,null],[8,9,\\\"wall\\\",null,null],[9,9,\\\"wall\\\",null,null],[10,9,\\\"wall\\\",null,null],[11,9,\\\"wall\\\",null,null],[12,9,\\\"wall\\\",null,null],[-1,8,\\\"wall\\\",null,null],[3,8,\\\"item\\\",\\\"blue\\\",\\\"circle\\\"],[3,8,\\\"item\\\",\\\"yellow\\\",\\\"square\\\"],[6,8,\\\"wall\\\",null,null],[10,8,\\\"item\\\",\\\"green\\\",\\\"triangle\\\"],[10,8,\\\"item\\\",\\\"red\\\",\\\"triangle\\\"],[12,8,\\\"wall\\\",null,null],[-1,7,\\\"wall\\\",null,null],[6,7,\\\"wall\\\",null,null],[12,7,\\\"wall\\\",null,null],[-1,6,\\\"wall\\\",null,null],[0,6,\\\"wall\\\",null,null],[1,6,\\\"wall\\\",null,null],[2,6,\\\"wall\\\",null,null],[3,6,\\\"wall\\\",null,null],[4,6,\\\"wall\\\",null,null],[6,6,\\\"wall\\\",null,null],[7,6,\\\"wall\\\",null,null],[8,6,\\\"wall\\\",null,null],[10,6,\\\"wall\\\",null,null],[11,6,\\\"wall\\\",null,null],[12,6,\\\"wall\\\",null,null],[-1,5,\\\"wall\\\",null,null],[12,5,\\\"wall\\\",null,null],[-1,4,\\\"wall\\\",null,null],[7,4,\\\"item\\\",\\\"red\\\",\\\"circle\\\"],[7,4,\\\"item\\\",\\\"blue\\\",\\\"circle\\\"],[7,4,\\\"item\\\",\\\"green\\\",\\\"square\\\"],[7,4,\\\"item\\\",\\\"green\\\",\\\"circle\\\"],[12,4,\\\"wall\\\",null,null],[-1,3,\\\"wall\\\",null,null],[8,3,\\\"wall\\\",null,null],[9,3,\\\"wall\\\",null,null],[10,3,\\\"wall\\\",null,null],[11,3,\\\"wall\\\",null,null],[12,3,\\\"wall\\\",null,null],[-1,2,\\\"wall\\\",null,null],[2,2,\\\"wall\\\",null,null],[3,2,\\\"wall\\\",null,null],[4,2,\\\"wall\\\",null,null],[5,2,\\\"wall\\\",null,null],[6,2,\\\"wall\\\",null,null],[7,2,\\\"wall\\\",null,null],[8,2,\\\"wall\\\",null,null],[12,2,\\\"wall\\\",null,null],[-1,1,\\\"wall\\\",null,null],[8,1,\\\"wall\\\",null,null],[11,1,\\\"item\\\",\\\"blue\\\",\\\"square\\\"],[12,1,\\\"wall\\\",null,null],[-1,0,\\\"wall\\\",null,null],[4,0,\\\"item\\\",\\\"red\\\",\\\"triangle\\\"],[4,0,\\\"item\\\",\\\"yellow\\\",\\\"triangle\\\"],[12,0,\\\"wall\\\",null,null],[-1,-1,\\\"wall\\\",null,null],[0,-1,\\\"wall\\\",null,null],[1,-1,\\\"wall\\\",null,null],[2,-1,\\\"wall\\\",null,null],[3,-1,\\\"wall\\\",null,null],[4,-1,\\\"wall\\\",null,null],[5,-1,\\\"wall\\\",null,null],[6,-1,\\\"wall\\\",null,null],[7,-1,\\\"wall\\\",null,null],[8,-1,\\\"wall\\\",null,null],[9,-1,\\\"wall\\\",null,null],[10,-1,\\\"wall\\\",null,null],[11,-1,\\\"wall\\\",null,null],[12,-1,\\\"wall\\\",null,null]],\\\"rooms\\\":{\\\"room4\\\":[[0,8],[0,7],[1,8],[1,7],[2,8],[2,7],[3,8],[3,7],[4,8],[4,7],[5,8],[5,7]],\\\"room5\\\":[[7,8],[7,7],[8,8],[8,7],[9,8],[9,7],[10,8],[10,7],[11,8],[11,7]],\\\"room3\\\":[[0,5],[0,4],[0,3],[1,5],[1,4],[1,3],[2,5],[2,4],[2,3],[3,5],[3,4],[3,3],[4,5],[4,4],[4,3],[5,5],[5,4],[5,3],[6,5],[6,4],[6,3],[7,5],[7,4],[7,3],[8,5],[8,4],[9,5],[9,4],[10,5],[10,4],[11,5],[11,4]],\\\"room1\\\":[[9,2],[9,1],[9,0],[10,2],[10,1],[10,0],[11,2],[11,1],[11,0]],\\\"room2\\\":[[0,1],[0,0],[1,1],[1,0],[2,1],[2,0],[3,1],[3,0],[4,1],[4,0],[5,1],[5,0],[6,1],[6,0],[7,1],[7,0]]}}\")&sessionId=temp",
+					"host": [
+						"{{baseIP}}"
+					],
+					"port": "8410",
+					"path": [
+						"sempre"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "lisp2json"
+						},
+						{
+							"key": "q",
+							"value": "(:context \"{\\\"robot\\\":[2,4,[]],\\\"world\\\":[[-1,9,\\\"wall\\\",null,null],[0,9,\\\"wall\\\",null,null],[1,9,\\\"wall\\\",null,null],[2,9,\\\"wall\\\",null,null],[3,9,\\\"wall\\\",null,null],[4,9,\\\"wall\\\",null,null],[5,9,\\\"wall\\\",null,null],[6,9,\\\"wall\\\",null,null],[7,9,\\\"wall\\\",null,null],[8,9,\\\"wall\\\",null,null],[9,9,\\\"wall\\\",null,null],[10,9,\\\"wall\\\",null,null],[11,9,\\\"wall\\\",null,null],[12,9,\\\"wall\\\",null,null],[-1,8,\\\"wall\\\",null,null],[3,8,\\\"item\\\",\\\"blue\\\",\\\"circle\\\"],[3,8,\\\"item\\\",\\\"yellow\\\",\\\"square\\\"],[6,8,\\\"wall\\\",null,null],[10,8,\\\"item\\\",\\\"green\\\",\\\"triangle\\\"],[10,8,\\\"item\\\",\\\"red\\\",\\\"triangle\\\"],[12,8,\\\"wall\\\",null,null],[-1,7,\\\"wall\\\",null,null],[6,7,\\\"wall\\\",null,null],[12,7,\\\"wall\\\",null,null],[-1,6,\\\"wall\\\",null,null],[0,6,\\\"wall\\\",null,null],[1,6,\\\"wall\\\",null,null],[2,6,\\\"wall\\\",null,null],[3,6,\\\"wall\\\",null,null],[4,6,\\\"wall\\\",null,null],[6,6,\\\"wall\\\",null,null],[7,6,\\\"wall\\\",null,null],[8,6,\\\"wall\\\",null,null],[10,6,\\\"wall\\\",null,null],[11,6,\\\"wall\\\",null,null],[12,6,\\\"wall\\\",null,null],[-1,5,\\\"wall\\\",null,null],[12,5,\\\"wall\\\",null,null],[-1,4,\\\"wall\\\",null,null],[7,4,\\\"item\\\",\\\"red\\\",\\\"circle\\\"],[7,4,\\\"item\\\",\\\"blue\\\",\\\"circle\\\"],[7,4,\\\"item\\\",\\\"green\\\",\\\"square\\\"],[7,4,\\\"item\\\",\\\"green\\\",\\\"circle\\\"],[12,4,\\\"wall\\\",null,null],[-1,3,\\\"wall\\\",null,null],[8,3,\\\"wall\\\",null,null],[9,3,\\\"wall\\\",null,null],[10,3,\\\"wall\\\",null,null],[11,3,\\\"wall\\\",null,null],[12,3,\\\"wall\\\",null,null],[-1,2,\\\"wall\\\",null,null],[2,2,\\\"wall\\\",null,null],[3,2,\\\"wall\\\",null,null],[4,2,\\\"wall\\\",null,null],[5,2,\\\"wall\\\",null,null],[6,2,\\\"wall\\\",null,null],[7,2,\\\"wall\\\",null,null],[8,2,\\\"wall\\\",null,null],[12,2,\\\"wall\\\",null,null],[-1,1,\\\"wall\\\",null,null],[8,1,\\\"wall\\\",null,null],[11,1,\\\"item\\\",\\\"blue\\\",\\\"square\\\"],[12,1,\\\"wall\\\",null,null],[-1,0,\\\"wall\\\",null,null],[4,0,\\\"item\\\",\\\"red\\\",\\\"triangle\\\"],[4,0,\\\"item\\\",\\\"yellow\\\",\\\"triangle\\\"],[12,0,\\\"wall\\\",null,null],[-1,-1,\\\"wall\\\",null,null],[0,-1,\\\"wall\\\",null,null],[1,-1,\\\"wall\\\",null,null],[2,-1,\\\"wall\\\",null,null],[3,-1,\\\"wall\\\",null,null],[4,-1,\\\"wall\\\",null,null],[5,-1,\\\"wall\\\",null,null],[6,-1,\\\"wall\\\",null,null],[7,-1,\\\"wall\\\",null,null],[8,-1,\\\"wall\\\",null,null],[9,-1,\\\"wall\\\",null,null],[10,-1,\\\"wall\\\",null,null],[11,-1,\\\"wall\\\",null,null],[12,-1,\\\"wall\\\",null,null]],\\\"rooms\\\":{\\\"room4\\\":[[0,8],[0,7],[1,8],[1,7],[2,8],[2,7],[3,8],[3,7],[4,8],[4,7],[5,8],[5,7]],\\\"room5\\\":[[7,8],[7,7],[8,8],[8,7],[9,8],[9,7],[10,8],[10,7],[11,8],[11,7]],\\\"room3\\\":[[0,5],[0,4],[0,3],[1,5],[1,4],[1,3],[2,5],[2,4],[2,3],[3,5],[3,4],[3,3],[4,5],[4,4],[4,3],[5,5],[5,4],[5,3],[6,5],[6,4],[6,3],[7,5],[7,4],[7,3],[8,5],[8,4],[9,5],[9,4],[10,5],[10,4],[11,5],[11,4]],\\\"room1\\\":[[9,2],[9,1],[9,0],[10,2],[10,1],[10,0],[11,2],[11,1],[11,0]],\\\"room2\\\":[[0,1],[0,0],[1,1],[1,0],[2,1],[2,0],[3,1],[3,0],[4,1],[4,0],[5,1],[5,0],[6,1],[6,0],[7,1],[7,0]]}}\")"
+						},
+						{
+							"key": "sessionId",
+							"value": "temp"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "query",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseIP}}:8410/sempre?format=list2json&q=(:q \"move right\")&sessionId=temp",
+					"host": [
+						"{{baseIP}}"
+					],
+					"port": "8410",
+					"path": [
+						"sempre"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "list2json"
+						},
+						{
+							"key": "q",
+							"value": "(:q \"move right\")"
+						},
+						{
+							"key": "sessionId",
+							"value": "temp"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "accept",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseIP}}:8410/sempre?format=list2json&q=(:accept \"repeat 3 times move left\" \"(:loop (number 3) (: move left))\")&sessionId=temp",
+					"host": [
+						"{{baseIP}}"
+					],
+					"port": "8410",
+					"path": [
+						"sempre"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "list2json"
+						},
+						{
+							"key": "q",
+							"value": "(:accept \"repeat 3 times move left\" \"(:loop (number 3) (: move left))\")"
+						},
+						{
+							"key": "sessionId",
+							"value": "temp"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "define",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseIP}}:8410/sempre?q=(:def_ret \"go 3 steps to left\" \"[[\\\"repeat 3 times move left\\\",\\\"(:loop (number 3) (: move left))\\\"]]\")&format=lisp2json&sessionId=temp",
+					"host": [
+						"{{baseIP}}"
+					],
+					"port": "8410",
+					"path": [
+						"sempre"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "(:def_ret \"go 3 steps to left\" \"[[\\\"repeat 3 times move left\\\",\\\"(:loop (number 3) (: move left))\\\"]]\")"
+						},
+						{
+							"key": "format",
+							"value": "lisp2json"
+						},
+						{
+							"key": "sessionId",
+							"value": "temp"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "exampleDefinition",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseIP}}:5000/get-candidate-spec?query=get red item&path=[\n  [\n    \"move\",\n    \"left\"\n  ],\n  [\n    \"move\",\n    \"right\"\n  ],\n  [\n    \"move\",\n    \"up\"\n  ],\n  [\n    \"pick\",\n    [\n      [\n        \"yellow\",\n        \"square\"\n      ],\n      [\n        \"green\",\n        \"triangle\"\n      ]\n    ]\n  ]\n]&context={\n  \"robot\": [\n    2,\n    4,\n    []\n  ],\n  \"width\": 10,\n  \"height\": 10,\n  \"world\": [\n    [\n      -1,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      0,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      1,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      2,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      5,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      9,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      8,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      8,\n      \"item\",\n      \"blue\",\n      \"circle\"\n    ],\n    [\n      3,\n      8,\n      \"item\",\n      \"yellow\",\n      \"square\"\n    ],\n    [\n      6,\n      8,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      8,\n      \"item\",\n      \"green\",\n      \"triangle\"\n    ],\n    [\n      10,\n      8,\n      \"item\",\n      \"red\",\n      \"triangle\"\n    ],\n    [\n      12,\n      8,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      7,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      7,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      7,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      0,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      1,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      2,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      5,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      5,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      4,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      4,\n      \"item\",\n      \"red\",\n      \"circle\"\n    ],\n    [\n      7,\n      4,\n      \"item\",\n      \"blue\",\n      \"circle\"\n    ],\n    [\n      7,\n      4,\n      \"item\",\n      \"green\",\n      \"square\"\n    ],\n    [\n      7,\n      4,\n      \"item\",\n      \"green\",\n      \"circle\"\n    ],\n    [\n      12,\n      4,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      9,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      2,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      5,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      1,\n      \"item\",\n      \"blue\",\n      \"square\"\n    ],\n    [\n      12,\n      1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      0,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      0,\n      \"item\",\n      \"red\",\n      \"triangle\"\n    ],\n    [\n      4,\n      0,\n      \"item\",\n      \"yellow\",\n      \"triangle\"\n    ],\n    [\n      12,\n      0,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      0,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      1,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      2,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      5,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      9,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      1,\n      3,\n      \"water\",\n      null,\n      null\n    ],\n    [\n      2,\n      4,\n      \"water\",\n      null,\n      null\n    ]\n  ]\n}\n&session-id=tempSessionId",
+					"host": [
+						"{{baseIP}}"
+					],
+					"port": "5000",
+					"path": [
+						"get-candidate-spec"
+					],
+					"query": [
+						{
+							"key": "query",
+							"value": "get red item"
+						},
+						{
+							"key": "path",
+							"value": "[\n  [\n    \"move\",\n    \"left\"\n  ],\n  [\n    \"move\",\n    \"right\"\n  ],\n  [\n    \"move\",\n    \"up\"\n  ],\n  [\n    \"pick\",\n    [\n      [\n        \"yellow\",\n        \"square\"\n      ],\n      [\n        \"green\",\n        \"triangle\"\n      ]\n    ]\n  ]\n]"
+						},
+						{
+							"key": "context",
+							"value": "{\n  \"robot\": [\n    2,\n    4,\n    []\n  ],\n  \"width\": 10,\n  \"height\": 10,\n  \"world\": [\n    [\n      -1,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      0,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      1,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      2,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      5,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      9,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      8,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      8,\n      \"item\",\n      \"blue\",\n      \"circle\"\n    ],\n    [\n      3,\n      8,\n      \"item\",\n      \"yellow\",\n      \"square\"\n    ],\n    [\n      6,\n      8,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      8,\n      \"item\",\n      \"green\",\n      \"triangle\"\n    ],\n    [\n      10,\n      8,\n      \"item\",\n      \"red\",\n      \"triangle\"\n    ],\n    [\n      12,\n      8,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      7,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      7,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      7,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      0,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      1,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      2,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      5,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      5,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      4,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      4,\n      \"item\",\n      \"red\",\n      \"circle\"\n    ],\n    [\n      7,\n      4,\n      \"item\",\n      \"blue\",\n      \"circle\"\n    ],\n    [\n      7,\n      4,\n      \"item\",\n      \"green\",\n      \"square\"\n    ],\n    [\n      7,\n      4,\n      \"item\",\n      \"green\",\n      \"circle\"\n    ],\n    [\n      12,\n      4,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      9,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      2,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      5,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      1,\n      \"item\",\n      \"blue\",\n      \"square\"\n    ],\n    [\n      12,\n      1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      0,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      0,\n      \"item\",\n      \"red\",\n      \"triangle\"\n    ],\n    [\n      4,\n      0,\n      \"item\",\n      \"yellow\",\n      \"triangle\"\n    ],\n    [\n      12,\n      0,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      0,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      1,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      2,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      5,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      9,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      1,\n      3,\n      \"water\",\n      null,\n      null\n    ],\n    [\n      2,\n      4,\n      \"water\",\n      null,\n      null\n    ]\n  ]\n}\n"
+						},
+						{
+							"key": "session-id",
+							"value": "tempSessionId"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "decisionUpdate",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseIP}}:5000/user-decision-update?session-id=tempSessionId?decision=0&sessionId=tempSessionId&candidates=[\"E(at_(7,4))\"]&path= [\n        [\n            \"move\",\n            \"left\"\n        ],\n        [\n            \"move\",\n            \"right\"\n        ],\n        [\n            \"move\",\n            \"down\"\n        ],\n        [\n            \"pick\",\n            [\n                \"yellow\",\n                \"square\"\n            ],\n            [\n                \"green\",\n                \"circle\"\n            ]\n        ]\n    ]&context={\n  \"robot\": [\n    2,\n    4,\n    []\n  ],\n  \"width\": 10,\n  \"height\": 10,\n  \"world\": [\n    [\n      -1,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      0,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      1,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      2,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      5,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      9,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      8,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      8,\n      \"item\",\n      \"blue\",\n      \"circle\"\n    ],\n    [\n      3,\n      8,\n      \"item\",\n      \"yellow\",\n      \"square\"\n    ],\n    [\n      6,\n      8,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      8,\n      \"item\",\n      \"green\",\n      \"triangle\"\n    ],\n    [\n      10,\n      8,\n      \"item\",\n      \"red\",\n      \"triangle\"\n    ],\n    [\n      12,\n      8,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      7,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      7,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      7,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      0,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      1,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      2,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      5,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      5,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      4,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      4,\n      \"item\",\n      \"red\",\n      \"circle\"\n    ],\n    [\n      7,\n      4,\n      \"item\",\n      \"blue\",\n      \"circle\"\n    ],\n    [\n      7,\n      4,\n      \"item\",\n      \"green\",\n      \"square\"\n    ],\n    [\n      7,\n      4,\n      \"item\",\n      \"green\",\n      \"circle\"\n    ],\n    [\n      12,\n      4,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      9,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      2,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      5,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      1,\n      \"item\",\n      \"blue\",\n      \"square\"\n    ],\n    [\n      12,\n      1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      0,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      0,\n      \"item\",\n      \"red\",\n      \"triangle\"\n    ],\n    [\n      4,\n      0,\n      \"item\",\n      \"yellow\",\n      \"triangle\"\n    ],\n    [\n      12,\n      0,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      0,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      1,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      2,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      5,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      9,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      1,\n      3,\n      \"water\",\n      null,\n      null\n    ],\n    [\n      2,\n      4,\n      \"water\",\n      null,\n      null\n    ]\n  ]\n}\n",
+					"host": [
+						"{{baseIP}}"
+					],
+					"port": "5000",
+					"path": [
+						"user-decision-update"
+					],
+					"query": [
+						{
+							"key": "session-id",
+							"value": "tempSessionId?decision=0"
+						},
+						{
+							"key": "sessionId",
+							"value": "tempSessionId"
+						},
+						{
+							"key": "candidates",
+							"value": "[\"E(at_(7,4))\"]"
+						},
+						{
+							"key": "path",
+							"value": " [\n        [\n            \"move\",\n            \"left\"\n        ],\n        [\n            \"move\",\n            \"right\"\n        ],\n        [\n            \"move\",\n            \"down\"\n        ],\n        [\n            \"pick\",\n            [\n                \"yellow\",\n                \"square\"\n            ],\n            [\n                \"green\",\n                \"circle\"\n            ]\n        ]\n    ]"
+						},
+						{
+							"key": "context",
+							"value": "{\n  \"robot\": [\n    2,\n    4,\n    []\n  ],\n  \"width\": 10,\n  \"height\": 10,\n  \"world\": [\n    [\n      -1,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      0,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      1,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      2,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      5,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      9,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      9,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      8,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      8,\n      \"item\",\n      \"blue\",\n      \"circle\"\n    ],\n    [\n      3,\n      8,\n      \"item\",\n      \"yellow\",\n      \"square\"\n    ],\n    [\n      6,\n      8,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      8,\n      \"item\",\n      \"green\",\n      \"triangle\"\n    ],\n    [\n      10,\n      8,\n      \"item\",\n      \"red\",\n      \"triangle\"\n    ],\n    [\n      12,\n      8,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      7,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      7,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      7,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      0,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      1,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      2,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      6,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      5,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      5,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      4,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      4,\n      \"item\",\n      \"red\",\n      \"circle\"\n    ],\n    [\n      7,\n      4,\n      \"item\",\n      \"blue\",\n      \"circle\"\n    ],\n    [\n      7,\n      4,\n      \"item\",\n      \"green\",\n      \"square\"\n    ],\n    [\n      7,\n      4,\n      \"item\",\n      \"green\",\n      \"circle\"\n    ],\n    [\n      12,\n      4,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      9,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      3,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      2,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      5,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      2,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      1,\n      \"item\",\n      \"blue\",\n      \"square\"\n    ],\n    [\n      12,\n      1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      0,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      0,\n      \"item\",\n      \"red\",\n      \"triangle\"\n    ],\n    [\n      4,\n      0,\n      \"item\",\n      \"yellow\",\n      \"triangle\"\n    ],\n    [\n      12,\n      0,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      -1,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      0,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      1,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      2,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      3,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      4,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      5,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      6,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      7,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      8,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      9,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      10,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      11,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      12,\n      -1,\n      \"wall\",\n      null,\n      null\n    ],\n    [\n      1,\n      3,\n      \"water\",\n      null,\n      null\n    ],\n    [\n      2,\n      4,\n      \"water\",\n      null,\n      null\n    ]\n  ]\n}\n"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
