@@ -35,16 +35,18 @@ def main():
         # sequence_of_actions += [("pick", [("red", "circle")])]
 
         sequence_of_actions += [("move", "right") for _ in range(5)]
+        sequence_of_actions += [("move", "up")]
+        sequence_of_actions += [("move", "down")]
         #sequence_of_actions += [("pick", [("red", "circle"),("red", "circle"),("blue", "circle"), ("green", "square"), ("green", "circle")])]
         #sequence_of_actions += [("pick", [("red", "circle"), ("red", "circle"), ("blue", "circle"), ("green", "circle"), ("green","square")])]
-        sequence_of_actions += [("pick", [("red", "circle"),("green", "circle")])]
-        sequence_of_actions +=[("move", "up")]
+        sequence_of_actions += [("pick", [("red", "circle")])]
+
 
 
         (emitted_events, pickup_locations, collection_of_negative, all_locations) = test_world.execute_and_emit_events(sequence_of_actions)
 
 
-        utterance = "pick two circle items and then go to (7,5)"
+        utterance = "go to (7,5) and then pickupe a red item from (7,4)"
         hints = nlp_helpers.get_hints_from_utterance(utterance)
         relevant_locations = nlp_helpers.get_locations_from_utterance(utterance)
 
@@ -58,7 +60,6 @@ def main():
         atLocationsHints = {"at_{}".format(str(loc)) :middleValue for loc in relevant_locations}
         hintsWithLocations.update(atLocationsHints)
         print(hintsWithLocations)
-        pdb.set_trace()
         create_json_spec(file_name="data/exampleWithHints.json", emitted_events=emitted_events, hints = hintsWithLocations,
                          pickup_locations=pickup_locations, all_locations=all_locations, negative_sequences=collection_of_negative)
 

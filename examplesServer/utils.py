@@ -3,7 +3,7 @@ import json
 import pdb
 
 
-DEFAULT_NUM_FORMULAS = 3
+DEFAULT_NUM_FORMULAS = 10
 DEFAULT_START_DEPTH = 2
 DEFAULT_MAX_DEPTH = 6
 
@@ -16,7 +16,6 @@ def create_json_spec(file_name, emitted_events, hints, pickup_locations, all_loc
             literals += constants.PICKUP_EVENTS_PER_LOCATION[loc]
         for loc in all_locations:
             literals.append(constants.AT_EVENTS_PER_LOCATION[loc])
-        pdb.set_trace()
         example_info["literals"] = literals
         example_info["number-of-formulas"] = num_formulas
         example_info["start-depth"] = start_depth
