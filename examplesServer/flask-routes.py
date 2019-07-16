@@ -18,7 +18,7 @@ def candidate_spec():
     nl_utterance = request.args.get("query")
     example = json.loads(request.args.get("path"))
     context = json.loads(request.args.get("context"))
-    sessionId = request.args.get("session-id")
+    sessionId = request.args.get("sessionId")
     world = World(context)
     print(nl_utterance, world, example)
 
@@ -33,7 +33,7 @@ def candidate_spec():
         answer["status"] = "indoubt"
         answer["world"] = context
         answer["path"] = [["move", "left"], ["move", "right"], ["move", "down"], ["pick", ["yellow", "square"], ["green", "circle"]]]
-    answer["session-id"] = sessionId
+    answer["sessionId"] = sessionId
     answer["candidates"] = candidates
     return answer
 
@@ -43,7 +43,7 @@ def candidate_spec():
 @app.route('/user-decision-update')
 def user_decision_update():
     decision = request.args.get("decision")
-    sessionId = request.args.get("session-id")
+    sessionId = request.args.get("sessionId")
     candidates = json.loads(request.args.get("candidates"))
     path = json.loads(request.args.get("path"))
 
@@ -61,6 +61,6 @@ def user_decision_update():
         answer["status"] = "indoubt"
         answer["world"] = context
         answer["path"] = [["move", "left"], ["move", "right"], ["move", "down"], ["pick", ["yellow", "square"], ["green", "circle"]]]
-    answer["session-id"] = sessionId
+    answer["sessionId"] = sessionId
     answer["candidates"] = updated_candidates
     return answer
