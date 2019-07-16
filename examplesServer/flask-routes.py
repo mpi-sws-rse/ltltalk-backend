@@ -37,6 +37,7 @@ def candidate_spec():
         disaumbiguation_world, disaumbiguation_path = create_disaumbiguation_example(candidates)
         answer["world"] = disaumbiguation_world
         answer["path"] = disaumbiguation_path
+        answer["candidates"] = [str(c) for c in candidates]
     answer["sessionId"] = sessionId
     return answer
 
