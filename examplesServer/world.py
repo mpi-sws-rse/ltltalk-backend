@@ -30,7 +30,6 @@ class World:
                 self.items_on_the_floor[pos][found_item] += 1
 
 
-
     def __repr__(self):
         s = ""
 
@@ -178,7 +177,8 @@ class World:
                 old_field_items = self.items_on_the_floor[self.robot_position].copy()
                 print(old_field_items)
                 old_robot_items = self.items_on_robot.copy()
-                self.pick(action[1])
+                list_of_items = [tuple(it) for it in action[1]]
+                self.pick(list_of_items)
                 new_field_items = self.items_on_the_floor[self.robot_position]
                 action_events = self._get_action_events(events, old_field_items, new_field_items, self.robot_position)
 
@@ -187,8 +187,8 @@ class World:
                 The assumption is that if any picking was unnecessary, the user would not do it at all
             
                 """
-                for item_desc in action[1]:
-                    modified_collection = action[1].copy()
+                for item_desc in list_of_items:
+                    modified_collection = list_of_items.copy()
                     modified_collection.remove(item_desc)
                     (speculative_new_robot_items, speculative_new_field_items) = self.pick(modified_collection, speculative=True,
                                                                                            items_on_robot=old_robot_items , items_at_pos=old_field_items)
