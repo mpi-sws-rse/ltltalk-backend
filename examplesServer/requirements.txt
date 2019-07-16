@@ -1,6 +1,7 @@
 boto==2.48.0
 Click==7.0
 Flask==1.1.0
+Flask-Cors==3.0.8
 graphviz==0.8.2
 itsdangerous==1.1.0
 Jinja2==2.10.1
