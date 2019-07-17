@@ -51,8 +51,22 @@ def update_candidates(old_candidates, path, decision, world):
 # dummy implementation
 def create_disaumbiguation_example(candidates):
     with open("temp.json") as world:
+
         w_json = json.load(world)
-        path = [["move", "left"], ["move", "right"], ["move", "down"], ["pick", ["yellow", "square"], ["green", "circle"]]]
+
+        start_position = tuple(w_json["robot"][:-1])
+        print(start_position)
+        current_position_x = start_position[0]
+        current_position_y = start_position[1]
+        path = []
+        for _ in range(5):
+            current_position_x += 1
+            path.append({"action":"path", "x":current_position_x, "y":current_position_y, "color":"null", "shape":"null", "possible":"true"})
+
+        path.append({"action":"pickitem", "x":current_position_x, "y":current_position_y, "color":"red", "shape":"circle", "possible":"true"})
+        path.append(
+            {"action": "pickitem", "x": current_position_x, "y": current_position_y, "color": "blue", "shape": "circle",
+             "possible": "true"})
         return (w_json, path)
 
 
