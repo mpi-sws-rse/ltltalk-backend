@@ -1,11 +1,12 @@
 import pdb
 from flask import Flask, request
+from flask_cors import CORS
 import json
 from world import World
 from candidatesCreation import create_candidates, update_candidates
 
 app = Flask(__name__)
-
+CORS(app)
 
 
 @app.route('/')
