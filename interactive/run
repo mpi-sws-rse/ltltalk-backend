@@ -234,8 +234,8 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('InteractiveServer.port', 8410),
 
   o('GrammarInducer.useBestPacking', true),
-  o('InteractiveMaster.wordEmbeddingsFilePath', './data/glove/glove.6B.100d.txt'),
-  o('GrammarInducer.useSemanticSimilarityOfSentences', true),
+  #o('InteractiveMaster.wordEmbeddingsFilePath', './data/glove/glove.6B.100d.txt'),
+  #o('GrammarInducer.useSemanticSimilarityOfSentences', true),
   
   o('GrammarInducer.useSimplePacking', true),
   o('GrammarInducer.useSpecialTokens', false),
