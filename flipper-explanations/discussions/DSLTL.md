@@ -109,3 +109,7 @@ Possible commands one can express using the language:
 - *Pick one green circle from (2,4) and all items from (3,3), in any order*: `F(picked_1_green_circle_[2,4]) and F(pick_every_[3,3])`
 - *Pick an item from (7,5) and take it to (2,2)*: `F(picked_1_[7,6]) & E(at_[2,2])`
 - *Pick a green circle from (7,5) and a red triangle*: `E(picked_1_green_circle_[7,5]) & E(picked_1_red_triangle_[7,5])`
+- 
+
+More Example Cammand Language by Eman:
+- *Pick all red triangels from the location (2,4) and then step in water*:  `picked_every_red_triangle_[2,4] B at_wet`
