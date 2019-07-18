@@ -26,6 +26,7 @@ def main():
         w = json.load(world_file)
         test_world = World(w)
         print(test_world)
+        
 
 
 

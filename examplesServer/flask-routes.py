@@ -3,7 +3,7 @@ from flask import Flask, request
 from flask_cors import CORS
 import json
 from world import World
-from candidatesCreation import create_candidates, update_candidates
+from candidatesCreation import create_candidates, update_candidates, create_disaumbiguation_example
 
 app = Flask(__name__)
 CORS(app)
@@ -18,6 +18,7 @@ def hello_world():
 def candidate_spec():
     nl_utterance = request.args.get("query")
     example = json.loads(request.args.get("path"))
+
     context = json.loads(request.args.get("context"))
     sessionId = request.args.get("sessionId")
     world = World(context)
@@ -31,11 +32,13 @@ def candidate_spec():
     elif len(candidates) == 1:
         answer["status"] = "ok"
     elif len(candidates) > 1:
+        print(candidates)
         answer["status"] = "indoubt"
-        answer["world"] = context
-        answer["path"] = [["move", "left"], ["move", "right"], ["move", "down"], ["pick", ["yellow", "square"], ["green", "circle"]]]
+        disaumbiguation_world, disaumbiguation_path = create_disaumbiguation_example(candidates)
+        answer["world"] = disaumbiguation_world
+        answer["path"] = disaumbiguation_path
+        answer["candidates"] = [str(c) for c in candidates]
     answer["sessionId"] = sessionId
-    answer["candidates"] = candidates
     return answer
 
 
