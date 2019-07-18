@@ -20,7 +20,7 @@ def create_candidates(nl_utterance, context, example):
     minHintsWithLocations = min(hintsWithLocations.values())
     middleValue = (maxHintsWithLocations + minHintsWithLocations) / 2
 
-    atLocationsHints = {"at_{}".format(str(loc)): middleValue for loc in relevant_locations}
+    atLocationsHints = {"at_{}_{}".format(loc[0],loc[1]): middleValue for loc in relevant_locations}
     hintsWithLocations.update(atLocationsHints)
     print(hintsWithLocations)
     create_json_spec(file_name="data/exampleWithHints.json", emitted_events=emitted_events, hints=hintsWithLocations,

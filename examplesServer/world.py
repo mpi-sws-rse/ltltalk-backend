@@ -169,7 +169,7 @@ class World:
                 self.move(action[1])
                 if not self.robot_position in self.water:
                     action_events.append("dry")
-                action_events.append("at_"+str(self.robot_position))
+                action_events.append("at_{}_{}".format(self.robot_position[0], self.robot_position[1]))
                 all_locations.append(self.robot_position)
 
             elif action[0] == constants.PICK:
@@ -209,7 +209,7 @@ class World:
         if len(events) > 0 and "dry" in events[-1]:
             action_events.append("dry")
 
-        action_events.append("{}_one_x_x_item_{}".format(constants.PICK, robot_position))
+        action_events.append("{}_one_x_x_item_{}_{}".format(constants.PICK, robot_position[0], robot_position[1]))
         # the second part of conjunctions should always be true anyway
         # (there should be no picking from empty field)
         if self._get_num_items(new_field_items) == 0:
@@ -221,34 +221,34 @@ class World:
         for color in constants.COLORS:
             if self._get_num_items(old_field_items, color=color) > 0 and self._get_num_items(new_field_items,
                                                                                              color=color) == 0:
-                action_events.append("{}_every_{}_x_item_{}".format(constants.PICK, color, robot_position))
+                action_events.append("{}_every_{}_x_item_{}_{}".format(constants.PICK, color, robot_position[0], robot_position[1]))
             for number in numbersToWords:
                 if self._get_num_items(old_field_items, color=color) - self._get_num_items(new_field_items,
                                                                                            color=color) == number:
                     action_events.append(
-                        "{}_{}_{}_x_item_{}".format(constants.PICK, numbersToWords[number], color, robot_position))
+                        "{}_{}_{}_x_item_{}_{}".format(constants.PICK, numbersToWords[number], color, robot_position[0], robot_position[1]))
 
         for shape in constants.SHAPES:
             if self._get_num_items(old_field_items, shape=shape) > 0 and self._get_num_items(new_field_items,
                                                                                              shape=shape) == 0:
-                action_events.append("{}_every_x_{}_item_{}".format(constants.PICK, shape, robot_position))
+                action_events.append("{}_every_x_{}_item_{}_{}".format(constants.PICK, shape, robot_position[0], robot_position[1]))
             for number in numbersToWords:
                 if self._get_num_items(old_field_items, shape=shape) - self._get_num_items(new_field_items,
                                                                                            shape=shape) == number:
                     action_events.append(
-                        "{}_{}_x_{}_item_{}".format(constants.PICK, numbersToWords[number], shape, robot_position))
+                        "{}_{}_x_{}_item_{}_{}".format(constants.PICK, numbersToWords[number], shape, robot_position[0], robot_position[1]))
 
         for color in constants.COLORS:
             for shape in constants.SHAPES:
                 if self._get_num_items(old_field_items, color=color, shape=shape) > 0 and self._get_num_items(
                         new_field_items, color=color, shape=shape) == 0:
                     action_events.append(
-                        "{}_every_{}_{}_item_{}".format(constants.PICK, color, shape, robot_position))
+                        "{}_every_{}_{}_item_{}_{}".format(constants.PICK, color, shape, robot_position[0], robot_position[1]))
                 for number in numbersToWords:
                     if self._get_num_items(old_field_items, color=color, shape=shape) - self._get_num_items(
                             new_field_items, color=color, shape=shape) == number:
                         action_events.append(
-                            "{}_{}_{}_{}_item_{}".format(constants.PICK, numbersToWords[number], color, shape,
-                                                         robot_position))
+                            "{}_{}_{}_{}_item_{}_{}".format(constants.PICK, numbersToWords[number], color, shape,
+                                                         robot_position[0], robot_position[1]))
 
         return action_events

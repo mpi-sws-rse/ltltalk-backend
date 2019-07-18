@@ -23,16 +23,16 @@ PICKUP_EVENTS = ["{}_{}_{}_{}_item".format(PICK, quantifier, color, shape)
 
 STATE_EVENTS = ["dry"]
 
-AT_EVENTS_PER_LOCATION ={(i,j): "at_{}".format((i,j)) for i in range(WIDTH) for j in range(HEIGHT)}
+AT_EVENTS_PER_LOCATION ={(i,j): "at_{}_{}".format(i,j) for i in range(WIDTH) for j in range(HEIGHT)}
 
 PICKUP_EVENTS_PER_LOCATION = {}
 for x in range(WIDTH):
     for y in range(HEIGHT):
         for p in PICKUP_EVENTS:
             if (x,y) in PICKUP_EVENTS_PER_LOCATION:
-                PICKUP_EVENTS_PER_LOCATION[(x,y)].append(p+"_"+str((x,y)))
+                PICKUP_EVENTS_PER_LOCATION[(x,y)].append(p+"_"+str(x)+"_"+str(y))
             else:
-                PICKUP_EVENTS_PER_LOCATION[(x, y)] = [(p + "_" + str((x, y)))]
+                PICKUP_EVENTS_PER_LOCATION[(x, y)] = [(p + "_" + str(x)+"_"+str(y))]
 
 
 
