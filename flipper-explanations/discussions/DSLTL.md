@@ -109,11 +109,13 @@ Possible commands one can express using the language:
 - *Pick one green circle from (2,4) and all items from (3,3), in any order*: `F(picked_1_green_circle_[2,4]) and F(pick_every_[3,3])`
 - *Pick an item from (7,5) and take it to (2,2)*: `F(picked_1_[7,6]) & E(at_[2,2])`
 - *Pick a green circle from (7,5) and a red triangle*: `E(picked_1_green_circle_[7,5]) & E(picked_1_red_triangle_[7,5])`
-- 
 
-More Example Cammand Language by Eman:
-- *Pick all red triangels from the location (2,4) and then step in water*:  `picked_every_red_triangle_[2,4] B at_wet`
+More Example Command Language by Eman:
+- *Pick all red triangles from the location (2,4) and then step in water*:  `picked_every_red_triangle_[2,4] B at_wet`
 - *Go to location (2,4) and pick all item from (5.6), in any order*:  `E(at_[2,4]) & E(picked_every_item_[5,6])`
-- *Pick one red circle from [3,2] and green square and then react at [4,2]*: `(F(picked_1_red_circle_[3,2]) & F(picked_1_green_square_[3,2])) B at_[4,2]`
-- *Pick an item from [4,2] but never step in water*: `dry Ux F(picked_1_item_[4,2])`
-- *Reach at position [3,1] and then pick one red item at [3,2]*: `F(at_[3,1]) B picked_1_red_item_[3,2]`
+- *Pick one red circle from [3,2] and green square and then reach [4,2]*: `(F(picked_1_red_circle_[3,2]) & F(picked_1_green_square_[3,2])) B at_[4,2]`: 
+this is not in the language, but it probably should be
+- *Pick an item from [4,2] but never step in water*: `dry Ux picked_1_item_[4,2]`
+- *Reach at position [3,1] and then pick one red item at [3,2]*: `at_[3,1] B picked_1_red_item_[3,2]`
+- *Pick three items from [2,1] and reach at [2,4]*: `F(picked_three_items_[2,1]) & E(at_[2,4])`
+- *Pick two red circles from [1,2] and then take them at [2,2]*: `F(picked_two_red_circles_[1,2]) & E(at_[2,2])`
