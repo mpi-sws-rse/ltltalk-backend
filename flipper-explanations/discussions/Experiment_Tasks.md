@@ -16,7 +16,7 @@ It might also be useful to define some basic building blocks that are not tasks 
 
 
 
-### Level 2
+### Level 1
 
 reset the environment
 
@@ -75,61 +75,35 @@ reset the environment
 
   * Take them at location [3,3]
 
-### Level 1
+
+
+### Level 2
 
 reset the environment
 
 1. 
-  * Get one green square
+  * Move 5 steps upward and pick a yellow item from that space
   
-  * Visit any field containing both a yellow item and a circle-shaped item (may be the same item)
+  * Visit any field containing both a circle and triangle items 
 
-  * Pick a yellow item from that space
+  * Pick all these item and step in water
 
 
 reset the environment
 
 2. 
 
-  * Get one green square
+  * Go to location [1,3] and pick all item from that space
   
-  * Visit any field containing both a yellow item and a circle-shaped item (may be the same item)
-
-  * Pick a yellow item from that space
-
+  * Stay dry and get three red item
 
 
 reset the environment
 
 3. 
 
-  * Get one green square
+  * Get all green item
   
-  * Visit any field containing both a yellow item and a circle-shaped item (may be the same item)
+  * Move forward 6 steps and pick one red item
 
-  * Pick a yellow item from that space
-
-
-
-reset the environment
-
-4. 
-
-  * Get one green square
-  
-  * Visit any field containing both a yellow item and a circle-shaped item (may be the same item)
-
-  * Pick a yellow item from that space
-
-
-
-
-reset the environment
-
-5. 
-
-  * Get one green square
-  
-  * Visit any field containing both a yellow item and a circle-shaped item (may be the same item)
-
-  * Pick a yellow item from that space
+  * Then take them to any nearest water tile
