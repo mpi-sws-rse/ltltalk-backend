@@ -107,3 +107,25 @@ reset the environment
   * Move forward 6 steps and pick one red item
 
   * Then take them to any nearest water tile
+  
+
+reset the environment
+
+4. 
+
+  * Visit at [3,4] and pick one red circle , one green square and one yellow triangle.
+  
+  * Then move 4 steps downward.
+
+  * Pick one red item while staying dry.
+  
+  
+reset the environment
+
+5. 
+
+  * Get three red and green items with circle or square shaped (it can be any defined either green or red)
+  
+  * Then pass three water tiles
+
+  * Pick all remaining items
