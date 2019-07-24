@@ -23,6 +23,7 @@ at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
  
   * Get one green triangle from location [10,8] then move 6 steps backward and pick one square.
+    (`picked_1_green_traingle_[10,8] B at_[4,8] & E(picked_1_square_[4,8])`)
   
 
 
@@ -33,6 +34,8 @@ at [7,4] and one triangles (red) at [10,8]
 
 
   * Get one green circle, one red triangle and one yellow square from location [4,0] then step in water.
+      (`picked_1_green_circle_[4,0] & picked_1_red_triangle_[4,0] & picked_1_yellow_square_[4,0] B at_wet`)
+
 
 
 
@@ -43,6 +46,8 @@ at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
 
   * Get one red triangle at location [10,8] while staying dry.
+      (`dry Ux picked_1_red_traingle_[10,8]`)
+
 
 
 ### Task 4
@@ -51,7 +56,9 @@ Current environment: robot at location [2,4], two triangles(yellow and red) at [
 at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
 
-  * Get one blue square from location [11,1] and move forward forward to four steps then pick one green item
+  * Get one blue square from location [11,1] and move forward to four steps then pick one green item
+      (`picked_1_blue_square_[11,1] &  at_[4,8] & E(picked_1_square_[4,8])`)
+
 
 
 
