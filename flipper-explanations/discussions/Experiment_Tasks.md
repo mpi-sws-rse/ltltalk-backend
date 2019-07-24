@@ -16,116 +16,89 @@ It might also be useful to define some basic building blocks that are not tasks 
 
 
 
-### Level 1
+### Task 1
 
-reset the environment
+Current environment: robot at location [2,4], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,8], four cicles (red,blue and green) 
+at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
-1. 
-  * Get one green square
-  
-  * Visit any field containing both a yellow item and a circle-shaped item (may be the same item)
-
-  * Pick a yellow item from that space
-
-
-reset the environment
-
-2. 
-
-  * Visit empty space (here a general definition is needed)
-  
-  * Get one green circle, one red triangle and one yellow square. Put those items to different empty spaces on the map
-
-  * Visit any field containing both a triangle-shaped item and a green item (may be the same item) and pick up all the items from that field
-
-
-
-reset the environment
-
-3. 
-
-  * Get one red triangle
-  
-  * Collect all red items
-
-  * Put all blue items to room3
-
-
-
-reset the environment
-
-4. 
-
-  * Get one red square
-  
-  * Move forward forward to four steps
-
-  * Pick one green item
-
-
-
-
-reset the environment
-
-5. 
-
-  * Go to the location [1,2]
-  
-  * Pick one green circle, one yellow triangle 
-
-  * Take them at location [3,3]
-
-
-
-### Level 2
-
-reset the environment
-
-1. 
-  * Move 5 steps upward and pick a yellow item from that space
-  
-  * Visit any field containing both a circle and triangle items 
-
-  * Pick all these item and step in water
-
-
-reset the environment
-
-2. 
-
-  * Go to location [1,3] and pick all item from that space
-  
-  * Stay dry and get three red item
-
-
-reset the environment
-
-3. 
-
-  * Get all green item
-  
-  * Move forward 6 steps and pick one red item
-
-  * Then take them to any nearest water tile
+ 
+  * Get one green triangle from location [10,8] then move 6 steps backward and pick one square.
   
 
-reset the environment
 
-4. 
+### Task 2
 
-  * Visit at [3,4] and pick one red circle , one green square and one yellow triangle.
+Current environment: robot at location [2,4], two triangles, one circle and one square(red, green and yellow) at [4,0], One square and circle at (yellow and blue) at [3,8], four cicles (red,blue and green) 
+at [7,4] and one triangles (red) at [10,8]
+
+
+  * Get one green circle, one red triangle and one yellow square from location [4,0] then step in water.
+
+
+
+### Task 3
+
+Current environment: robot at location [2,4], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,8], four cicles (red,blue and green) 
+at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
+
+
+  * Get one red triangle at location [10,8] while staying dry.
+
+
+### Task 4
+
+Current environment: robot at location [2,4], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,8], four cicles (red,blue and green) 
+at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
+
+
+  * Get one blue square from location [11,1] and move forward forward to four steps then pick one green item
+
+
+
+### Task 5
+
+Current environment: robot at location [2,4], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,8], four cicles (red,blue and green) 
+at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
+
+  * Go to the location [1,2] and pick one green circle, one yellow triangle then take them at location [3,3]
+
+### Task 6
+
+Current environment: robot at location [0,3], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,8], four cicles (red,blue and green) 
+at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
+
+ 
+  * Move 3 steps right then 4 steps and pick a yellow item from that space. Afterward visit any field containing both circle and square-shaped item 
+  then pick from that location and step in water.
   
-  * Then move 4 steps downward.
 
-  * Pick one red item while staying dry.
+
+### Task 7
+
+Current environment: robot at location [2,4], two triangles(yellow and red) at [1,2], One square and circle at (yellow and blue) at [3,2], four cicles (red,blue and green) 
+at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
+
+  * Go to location [3,2] and pick all item from that space and afterward get two triangle from location [10,8] and stay dry. 
   
-  
-reset the environment
 
-5. 
+### Task 8
 
-  * Get three red and green items with circle or square shaped (it can be any defined either green or red)
-  
-  * Then pass three water tiles
+Current environment: robot at location [1,2], two triangles and one circle (green) at [1,7], One square (yellow) at [3,8], four cicles (red,blue and green) 
+at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8] 
 
-  * Pick all remaining items
+  * Get all green item at [1,7] then move forward 6 steps to pick one red circle and then move to water tile.
+
+
+### Task 9
+
+Current environment: robot at location [0,4], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,8], two cicles, one triangle and square 
+(red,yellow and green) at [3,4], one square (blue) at [10,8] and two circles (red, green) at [4,8]
+
+  * Visit at [3,4] and pick one red circle , one green square and one yellow triangle then move 3 step forward pick two red items while staying dry.
+
+### Task 10
+
+Current environment: robot at location [2,4], two triangles(yellow and red) at [4,0], two square and one circle at (red and green) at [9,4], four cicles (red,blue and green) 
+at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8], water tiles ([5,4],[2,1],[4,5])
+
+  * Get two red and green items with circle or square shaped (it can be any defined either green or red) from location [9,4] then move 5 steps forward and step in water tile
