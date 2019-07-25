@@ -108,10 +108,13 @@ Current environment: robot at location [0,4], two triangles(yellow and red) at [
 (red,yellow and green) at [3,4], one square (blue) at [10,8] and two circles (red, green) at [4,8]
 
   * Visit at [3,4] and pick one red circle , one green square and one yellow triangle then move 3 step forward pick two red items while staying dry.
+       (`( (at_[3,4] & picked_1_red_circle_[3,4]) & (picked_1_green_square_[3,4] & picked_1_yellow_triangle_[3,4])) B ( at_dry Ux (at_location_[6,4] & picked_2_red_items_[6,4]) )`)
+
 
 ### Task 10
 
 Current environment: robot at location [2,4], two triangles(yellow and red) at [4,0], two square and one circle at (red and green) at [9,4], four cicles (red,blue and green) 
 at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8], water tiles ([5,4],[2,1],[4,5])
 
-  * Get two red and green items with circle or square shaped (it can be any defined either green or red) from location [9,4] then move 5 steps forward and step in water tile
+  * Get two red items with circle or square shaped from location [9,4] then move 3 steps downward and step in water tile
+       (` ((F(picked_2_red_square_[9,4]) & F(picked_1_red_circle_[9,4])) & F(at_[9,1])) & E(at_wet)`)
