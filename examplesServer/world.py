@@ -3,31 +3,57 @@ import constants
 from collections import defaultdict
 
 class World:
-    def __init__(self, worldDescriptionJson):
-        self.width = int(worldDescriptionJson["width"])
-        self.height = int(worldDescriptionJson["height"])
-        self.wall = []
-        self.water = []
-        self.items_on_the_floor = defaultdict(lambda : defaultdict(int))
-        self.robot_position = (int(worldDescriptionJson["robot"][0]), int(worldDescriptionJson["robot"][1]))
-        self.items_on_robot = defaultdict(int)
+    def __init__(self, worldDescriptionJson, json_type = 0):
+
+        # it is a complete mess with different formats used by different servers. That will have to be unified :/
+        if json_type == 0:
+            self.width = int(worldDescriptionJson["width"])
+            self.height = int(worldDescriptionJson["height"])
+            self.wall = []
+            self.water = []
+            self.items_on_the_floor = defaultdict(lambda : defaultdict(int))
+            self.robot_position = (int(worldDescriptionJson["robot"][0]), int(worldDescriptionJson["robot"][1]))
+            self.items_on_robot = defaultdict(int)
+    
+    
+            for item in worldDescriptionJson["robot"][2]:
+                item_description = (item[0], item[1])
+                self.items_on_robot[item_description] += 1
+    
+    
+    
+            for world_place in worldDescriptionJson["world"]:
+                pos = (world_place[0], world_place[1])
+                if world_place[2] == "wall":
+                    self.wall.append(pos)
+                elif world_place[2] == "water":
+                    self.water.append(pos)
+                elif world_place[2] == "item":
+                    found_item = (world_place[3], world_place[4])
+                    self.items_on_the_floor[pos][found_item] += 1
+
+        elif json_type == 1:
+            self.width = int(worldDescriptionJson["width"])
+            self.height = int(worldDescriptionJson["height"])
+            self.wall = []
+            self.water = []
+            self.items_on_the_floor = defaultdict(lambda: defaultdict(int))
+            self.robot_position = (int(worldDescriptionJson["robot"]["x"]), int(worldDescriptionJson["robot"]["y"]))
+            self.items_on_robot = defaultdict(int)
+
+            for field in worldDescriptionJson["items"]:
+                pos = (field["x"], field["y"])
+                if field["type"] == "wall":
+                    self.wall.append(pos)
+                elif field["type"] == "water":
+                    self.water.append(pos)
+                elif field["type"] == "item":
+                    found_item = (field["color"], field["shape"])
+                    self.items_on_the_floor[pos][found_item] = int(field["quantity"])
+
+                    
 
 
-        for item in worldDescriptionJson["robot"][2]:
-            item_description = (item[0], item[1])
-            self.items_on_robot[item_description] += 1
-
-
-
-        for world_place in worldDescriptionJson["world"]:
-            pos = (world_place[0], world_place[1])
-            if world_place[2] == "wall":
-                self.wall.append(pos)
-            elif world_place[2] == "water":
-                self.water.append(pos)
-            elif world_place[2] == "item":
-                found_item = (world_place[3], world_place[4])
-                self.items_on_the_floor[pos][found_item] += 1
 
 
     def __repr__(self):
@@ -61,6 +87,8 @@ class World:
         s += "\n"
 
         s += "items:\n"
+        if len(dict_of_items_on_floor) == 0:
+            s +="None\n"
         for item_label in dict_of_items_on_floor:
             pos = dict_of_items_on_floor[item_label]
             s += "{} === {}: {}\n".format(item_label, pos, dict(self.items_on_the_floor[pos]))
