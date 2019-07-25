@@ -18,7 +18,7 @@ It might also be useful to define some basic building blocks that are not tasks 
 
 ### Task 1
 
-Current environment: robot at location [2,4], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,8], four cicles (red,blue and green) 
+Current environment: robot at location [2,4], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,8], two cicles and two squares (red,blue and green) 
 at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
  
