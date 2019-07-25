@@ -117,4 +117,4 @@ Current environment: robot at location [2,4], two triangles(yellow and red) at [
 at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8], water tiles ([5,4],[2,1],[4,5])
 
   * Get two red items with circle or square shaped from location [9,4] then move 3 steps downward and step in water tile
-       (` ((F(picked_2_red_square_[9,4]) & F(picked_1_red_circle_[9,4])) & F(at_[9,1])) & E(at_wet)`)
+       (` ((F(picked_2_red_square_[9,4]) | F(picked_2_red_circle_[9,4])) & F(at_[9,1])) & E(at_wet)`)
