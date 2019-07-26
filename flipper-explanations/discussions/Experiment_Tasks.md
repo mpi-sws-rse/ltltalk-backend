@@ -18,7 +18,7 @@ It might also be useful to define some basic building blocks that are not tasks 
 
 ### Task 1
 
-Current environment: robot at location [2,4], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,8], two cicles and two squares (red,blue and green) 
+Current environment: robot at location [2,4], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,8], two circles and two squares (red,blue and green) 
 at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
  
@@ -29,7 +29,7 @@ at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
 ### Task 2
 
-Current environment: robot at location [2,4], two triangles, one circle and one square(red, green and yellow) at [4,0], One square and circle at (yellow and blue) at [3,8], four cicles (red,blue and green) 
+Current environment: robot at location [2,4], two triangles, one circle and one square(red, green and yellow) at [4,0], One square and circle at (yellow and blue) at [3,8], four circles (red,blue and green) 
 at [7,4] and one triangles (red) at [10,8]
 
 
@@ -41,7 +41,7 @@ at [7,4] and one triangles (red) at [10,8]
 
 ### Task 3
 
-Current environment: robot at location [2,4], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,8], four cicles (red,blue and green) 
+Current environment: robot at location [2,4], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,7], four circles (red,blue and green) 
 at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
 
@@ -52,8 +52,8 @@ at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
 ### Task 4
 
-Current environment: robot at location [2,4], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,8], four cicles (red,blue and green) 
-at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
+Current environment: robot at location [1,0], two circles (green and yellow) at [4,1], One triangle and circle at (red and blue) at [3,7], three circles and one square (green and red) 
+at [7,4], one square (blue) at [11,4] and two triangles (red, green) at [10,8]
 
 
   * Get one blue square from location [11,1] and move forward to four steps then pick one green item
@@ -64,16 +64,16 @@ at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
 ### Task 5
 
-Current environment: robot at location [2,4], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,8], four cicles (red,blue and green) 
-at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
+Current environment: robot at location [2,4], two squares (yellow and blue) at [4,0], One triangle and circle at (green and blue) at [3,8], four circles (red,blue and green,yellow) 
+at [7,4], two circles and one triangle (green,yellow) at [1,2] and two triangles (red, green) at [10,8]
 
   * Go to the location [1,2] and pick one green circle, one yellow triangle then take them at location [3,3]
-        (`(F(at_[1,2]) & F(picked_1_green_circle_[1,2]) & F(picked_1_yellow_triangle_[1,2]) ) & E(at_[11,5])`)
+        (`(F(at_[1,2]) & F(picked_1_green_circle_[1,2]) & F(picked_1_yellow_triangle_[1,2]) ) & E(at_[3,3])`)
 
 
 ### Task 6
 
-Current environment: robot at location [0,3], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,8], four cicles (red,blue and green) 
+Current environment: robot at location [0,3], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,7], four circles (red,blue) 
 at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
  
@@ -83,7 +83,7 @@ at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
 ### Task 7
 
-Current environment: robot at location [2,4], two triangles(yellow and red) at [1,2], One square and circle at (yellow and blue) at [3,2], four cicles (red,blue and green) 
+Current environment: robot at location [2,4], two triangles(yellow and red) at [1,2], One square and circle at (yellow and blue) at [3,2], four circles (red,blue and green) 
 at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
   * Go to location [3,2] and pick all item from that space and afterward get two triangle from location [10,8] and stay dry. 
@@ -94,17 +94,17 @@ at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
 ### Task 8
 
-Current environment: robot at location [1,2], two triangles and one circle (green) at [1,7], One square (yellow) at [3,8], four cicles (red,blue and green) 
-at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8] 
+Current environment: robot at location [1,2], two triangles and one circle (green) at [0,8], One circle (yellow) at [4,8], four circles (red) 
+at [3,7], one triangle (red) at [11,1] and two triangles (red, green) at [10,8] 
 
-  * Get all green item at [1,7] then move forward 6 steps to pick one red circle and then move to water tile.
-     (`((picked_every_green_item_[1,7] & at_[6,7]) & picked_1_red_circle_[6,7]) & E(at_wet)`)
+  * Get all green item at [0,8] then move forward 4 steps to pick one red circle and then move to water tile.
+     (`((picked_every_green_item_[0,8] & at_[4,8]) & picked_1_red_circle_[4,8]) & E(at_wet)`)
 
 
 
 ### Task 9
 
-Current environment: robot at location [0,4], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,8], two cicles, one triangle and square 
+Current environment: robot at location [0,4], two triangles(yellow and red) at [4,0], One square and circle at (yellow and blue) at [3,8], two circles, one triangle and square 
 (red,yellow and green) at [3,4], one square (blue) at [10,8] and two circles (red, green) at [4,8]
 
   * Visit at [3,4] and pick one red circle , one green square and one yellow triangle then move 3 step forward pick two red items while staying dry.
@@ -113,8 +113,8 @@ Current environment: robot at location [0,4], two triangles(yellow and red) at [
 
 ### Task 10
 
-Current environment: robot at location [2,4], two triangles(yellow and red) at [4,0], two square and one circle at (red and green) at [9,4], four cicles (red,blue and green) 
-at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8], water tiles ([5,4],[2,1],[4,5])
+Current environment: robot at location [2,4], two triangles(green and red) at [4,0], two square and one circle at (red and green) at [9,4], four circles (blue) 
+at [7,4], one square (yellow) at [11,1] and two triangles (red, green) at [10,8], water tiles ([5,4],[2,1],[4,5])
 
   * Get two red items with circle or square shaped from location [9,4] then move 3 steps downward and step in water tile
        (` ((F(picked_2_red_square_[9,4]) | F(picked_2_red_circle_[9,4])) & F(at_[9,1])) & E(at_wet)`)
