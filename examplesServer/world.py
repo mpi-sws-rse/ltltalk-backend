@@ -53,6 +53,34 @@ class World:
 
                     
 
+    def export_as_json(self):
+        w_json = {}
+        w_json["height"] = self.height
+        w_json["width"] = self.width
+        w_json["robot"] = [self.robot_position[0], self.robot_position[1],[]]
+
+        for robo_item in self.items_on_robot:
+            for _ in range(self.items_on_robot[robo_item]):
+                w_json["robot"][2].append({"color": robo_item[0], "shape":robo_item[1]})
+
+
+
+        wall_fields = []
+        for field in self.wall:
+            wall_fields.append({"x": field[0], "y": field[1], "type":"wall", "shape":"null", "color":"null"})
+
+        water_fields = []
+        for field in self.water:
+            water_fields.append({"x": field[0], "y": field[1], "type":"water", "shape":"null", "color":"null"})
+
+        item_fields = []
+        for field in self.items_on_the_floor:
+            for item_desc in self.items_on_the_floor[field]:
+                item_fields.append({"x": field[0], "y": field[1], "type":"item", "shape":item_desc[1], "color":item_desc[0]})
+
+        w_json["world"] = wall_fields + water_fields + item_fields
+
+        return w_json
 
 
 
@@ -237,7 +265,7 @@ class World:
         if len(events) > 0 and "dry" in events[-1]:
             action_events.append("dry")
 
-        action_events.append("{}_one_x_x_item_{}_{}".format(constants.PICK, robot_position[0], robot_position[1]))
+        action_events.append("{}_1_x_x_item_{}_{}".format(constants.PICK, robot_position[0], robot_position[1]))
         # the second part of conjunctions should always be true anyway
         # (there should be no picking from empty field)
         if self._get_num_items(new_field_items) == 0:
@@ -254,7 +282,7 @@ class World:
                 if self._get_num_items(old_field_items, color=color) - self._get_num_items(new_field_items,
                                                                                            color=color) == number:
                     action_events.append(
-                        "{}_{}_{}_x_item_{}_{}".format(constants.PICK, numbersToWords[number], color, robot_position[0], robot_position[1]))
+                        "{}_{}_{}_x_item_{}_{}".format(constants.PICK, number, color, robot_position[0], robot_position[1]))
 
         for shape in constants.SHAPES:
             if self._get_num_items(old_field_items, shape=shape) > 0 and self._get_num_items(new_field_items,
@@ -264,7 +292,7 @@ class World:
                 if self._get_num_items(old_field_items, shape=shape) - self._get_num_items(new_field_items,
                                                                                            shape=shape) == number:
                     action_events.append(
-                        "{}_{}_x_{}_item_{}_{}".format(constants.PICK, numbersToWords[number], shape, robot_position[0], robot_position[1]))
+                        "{}_{}_x_{}_item_{}_{}".format(constants.PICK, number, shape, robot_position[0], robot_position[1]))
 
         for color in constants.COLORS:
             for shape in constants.SHAPES:
@@ -276,7 +304,7 @@ class World:
                     if self._get_num_items(old_field_items, color=color, shape=shape) - self._get_num_items(
                             new_field_items, color=color, shape=shape) == number:
                         action_events.append(
-                            "{}_{}_{}_{}_item_{}_{}".format(constants.PICK, numbersToWords[number], color, shape,
+                            "{}_{}_{}_{}_item_{}_{}".format(constants.PICK, number, color, shape,
                                                          robot_position[0], robot_position[1]))
 
         return action_events

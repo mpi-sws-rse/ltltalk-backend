@@ -2,9 +2,11 @@ import random
 from utils import create_json_spec
 import nlp_helpers
 from samples2LTL.experiment import start_experiment
+from samples2LTL.run_solver_tests import disambiguate
 from world import World
 import pdb
 import json
+import os
 
 def create_candidates(nl_utterance, context, example):
 
@@ -15,21 +17,19 @@ def create_candidates(nl_utterance, context, example):
     hints = nlp_helpers.get_hints_from_utterance(nl_utterance)
     relevant_locations = nlp_helpers.get_locations_from_utterance(nl_utterance)
 
-    hintsWithLocations = {hint + "_" + str(l): hints[hint] for hint in hints for l in pickup_locations}
+    #hintsWithLocations = {hint + "_" + str(l): hints[hint] for hint in hints for l in pickup_locations}
+    hintsWithLocations = {"{}_{}_{}".format(hint, l[0], l[1]) : hints[hint] for hint in hints for l in pickup_locations}
     maxHintsWithLocations = max(hintsWithLocations.values())
     minHintsWithLocations = min(hintsWithLocations.values())
     middleValue = (maxHintsWithLocations + minHintsWithLocations) / 2
 
     atLocationsHints = {"at_{}_{}".format(loc[0],loc[1]): middleValue for loc in relevant_locations}
     hintsWithLocations.update(atLocationsHints)
-    print(hintsWithLocations)
+    os.makedirs("data", exist_ok=True)
     create_json_spec(file_name="data/exampleWithHints.json", emitted_events=emitted_events, hints=hintsWithLocations,
                      pickup_locations=pickup_locations, all_locations=all_locations,
                      negative_sequences=collection_of_negative)
 
-    create_json_spec(file_name="data/exampleWithHints.json", emitted_events=emitted_events, hints=hintsWithLocations,
-                     pickup_locations=pickup_locations, all_locations=all_locations,
-                     negative_sequences=collection_of_negative)
 
     collection_of_candidates = start_experiment(experiment_specification="data/exampleWithHints.json")
 
@@ -50,23 +50,33 @@ def update_candidates(old_candidates, path, decision, world):
 
 # dummy implementation
 def create_disaumbiguation_example(candidates):
-    with open("temp.json") as world:
 
-        w_json = json.load(world)
+    candidate_1 = candidates[0]
+    candidate_2 = candidates[1]
+    print("================\n{}, {}, {}, {}".format(candidate_1, type(candidate_1), candidate_2, type(candidate_2)))
+    w, path = disambiguate(candidate_1, candidate_2, 3, 6)
 
-        start_position = tuple(w_json["robot"][:-1])
-        print(start_position)
-        current_position_x = start_position[0]
-        current_position_y = start_position[1]
-        path = []
-        for _ in range(5):
-            current_position_x += 1
-            path.append({"action":"path", "x":current_position_x, "y":current_position_y, "color":"null", "shape":"null", "possible":"true"})
+    w_json = w.export_as_json()
 
-        path.append({"action":"pickitem", "x":current_position_x, "y":current_position_y, "color":"red", "shape":"circle", "possible":"true"})
-        path.append(
-            {"action": "pickitem", "x": current_position_x, "y": current_position_y, "color": "blue", "shape": "circle",
-             "possible": "true"})
-        return (w_json, path)
+    return (w_json, path, candidate_1, candidate_2)
+
+    # with open("temp.json") as world:
+    #
+    #     w_json = json.load(world)
+    #
+    #     start_position = tuple(w_json["robot"][:-1])
+    #     print(start_position)
+    #     current_position_x = start_position[0]
+    #     current_position_y = start_position[1]
+    #     path = []
+    #     for _ in range(5):
+    #         current_position_x += 1
+    #         path.append({"action":"path", "x":current_position_x, "y":current_position_y, "color":"null", "shape":"null", "possible":"true"})
+    #
+    #     path.append({"action":"pickitem", "x":current_position_x, "y":current_position_y, "color":"red", "shape":"circle", "possible":"true"})
+    #     path.append(
+    #         {"action": "pickitem", "x": current_position_x, "y": current_position_y, "color": "blue", "shape": "circle",
+    #          "possible": "true"})
+    #     return (w_json, path)
 
 

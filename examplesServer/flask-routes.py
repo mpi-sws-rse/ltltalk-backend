@@ -24,7 +24,6 @@ def candidate_spec():
     world = World(context)
     print(nl_utterance, world, example)
 
-    ## dummy responses
     candidates = create_candidates(nl_utterance, context, example)
     answer = {}
     if len(candidates) == 0:
@@ -34,10 +33,12 @@ def candidate_spec():
     elif len(candidates) > 1:
         print(candidates)
         answer["status"] = "indoubt"
-        disaumbiguation_world, disaumbiguation_path = create_disaumbiguation_example(candidates)
+        disaumbiguation_world, disaumbiguation_path, candidate_1, candidate_2 = create_disaumbiguation_example(candidates)
         answer["world"] = disaumbiguation_world
         answer["path"] = disaumbiguation_path
         answer["candidates"] = [str(c) for c in candidates]
+        answer["disambiguation-candidate-1"] = str(candidate_1)
+        answer["disambiguation-candidate-2"] = str(candidate_2)
     answer["sessionId"] = sessionId
     return answer
 
