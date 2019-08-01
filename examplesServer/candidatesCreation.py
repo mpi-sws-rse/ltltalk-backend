@@ -56,9 +56,8 @@ def create_disaumbiguation_example(candidates):
     print("================\n{}, {}, {}, {}".format(candidate_1, type(candidate_1), candidate_2, type(candidate_2)))
     w, path = disambiguate(candidate_1, candidate_2, 3, 6)
 
-    w_json = w.export_as_json()
 
-    return (w_json, path, candidate_1, candidate_2)
+    return (w, path, candidate_1, candidate_2)
 
 
 

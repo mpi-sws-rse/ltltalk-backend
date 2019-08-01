@@ -34,8 +34,50 @@ def candidate_spec():
         print(candidates)
         answer["status"] = "indoubt"
         disaumbiguation_world, disaumbiguation_path, candidate_1, candidate_2 = create_disaumbiguation_example(candidates)
-        answer["world"] = disaumbiguation_world
-        answer["path"] = disaumbiguation_path
+        answer["world"] = disaumbiguation_world.export_as_json()
+        formatted_path = []
+        # not sure if it is necessary, but probably does not hurt: setting the first step to be the move to the init
+        # position
+        formatted_path.append({"action": "path",
+                               "x": str(disaumbiguation_world.robot_position[0]),
+                               "y": str(disaumbiguation_world.robot_position[1]),
+                               "color": "null",
+                               "shape": "null",
+                               "possible": "true"
+                               })
+
+        for step in disaumbiguation_path:
+
+
+
+            if step[0] == "move":
+                disaumbiguation_world.move(step[1])
+                formatted_path.append({"action":"path",
+                                       "x":str(disaumbiguation_world.robot_position[0]),
+                                       "y": str(disaumbiguation_world.robot_position[1]),
+                                       "color": "null",
+                                       "shape": "null",
+                                       "possible": "true"
+                                       })
+            elif step[0] == "pick":
+                for item_desc in step[1:]:
+                    for _ in range(item_desc[0]):
+                        formatted_path.append({
+                            "action":"pickitem",
+                            "x": str(disaumbiguation_world.robot_position[0]),
+                            "y": str(disaumbiguation_world.robot_position[1]),
+                            "color": item_desc[1],
+                            "shape": item_desc[2],
+                            "possible":"true"
+                        })
+                        disaumbiguation_world.pick([(item_desc[1], item_desc[2])])
+
+        answer["path"] = formatted_path
+
+
+
+
+
         answer["candidates"] = [str(c) for c in candidates]
         answer["disambiguation-candidate-1"] = str(candidate_1)
         answer["disambiguation-candidate-2"] = str(candidate_2)
