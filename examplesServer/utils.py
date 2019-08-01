@@ -31,3 +31,48 @@ def create_json_spec(file_name, emitted_events, hints, pickup_locations, all_loc
 
 
         json.dump(example_info, exampleJsonFile)
+
+
+def convert_json_actions_to_world_format(world, actions):
+    converted_actions = []
+    pick_list = []
+    for action in actions:
+        current_pos = world.robot_position
+        if action["action"] == "path":
+
+            # adding pick list after a number of consecutive picks
+            if len(pick_list) > 0:
+                converted_actions.append((constants.PICK, pick_list))
+                world.pick(pick_list)
+                pick_list = []
+
+            x_diff = int(action["x"]) - current_pos[0]
+            y_diff = int(action["y"]) - current_pos[1]
+            if x_diff == 1 and y_diff == 0:
+                direction = constants.RIGHT
+
+            elif x_diff == -1 and y_diff == 0:
+                direction = constants.LEFT
+
+            elif x_diff == 0 and y_diff == 1:
+                direction = constants.UP
+
+            elif x_diff == 0 and y_diff == -1:
+                direction = constants.DOWN
+
+            elif x_diff == 0 and y_diff == 0:
+                continue
+            else:
+                raise ValueError("got unexpected x_diff = {} and y_diff = {} from current_pos = {} and action = {}".
+                                 format(x_diff, y_diff, current_pos, action))
+            converted_actions.append((constants.MOVE, direction))
+            world.move(direction)
+
+        elif action["action"] == "pickitem":
+            pick_list.append((action["color"], action["shape"]))
+
+    if len(pick_list) > 0:
+        converted_actions.append((constants.PICK, pick_list))
+        world.pick(pick_list)
+
+    return converted_actions

@@ -1,12 +1,16 @@
 import random
-from utils import create_json_spec
+from utils import create_json_spec, convert_json_actions_to_world_format
 import nlp_helpers
 from samples2LTL.experiment import start_experiment
 from samples2LTL.run_solver_tests import disambiguate
+from samples2LTL.utils.SimpleTree import Formula
+from samples2LTL.utils.Traces import Trace
 from world import World
 import pdb
 import json
 import os
+import logging
+from copy import deepcopy
 
 def create_candidates(nl_utterance, context, example):
 
@@ -37,14 +41,32 @@ def create_candidates(nl_utterance, context, example):
     return collection_of_candidates
 
 def update_candidates(old_candidates, path, decision, world):
-    coin = random.randint(0, 2)
+    print("--+--+ old candidates are {}".format(old_candidates))
     collection_of_candidates = []
-    if coin == 0:
-        collection_of_candidates = []
-    elif coin == 1:
-        collection_of_candidates = old_candidates[0]
+    if int(decision) == 0:
+        formula_value = True
+    elif int(decision) == 1:
+        formula_value = False
     else:
-        collection_of_candidates = old_candidates
+        raise ValueError("got user decision different from 0 or 1, the value was {}".format(decision))
+
+    print("-- ++ -- path is {}".format(path))
+    print(world)
+    converted_path = convert_json_actions_to_world_format(deepcopy(world), path)
+    print(world)
+
+    print("converted path is {}".format(converted_path))
+    print("formula value should be {}".format(formula_value))
+    (emitted_events, _,_,_) = world.execute_and_emit_events(converted_path)
+    print("-- -- -- -- emitted_events are {}".format(emitted_events))
+    trace = Trace.create_trace_from_events_list(emitted_events)
+    print("trace is {}".format(trace))
+    for candidate_formula in old_candidates:
+        f = Formula.convertTextToFormula(candidate_formula)
+
+        if trace.evaluateFormulaOnTrace(f) == formula_value:
+            collection_of_candidates.append(candidate_formula)
+
 
     return collection_of_candidates
 

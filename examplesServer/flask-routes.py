@@ -95,7 +95,7 @@ def user_decision_update():
     path = json.loads(request.args.get("path"))
 
     context = json.loads(request.args.get("context"))
-    world = World(context)
+    world = World(context, json_type=2)
     updated_candidates = update_candidates(candidates, path, decision, world)
 
     ## dummy response
