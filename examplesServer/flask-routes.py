@@ -21,7 +21,7 @@ def candidate_spec():
 
     context = json.loads(request.args.get("context"))
     sessionId = request.args.get("sessionId")
-    world = World(context)
+    world = World(context, json_type=2)
     print(nl_utterance, world, example)
 
     candidates = create_candidates(nl_utterance, context, example)

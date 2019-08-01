@@ -51,6 +51,26 @@ class World:
                     found_item = (field["color"], field["shape"])
                     self.items_on_the_floor[pos][found_item] = int(field["quantity"])
 
+        elif json_type == 2:
+            self.width = int(worldDescriptionJson["width"])
+            self.height = int(worldDescriptionJson["height"])
+            self.wall = []
+            self.water = []
+            self.items_on_the_floor = defaultdict(lambda: defaultdict(int))
+            self.robot_position = (int(worldDescriptionJson["robot"][0]), int(worldDescriptionJson["robot"][1]))
+            self.items_on_robot = defaultdict(int)
+
+            for field in worldDescriptionJson["world"]:
+                pos = (field["x"], field["y"])
+                if field["type"] == "wall":
+                    self.wall.append(pos)
+                elif field["type"] == "water":
+                    self.water.append(pos)
+                elif field["type"] == "item":
+                    found_item = (field["color"], field["shape"])
+                    self.items_on_the_floor[pos][found_item] += 1
+
+
                     
 
     def export_as_json(self):

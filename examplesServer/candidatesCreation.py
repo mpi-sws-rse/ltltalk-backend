@@ -10,7 +10,7 @@ import os
 
 def create_candidates(nl_utterance, context, example):
 
-    test_world = World(context)
+    test_world = World(context, json_type=2)
     (emitted_events, pickup_locations, collection_of_negative, all_locations) = test_world.execute_and_emit_events(
         example)
 
