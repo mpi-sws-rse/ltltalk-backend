@@ -21,10 +21,20 @@ def create_candidates(nl_utterance, context, example):
     hints = nlp_helpers.get_hints_from_utterance(nl_utterance)
     relevant_locations = nlp_helpers.get_locations_from_utterance(nl_utterance)
 
-
-    hintsWithLocations = {"{}_{}_{}".format(hint, l[0], l[1]) : hints[hint] for hint in hints for l in pickup_locations}
-    maxHintsWithLocations = max(hintsWithLocations.values())
-    minHintsWithLocations = min(hintsWithLocations.values())
+    hintsWithLocations = {}
+    for hint in hints:
+        if hint == "dry":
+            hintsWithLocations[hint] = hints[hint]
+            continue
+        for l in pickup_locations:
+            hintsWithLocations["{}_{}_{}".format(hint, l[0], l[1])] = hints[hint]
+    #hintsWithLocations = {"{}_{}_{}".format(hint, l[0], l[1]) : hints[hint] for hint in hints for l in pickup_locations}
+    if len(hintsWithLocations) > 0:
+        maxHintsWithLocations = max(hintsWithLocations.values())
+        minHintsWithLocations = min(hintsWithLocations.values())
+    else:
+        maxHintsWithLocations = 0
+        minHintsWithLocations = 0
     middleValue = (maxHintsWithLocations + minHintsWithLocations) / 2
 
     atLocationsHints = {"at_{}_{}".format(loc[0],loc[1]): middleValue for loc in relevant_locations}

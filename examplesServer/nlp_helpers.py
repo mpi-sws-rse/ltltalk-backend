@@ -41,7 +41,8 @@ of individual subwords.
 
     lemmatizer = WordNetLemmatizer()
 
-    utterance_tokens = [lemmatizer.lemmatize(token) for token in word_tokenize(nl_utterance) if token in constants.ALL_SIGNIFICANT_WORDS]
+    utterance_tokens = [lemmatizer.lemmatize(token) for token in nl_utterance.split() if token in constants.ALL_SIGNIFICANT_WORDS]
+
     scores = {}
     for prop_variable in constants.EVENTS:
         score = 0
@@ -58,13 +59,22 @@ of individual subwords.
         # denominator consists of number of tokens in the descriptor of prop_variable (to account for things not
         # mentioned in the utterance) and number of tokens in the utterance (to account for things mentioned in the
         # utterance but not in the propositional variable)
-        score = score / (len(list_of_descriptors) + len(utterance_tokens))
+        try:
+            score = score / (len(list_of_descriptors) + len(utterance_tokens))
+        except:
+            score = 0
         scores[prop_variable] = score
 
 
 
-    max_dict_value = max(scores.values())
-    second_max_value = max( [value for value in scores.values() if value < max_dict_value] )
+    try:
+        max_dict_value = max(scores.values())
+    except:
+        max_dict_value = -1
+    try:
+        second_max_value = max( [value for value in scores.values() if value < max_dict_value] )
+    except:
+        second_max_value = max_dict_value
     hints = {k : (1 + scores[k]) for k in scores if (scores[k] == max_dict_value or scores[k] == second_max_value)}
 
     return hints
