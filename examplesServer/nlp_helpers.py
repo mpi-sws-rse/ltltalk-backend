@@ -1,7 +1,7 @@
 import constants
 import nltk
-#nltk.download('punkt')
-#nltk.download('wordnet')
+nltk.download('punkt')
+nltk.download('wordnet')
 import re
 
 
@@ -78,5 +78,3 @@ of individual subwords.
     hints = {k : (1 + scores[k]) for k in scores if (scores[k] == max_dict_value or scores[k] == second_max_value)}
 
     return hints
-
-
