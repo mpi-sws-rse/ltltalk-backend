@@ -70,7 +70,6 @@ class World:
                     found_item = (field["color"], field["shape"])
                     self.items_on_the_floor[pos][found_item] += 1
 
-
                     
 
     def export_as_json(self):

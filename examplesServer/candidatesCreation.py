@@ -1,5 +1,5 @@
 import random
-from utils import create_json_spec, convert_json_actions_to_world_format
+from utils import create_json_spec, convert_json_actions_to_world_format, convert_path_to_formatted_path
 import nlp_helpers
 from samples2LTL.experiment import start_experiment
 from samples2LTL.run_solver_tests import disambiguate
@@ -53,6 +53,7 @@ def create_candidates(nl_utterance, context, example):
 def update_candidates(old_candidates, path, decision, world):
     print("--+--+ old candidates are {}".format(old_candidates))
     collection_of_candidates = []
+    print("++=++= decision is {} with type {}".format(decision, type(decision)))
     if int(decision) == 0:
         formula_value = True
     elif int(decision) == 1:
@@ -81,7 +82,7 @@ def update_candidates(old_candidates, path, decision, world):
     return collection_of_candidates
 
 
-def create_disaumbiguation_example(candidates):
+def create_disambiguation_example(candidates):
 
     candidate_1 = candidates[0]
     candidate_2 = candidates[1]

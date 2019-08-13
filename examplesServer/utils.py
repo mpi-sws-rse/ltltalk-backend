@@ -32,8 +32,46 @@ def create_json_spec(file_name, emitted_events, hints, pickup_locations, all_loc
 
         json.dump(example_info, exampleJsonFile)
 
+def convert_path_to_formatted_path(disambiguation_path, disambiguation_world):
+    formatted_path = []
+    # not sure if it is necessary, but probably does not hurt: setting the first step to be the move to the init
+    # position
+    formatted_path.append({"action": "path",
+                           "x": str(disambiguation_world.robot_position[0]),
+                           "y": str(disambiguation_world.robot_position[1]),
+                           "color": "null",
+                           "shape": "null",
+                           "possible": "true"
+                           })
+
+    for step in disambiguation_path:
+
+        if step[0] == "move":
+            disambiguation_world.move(step[1])
+            formatted_path.append({"action": "path",
+                                   "x": str(disambiguation_world.robot_position[0]),
+                                   "y": str(disambiguation_world.robot_position[1]),
+                                   "color": "null",
+                                   "shape": "null",
+                                   "possible": "true"
+                                   })
+        elif step[0] == "pick":
+            for item_desc in step[1:]:
+                for _ in range(item_desc[0]):
+                    formatted_path.append({
+                        "action": "pickitem",
+                        "x": str(disambiguation_world.robot_position[0]),
+                        "y": str(disambiguation_world.robot_position[1]),
+                        "color": item_desc[1],
+                        "shape": item_desc[2],
+                        "possible": "true"
+                    })
+                    disambiguation_world.pick([(item_desc[1], item_desc[2])])
+        return formatted_path
+
 
 def convert_json_actions_to_world_format(world, actions):
+
     converted_actions = []
     pick_list = []
     for action in actions:
