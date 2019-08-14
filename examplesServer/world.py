@@ -309,7 +309,7 @@ class World:
                 if self._get_num_items(old_field_items, color=color) - self._get_num_items(new_field_items,
                                                                                            color=color) == number:
                     action_events.append(
-                        "{}_{}_{}_x_item_{}_{}".format(constants.PICK, number, color, robot_position[0], robot_position[1]))
+                        "{}_{}_{}_x_item_{}_{}".format(constants.PICK, numbersToWords[number], color, robot_position[0], robot_position[1]))
 
         for shape in constants.SHAPES:
             if self._get_num_items(old_field_items, shape=shape) > 0 and self._get_num_items(new_field_items,
@@ -319,7 +319,7 @@ class World:
                 if self._get_num_items(old_field_items, shape=shape) - self._get_num_items(new_field_items,
                                                                                            shape=shape) == number:
                     action_events.append(
-                        "{}_{}_x_{}_item_{}_{}".format(constants.PICK, number, shape, robot_position[0], robot_position[1]))
+                        "{}_{}_x_{}_item_{}_{}".format(constants.PICK, numbersToWords[number], shape, robot_position[0], robot_position[1]))
 
         for color in constants.COLORS:
             for shape in constants.SHAPES:
@@ -331,7 +331,7 @@ class World:
                     if self._get_num_items(old_field_items, color=color, shape=shape) - self._get_num_items(
                             new_field_items, color=color, shape=shape) == number:
                         action_events.append(
-                            "{}_{}_{}_{}_item_{}_{}".format(constants.PICK, number, color, shape,
+                            "{}_{}_{}_{}_item_{}_{}".format(constants.PICK, numbersToWords[number], color, shape,
                                                          robot_position[0], robot_position[1]))
 
         return action_events

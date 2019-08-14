@@ -18,7 +18,7 @@ SHAPE_CODES = {"square": 1, "circle": 2, "triangle": 3, "x": 0}
 QUANTIFIERS = ["one","two", "every"]
 ACTION_CODES = {MOVE: 0, PICK: 1}
 DIRECTION_CODES = {LEFT: 0, RIGHT: 1, UP: 2, DOWN: 3}
-numbersToWords = {1: "one", 2: "two", 3: "three"}
+numbersToWords = {1: "one", 2: "two", 3: "three", -1: "every"}
 
 
 

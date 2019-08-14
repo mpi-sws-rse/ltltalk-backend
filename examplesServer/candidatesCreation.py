@@ -71,7 +71,7 @@ def update_candidates(old_candidates, path, decision, world):
     (emitted_events, _,_,_) = world.execute_and_emit_events(converted_path)
 
     trace = Trace.create_trace_from_events_list(emitted_events)
-    
+
     for candidate_formula in old_candidates:
         f = Formula.convertTextToFormula(candidate_formula)
 
