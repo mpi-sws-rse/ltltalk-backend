@@ -9,6 +9,7 @@ DEFAULT_MAX_DEPTH = 6
 
 def create_json_spec(file_name, emitted_events, hints, pickup_locations, all_locations, negative_sequences, num_formulas = DEFAULT_NUM_FORMULAS,
                      start_depth = DEFAULT_START_DEPTH, max_depth = DEFAULT_MAX_DEPTH):
+    print("hints when creating json file are {}".format(hints))
     with open(file_name, "w") as exampleJsonFile:
         example_info = {}
         literals = constants.STATE_EVENTS
@@ -37,20 +38,21 @@ def convert_path_to_formatted_path(disambiguation_path, disambiguation_world):
     # not sure if it is necessary, but probably does not hurt: setting the first step to be the move to the init
     # position
     formatted_path.append({"action": "path",
-                           "x": str(disambiguation_world.robot_position[0]),
-                           "y": str(disambiguation_world.robot_position[1]),
+                           "x": disambiguation_world.robot_position[0],
+                           "y": disambiguation_world.robot_position[1],
                            "color": "null",
                            "shape": "null",
                            "possible": "true"
                            })
 
     for step in disambiguation_path:
+        print("step is {}".format(step))
 
         if step[0] == "move":
             disambiguation_world.move(step[1])
             formatted_path.append({"action": "path",
-                                   "x": str(disambiguation_world.robot_position[0]),
-                                   "y": str(disambiguation_world.robot_position[1]),
+                                   "x": disambiguation_world.robot_position[0],
+                                   "y": disambiguation_world.robot_position[1],
                                    "color": "null",
                                    "shape": "null",
                                    "possible": "true"
@@ -60,14 +62,14 @@ def convert_path_to_formatted_path(disambiguation_path, disambiguation_world):
                 for _ in range(item_desc[0]):
                     formatted_path.append({
                         "action": "pickitem",
-                        "x": str(disambiguation_world.robot_position[0]),
-                        "y": str(disambiguation_world.robot_position[1]),
+                        "x": disambiguation_world.robot_position[0],
+                        "y": disambiguation_world.robot_position[1],
                         "color": item_desc[1],
                         "shape": item_desc[2],
                         "possible": "true"
                     })
                     disambiguation_world.pick([(item_desc[1], item_desc[2])])
-        return formatted_path
+    return formatted_path
 
 
 def convert_json_actions_to_world_format(world, actions):

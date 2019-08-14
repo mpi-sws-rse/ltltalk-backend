@@ -225,11 +225,19 @@ class World:
         collection_of_negative_events = []
         pickup_locations = []
         all_locations = []
+        init_events = []
 
+        # add initial dry event
         if not self.robot_position in self.water:
-            events.append(["dry"])
-        else:
-            events.append([])
+            init_events.append(constants.DRY)
+
+
+        # add initial location event
+        init_events.append("at_{}_{}".format(self.robot_position[0], self.robot_position[1]))
+        all_locations.append(self.robot_position)
+        events.append(init_events)
+
+
 
 
         for action in sequence_of_actions:
@@ -243,7 +251,7 @@ class World:
 
                 self.move(action[1])
                 if not self.robot_position in self.water:
-                    action_events.append("dry")
+                    action_events.append(constants.DRY)
                 action_events.append("at_{}_{}".format(self.robot_position[0], self.robot_position[1]))
                 all_locations.append(self.robot_position)
 
@@ -281,8 +289,8 @@ class World:
 
         action_events = []
         # when the robot is picking the state is not changing (if it was dry, it will remain dry)
-        if len(events) > 0 and "dry" in events[-1]:
-            action_events.append("dry")
+        if len(events) > 0 and constants.DRY in events[-1]:
+            action_events.append(constants.DRY)
 
         action_events.append("{}_1_x_x_item_{}_{}".format(constants.PICK, robot_position[0], robot_position[1]))
         # the second part of conjunctions should always be true anyway

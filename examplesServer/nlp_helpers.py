@@ -10,7 +10,7 @@ from nltk.stem import WordNetLemmatizer
 
 
 def get_locations_from_utterance(nl_utterance):
-    locations_strings = re.findall(r"(\d,[\n\t ]*\d)", nl_utterance)
+    locations_strings = re.findall(r"(\d+,[\n\t ]*\d+)", nl_utterance)
 
     locations = []
     for loc in locations_strings:

@@ -11,6 +11,7 @@ import json
 import os
 import logging
 from copy import deepcopy
+import constants
 
 def create_candidates(nl_utterance, context, example):
 
@@ -21,9 +22,10 @@ def create_candidates(nl_utterance, context, example):
     hints = nlp_helpers.get_hints_from_utterance(nl_utterance)
     relevant_locations = nlp_helpers.get_locations_from_utterance(nl_utterance)
 
+
     hintsWithLocations = {}
     for hint in hints:
-        if hint == "dry":
+        if hint == constants.DRY:
             hintsWithLocations[hint] = hints[hint]
             continue
         for l in pickup_locations:
@@ -51,32 +53,33 @@ def create_candidates(nl_utterance, context, example):
     return collection_of_candidates
 
 def update_candidates(old_candidates, path, decision, world):
-    print("--+--+ old candidates are {}".format(old_candidates))
+
     collection_of_candidates = []
-    print("++=++= decision is {} with type {}".format(decision, type(decision)))
-    if int(decision) == 0:
+
+    if int(decision) == 1:
         formula_value = True
-    elif int(decision) == 1:
+    elif int(decision) == 0:
         formula_value = False
     else:
         raise ValueError("got user decision different from 0 or 1, the value was {}".format(decision))
 
-    print("-- ++ -- path is {}".format(path))
-    print(world)
-    converted_path = convert_json_actions_to_world_format(deepcopy(world), path)
-    print(world)
 
-    print("converted path is {}".format(converted_path))
-    print("formula value should be {}".format(formula_value))
+    converted_path = convert_json_actions_to_world_format(deepcopy(world), path)
+
+
+
     (emitted_events, _,_,_) = world.execute_and_emit_events(converted_path)
-    print("-- -- -- -- emitted_events are {}".format(emitted_events))
+
     trace = Trace.create_trace_from_events_list(emitted_events)
-    print("trace is {}".format(trace))
+    
     for candidate_formula in old_candidates:
         f = Formula.convertTextToFormula(candidate_formula)
 
         if trace.evaluateFormulaOnTrace(f) == formula_value:
             collection_of_candidates.append(candidate_formula)
+            print("candidate {} was retained".format(f))
+        else:
+            print("candidate {} was eliminated".format(f))
 
 
     return collection_of_candidates
@@ -87,7 +90,8 @@ def create_disambiguation_example(candidates):
     candidate_1 = candidates[0]
     candidate_2 = candidates[1]
     print("================\n{}, {}, {}, {}".format(candidate_1, type(candidate_1), candidate_2, type(candidate_2)))
-    w, path = disambiguate(candidate_1, candidate_2, 3, 6)
+
+    w, path = disambiguate(candidate_1, candidate_2, 4, 10)
 
 
     return (w, path, candidate_1, candidate_2)

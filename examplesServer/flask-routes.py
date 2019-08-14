@@ -6,6 +6,12 @@ from world import World
 from candidatesCreation import create_candidates, update_candidates, create_disambiguation_example
 from utils import convert_path_to_formatted_path
 
+try:
+    from utils.SimpleTree import Formula
+except:
+    from samples2LTL.utils.SimpleTree import Formula
+
+
 app = Flask(__name__)
 CORS(app)
 
@@ -35,8 +41,10 @@ def candidate_spec():
         print(candidates)
         answer["status"] = "indoubt"
         disambiguation_world, disambiguation_path, candidate_1, candidate_2 = create_disambiguation_example(candidates)
+        print("disambiguation world is {}, disambiguation path is {} for candidate1 = {} and candidate2 = {}".format(disambiguation_world, disambiguation_path, candidate_1, candidate_2))
         answer["world"] = disambiguation_world.export_as_json()
         formatted_path = convert_path_to_formatted_path(disambiguation_path, disambiguation_world)
+        print("formatted path is {}".format(formatted_path))
         answer["path"] = formatted_path
 
 
@@ -71,11 +79,15 @@ def user_decision_update():
         answer["status"] = "ok"
     elif len(updated_candidates) > 1:
         answer["status"] = "indoubt"
-        disambiguation_world, disambiguation_path, candidate_1, candidate_2 = create_disaumbiguation_example(
-            candidates)
+        converted_candidates = [Formula.convertTextToFormula(c) for c in updated_candidates]
+        disambiguation_world, disambiguation_path, candidate_1, candidate_2 = create_disambiguation_example(
+            converted_candidates)
         answer["world"] = disambiguation_world.export_as_json()
         formatted_path = convert_path_to_formatted_path(disambiguation_path, disambiguation_world)
         answer["path"] = formatted_path
+        answer["disambiguation-candidate-1"] = str(candidate_1)
+        answer["disambiguation-candidate-2"] = str(candidate_2)
     answer["sessionId"] = sessionId
     answer["candidates"] = updated_candidates
+
     return answer
