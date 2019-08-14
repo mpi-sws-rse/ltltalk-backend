@@ -296,7 +296,7 @@ class World:
         # the second part of conjunctions should always be true anyway
         # (there should be no picking from empty field)
         if self._get_num_items(new_field_items) == 0:
-            action_events.append("{}_every_x_x_item_{}".format(constants.PICK, robot_position))
+            action_events.append("{}_every_x_x_item_{}_{}".format(constants.PICK, robot_position[0], robot_position[1]))
 
         numbersToWords = {num: constants.numbersToWords[num] for num in constants.numbersToWords if constants.numbersToWords[num] in constants.QUANTIFIERS}
         print(numbersToWords)
