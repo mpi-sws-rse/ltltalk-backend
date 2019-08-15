@@ -95,13 +95,15 @@ class World:
         item_fields = []
         for field in self.items_on_the_floor:
             for item_desc in self.items_on_the_floor[field]:
-                item_fields.append({"x": field[0], "y": field[1], "type":"item", "shape":item_desc[1], "color":item_desc[0]})
+                for _ in range(self.items_on_the_floor[field][item_desc]):
+                    item_fields.append({"x": field[0], "y": field[1], "type":"item", "shape":item_desc[1], "color":item_desc[0]})
 
         w_json["world"] = wall_fields + water_fields + item_fields
 
         return w_json
 
-
+    def get_wall_locations(self):
+        return self.wall
 
     def __repr__(self):
         s = ""

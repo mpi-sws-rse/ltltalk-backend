@@ -29,6 +29,7 @@ def candidate_spec():
     context = json.loads(request.args.get("context"))
     sessionId = request.args.get("sessionId")
     world = World(context, json_type=2)
+    wall_locations = world.get_wall_locations()
     print(nl_utterance, world, example)
 
     candidates = create_candidates(nl_utterance, context, example)
@@ -40,7 +41,7 @@ def candidate_spec():
     elif len(candidates) > 1:
         print(candidates)
         answer["status"] = "indoubt"
-        disambiguation_world, disambiguation_path, candidate_1, candidate_2 = create_disambiguation_example(candidates)
+        disambiguation_world, disambiguation_path, candidate_1, candidate_2 = create_disambiguation_example(candidates, wall_locations)
         print("disambiguation world is {}, disambiguation path is {} for candidate1 = {} and candidate2 = {}".format(disambiguation_world, disambiguation_path, candidate_1, candidate_2))
         answer["world"] = disambiguation_world.export_as_json()
         formatted_path = convert_path_to_formatted_path(disambiguation_path, disambiguation_world)
@@ -69,6 +70,7 @@ def user_decision_update():
 
     context = json.loads(request.args.get("context"))
     world = World(context, json_type=2)
+    wall_locations = world.get_wall_locations()
     updated_candidates = update_candidates(candidates, path, decision, world)
 
 
@@ -81,7 +83,7 @@ def user_decision_update():
         answer["status"] = "indoubt"
         converted_candidates = [Formula.convertTextToFormula(c) for c in updated_candidates]
         disambiguation_world, disambiguation_path, candidate_1, candidate_2 = create_disambiguation_example(
-            converted_candidates)
+            converted_candidates, wall_locations=wall_locations)
         answer["world"] = disambiguation_world.export_as_json()
         formatted_path = convert_path_to_formatted_path(disambiguation_path, disambiguation_world)
         answer["path"] = formatted_path

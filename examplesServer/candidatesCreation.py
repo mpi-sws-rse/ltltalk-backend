@@ -85,13 +85,13 @@ def update_candidates(old_candidates, path, decision, world):
     return collection_of_candidates
 
 
-def create_disambiguation_example(candidates):
+def create_disambiguation_example(candidates, wall_locations = []):
 
     candidate_1 = candidates[0]
     candidate_2 = candidates[1]
     print("================\n{}, {}, {}, {}".format(candidate_1, type(candidate_1), candidate_2, type(candidate_2)))
 
-    w, path = disambiguate(candidate_1, candidate_2, 4, 10)
+    w, path = disambiguate(candidate_1, candidate_2, 4, 10, wall_locations)
 
 
     return (w, path, candidate_1, candidate_2)
