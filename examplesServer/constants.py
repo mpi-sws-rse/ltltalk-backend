@@ -20,6 +20,8 @@ ACTION_CODES = {MOVE: 0, PICK: 1}
 DIRECTION_CODES = {LEFT: 0, RIGHT: 1, UP: 2, DOWN: 3}
 numbersToWords = {1: "one", 2: "two", 3: "three", -1: "every"}
 
+HINTS_CUTOFF_VALUE = 0.15
+
 
 
 # x is sa symbol for don't care
@@ -55,5 +57,6 @@ OPERATORS = [
     "G",
     "&",
     "U",
-    "S"
+    "S",
+    "!"
   ]

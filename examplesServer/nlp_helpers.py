@@ -72,14 +72,15 @@ of individual subwords. --->  SHOULD BE REPLACED BY SOMETHING BETTER
 
 
 
-    try:
-        max_dict_value = max(scores.values())
-    except:
-        max_dict_value = -1
-    try:
-        second_max_value = max( [value for value in scores.values() if value < max_dict_value] )
-    except:
-        second_max_value = max_dict_value
-    hints = {k : (1 + scores[k]) for k in scores if (scores[k] == max_dict_value or scores[k] == second_max_value)}
+
+    # try:
+    #     max_dict_value = max(scores.values())
+    # except:
+    #     max_dict_value = -1
+    # try:
+    #     second_max_value = max( [value for value in scores.values() if value < max_dict_value] )
+    # except:
+    #     second_max_value = max_dict_value
+    hints = {k : (1 + scores[k]) for k in scores if scores[k] > constants.HINTS_CUTOFF_VALUE}
 
     return hints
