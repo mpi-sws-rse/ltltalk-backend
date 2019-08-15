@@ -8,8 +8,8 @@ DRY = "at_dry"
 
 DIRECTIONS = [UP, DOWN, LEFT, RIGHT]
 
-WIDTH = 14
-HEIGHT = 10
+WIDTH = 12
+HEIGHT = 9
 
 COLORS = ["red", "green", "blue", "yellow"]
 COLOR_CODES = {"red": 1, "green": 2, "blue": 3, "yellow":4, "x": 0}
