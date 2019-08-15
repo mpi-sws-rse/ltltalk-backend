@@ -9,7 +9,7 @@ import nlp_helpers
 from utils import create_json_spec
 import constants
 from samples2LTL.experiment import start_experiment
-from candidatesCreation import create_candidates, update_candidates, create_disaumbiguation_example
+from candidatesCreation import create_candidates, update_candidates, create_disambiguation_example
 
 """
 problems: if the actions is a more complicated one, the system will find "underapproximation explanation", that specify
@@ -37,8 +37,8 @@ def main():
         # sequence_of_actions += [("pick", [("red", "circle")])]
 
         sequence_of_actions += [("move", "right") for _ in range(5)]
-        sequence_of_actions += [("move", "up")]
-        sequence_of_actions += [("move", "down")]
+        # sequence_of_actions += [("move", "up")]
+        # sequence_of_actions += [("move", "down")]
         #sequence_of_actions += [("pick", [("red", "circle"),("red", "circle"),("blue", "circle"), ("green", "square"), ("green", "circle")])]
         #sequence_of_actions += [("pick", [("red", "circle"), ("red", "circle"), ("blue", "circle"), ("green", "circle"), ("green","square")])]
         sequence_of_actions += [("pick", [("red", "circle")])]
@@ -48,8 +48,9 @@ def main():
         (emitted_events, pickup_locations, collection_of_negative, all_locations) = test_world.execute_and_emit_events(sequence_of_actions)
 
 
-        utterance = "go to (7,5) and then pickupe a red item from (7,4)"
+        utterance = "stay dry until picking one red from [7,4]"
         hints = nlp_helpers.get_hints_from_utterance(utterance)
+        pdb.set_trace()
         relevant_locations = nlp_helpers.get_locations_from_utterance(utterance)
 
 

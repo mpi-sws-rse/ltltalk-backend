@@ -33,6 +33,7 @@ def candidate_spec():
     print(nl_utterance, world, example)
 
     candidates = create_candidates(nl_utterance, context, example)
+
     answer = {}
     if len(candidates) == 0:
         answer["status"] = "failed"
@@ -82,6 +83,8 @@ def user_decision_update():
     elif len(updated_candidates) > 1:
         answer["status"] = "indoubt"
         converted_candidates = [Formula.convertTextToFormula(c) for c in updated_candidates]
+
+     
         disambiguation_world, disambiguation_path, candidate_1, candidate_2 = create_disambiguation_example(
             converted_candidates, wall_locations=wall_locations)
         answer["world"] = disambiguation_world.export_as_json()

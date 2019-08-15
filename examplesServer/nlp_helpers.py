@@ -3,6 +3,7 @@ import nltk
 nltk.download('punkt')
 nltk.download('wordnet')
 import re
+import pdb
 
 
 from nltk.tokenize import word_tokenize
@@ -29,7 +30,7 @@ def get_hints_from_utterance(nl_utterance):
     """
     the function takes the natural language utterance as an input and tries to distill relevant propositional variables
 (a subset of constants.EVENTS) with the weights attached to them. This is a crude implementation based on the appearences
-of individual subwords.
+of individual subwords. --->  SHOULD BE REPLACED BY SOMETHING BETTER
 
     :param nl_utterance: string
     :return: dictionary {prop_variable: weight}
@@ -46,12 +47,15 @@ of individual subwords.
     scores = {}
     for prop_variable in constants.EVENTS:
         score = 0
-        list_of_descriptors = [lemmatizer.lemmatize(el) for el in prop_variable.split("_")[:-1] if not (el == "x" or el == "item")]
-
+        list_of_descriptors = [lemmatizer.lemmatize(el) for el in prop_variable.split("_") if not (el == "x" or el == "item" or el == "at")]
+        # if prop_variable == "at_dry":
+        #     pdb.set_trace()
         for desc in list_of_descriptors:
             candidates = [desc]
             if desc in constants.SYNONYMS:
                 candidates  += constants.SYNONYMS[desc]
+            if desc in constants.CONNECTED_WORDS:
+                candidates += constants.CONNECTED_WORDS[desc]
             for candidate in candidates:
                 if candidate in utterance_tokens:
                     score += 1
@@ -63,6 +67,7 @@ of individual subwords.
             score = score / (len(list_of_descriptors) + len(utterance_tokens))
         except:
             score = 0
+        print("assigning score of {} to prop_var {}".format(score, prop_variable))
         scores[prop_variable] = score
 
 

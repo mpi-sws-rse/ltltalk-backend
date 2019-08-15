@@ -47,8 +47,9 @@ EVENTS = PICKUP_EVENTS + STATE_EVENTS
 
 SYNONYMS = {"every": ["all"], PICK: ["grab", "collect", "take"],
             "one": ["1", "single", "individual", "the"], "two": ["2"], "three": ["3"]}
+CONNECTED_WORDS = {"dry": ["water"], "water": ["dry"]}
 
-ALL_SIGNIFICANT_WORDS = COLORS + SHAPES + ["dry"] + QUANTIFIERS + [syn for syns in SYNONYMS.values() for syn in syns ] + DIRECTIONS + [MOVE]
+ALL_SIGNIFICANT_WORDS = COLORS + SHAPES + ["dry"] + ["water"] + QUANTIFIERS + [syn for syns in SYNONYMS.values() for syn in syns ] + DIRECTIONS + [MOVE]
 OPERATORS = [
     "E",
     "G",
