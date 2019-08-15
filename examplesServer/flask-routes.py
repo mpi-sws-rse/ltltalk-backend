@@ -84,7 +84,7 @@ def user_decision_update():
         answer["status"] = "indoubt"
         converted_candidates = [Formula.convertTextToFormula(c) for c in updated_candidates]
 
-     
+
         disambiguation_world, disambiguation_path, candidate_1, candidate_2 = create_disambiguation_example(
             converted_candidates, wall_locations=wall_locations)
         answer["world"] = disambiguation_world.export_as_json()

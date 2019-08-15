@@ -70,13 +70,26 @@ def update_candidates(old_candidates, path, decision, world):
 
     (emitted_events, _,_,_) = world.execute_and_emit_events(converted_path)
 
-    trace = Trace.create_trace_from_events_list(emitted_events)
+    all_relevant_literals = []
+    old_candidate_formulas = []
+    for c in old_candidates:
+        f = Formula.convertTextToFormula(c)
+        old_candidate_formulas.append(f)
+        all_relevant_literals += f.getAllVariables()
+    all_relevant_literals = list(set(all_relevant_literals))
 
-    for candidate_formula in old_candidates:
-        f = Formula.convertTextToFormula(candidate_formula)
+    print("+-+-------------- all relevant literals are {}".format(all_relevant_literals))
+
+
+    trace = Trace.create_trace_from_events_list(emitted_events, literals_to_consider=all_relevant_literals)
+
+    print("+++++++++++++++++=======================\n elimination trace is {}".format(trace))
+
+    for f in old_candidate_formulas:
+        #f = Formula.convertTextToFormula(candidate_formula)
 
         if trace.evaluateFormulaOnTrace(f) == formula_value:
-            collection_of_candidates.append(candidate_formula)
+            collection_of_candidates.append(str(f))
             print("candidate {} was retained".format(f))
         else:
             print("candidate {} was eliminated".format(f))
