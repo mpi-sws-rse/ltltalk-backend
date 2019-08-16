@@ -53,7 +53,7 @@ CONNECTED_WORDS = {"dry": ["water"], "water": ["dry"]}
 
 ALL_SIGNIFICANT_WORDS = COLORS + SHAPES + ["dry"] + ["water"] + QUANTIFIERS + [syn for syns in SYNONYMS.values() for syn in syns ] + DIRECTIONS + [MOVE]
 OPERATORS = [
-    "E",
+    "F",
     "G",
     "&",
     "U",

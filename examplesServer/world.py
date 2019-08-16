@@ -219,10 +219,18 @@ class World:
         return num_items
 
     def execute_and_emit_events(self, sequence_of_actions):
+        new_sequence_of_actions = []
         for event, next_event in zip(sequence_of_actions, sequence_of_actions[1:]):
             if event[0] == constants.PICK and next_event[0] == constants.PICK:
                 raise ValueError("No two consecutive {} events allowed".format(constants.PICK))
 
+        #     if event[0] == constants.MOVE and next_event[0] == constants.PICK:
+        #         continue
+        #     else:
+        #         new_sequence_of_actions.append(event)
+        # new_sequence_of_actions.append(sequence_of_actions[-1])
+        #
+        # sequence_of_actions = new_sequence_of_actions
         events = []
         collection_of_negative_events = []
         pickup_locations = []
@@ -242,12 +250,9 @@ class World:
 
 
 
-        for action in sequence_of_actions:
+        for idx, action in enumerate(sequence_of_actions):
 
             action_events = []
-
-
-
             if action[0] == constants.MOVE:
 
 
@@ -282,6 +287,10 @@ class World:
                     forked_events.append(speculative_action_events)
                     collection_of_negative_events.append(forked_events)
 
+            if idx < len(sequence_of_actions) - 1:
+                    if sequence_of_actions[idx+1][0] == constants.PICK and sequence_of_actions[idx][0] == constants.MOVE:
+                        continue
+
             events.append(action_events)
         collection_of_negative_events.append(events[:-1])
 
@@ -291,7 +300,8 @@ class World:
 
         action_events = []
         # when the robot is picking the state is not changing (if it was dry, it will remain dry)
-        if len(events) > 0 and constants.DRY in events[-1]:
+
+        if not self.robot_position in self.water:
             action_events.append(constants.DRY)
 
         #adding robot's position

@@ -35,6 +35,7 @@ def candidate_spec():
     candidates = create_candidates(nl_utterance, context, example)
 
     answer = {}
+    answer["sessionId"] = sessionId
     if len(candidates) == 0:
         answer["status"] = "failed"
     elif len(candidates) == 1:
@@ -42,7 +43,10 @@ def candidate_spec():
     elif len(candidates) > 1:
         print(candidates)
         answer["status"] = "indoubt"
-        disambiguation_world, disambiguation_path, candidate_1, candidate_2 = create_disambiguation_example(candidates, wall_locations)
+        status, disambiguation_world, disambiguation_path, candidate_1, candidate_2 = create_disambiguation_example(candidates, wall_locations)
+        if not status == "indoubt":
+            answer[status] = status
+            return answer
         print("disambiguation world is {}, disambiguation path is {} for candidate1 = {} and candidate2 = {}".format(disambiguation_world, disambiguation_path, candidate_1, candidate_2))
         answer["world"] = disambiguation_world.export_as_json()
         formatted_path = convert_path_to_formatted_path(disambiguation_path, disambiguation_world)
@@ -56,7 +60,7 @@ def candidate_spec():
         answer["candidates"] = [str(c) for c in candidates]
         answer["disambiguation-candidate-1"] = str(candidate_1)
         answer["disambiguation-candidate-2"] = str(candidate_2)
-    answer["sessionId"] = sessionId
+
     return answer
 
 
@@ -76,23 +80,31 @@ def user_decision_update():
 
 
     answer = {}
+    answer["sessionId"] = sessionId
+    answer["candidates"] = updated_candidates
     if len(updated_candidates) == 0:
         answer["status"] = "failed"
+        return answer
     elif len(updated_candidates) == 1:
         answer["status"] = "ok"
+        return answer
     elif len(updated_candidates) > 1:
         answer["status"] = "indoubt"
+
         converted_candidates = [Formula.convertTextToFormula(c) for c in updated_candidates]
 
 
-        disambiguation_world, disambiguation_path, candidate_1, candidate_2 = create_disambiguation_example(
+        status, disambiguation_world, disambiguation_path, candidate_1, candidate_2 = create_disambiguation_example(
             converted_candidates, wall_locations=wall_locations)
-        answer["world"] = disambiguation_world.export_as_json()
-        formatted_path = convert_path_to_formatted_path(disambiguation_path, disambiguation_world)
-        answer["path"] = formatted_path
-        answer["disambiguation-candidate-1"] = str(candidate_1)
-        answer["disambiguation-candidate-2"] = str(candidate_2)
-    answer["sessionId"] = sessionId
-    answer["candidates"] = updated_candidates
 
-    return answer
+        if not status == "indoubt":
+            answer["status"] = status
+            return answer
+        else:
+
+            answer["world"] = disambiguation_world.export_as_json()
+            formatted_path = convert_path_to_formatted_path(disambiguation_path, disambiguation_world)
+            answer["path"] = formatted_path
+            answer["disambiguation-candidate-1"] = str(candidate_1)
+            answer["disambiguation-candidate-2"] = str(candidate_2)
+            return answer

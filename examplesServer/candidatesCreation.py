@@ -99,15 +99,38 @@ def update_candidates(old_candidates, path, decision, world):
 
 
 def create_disambiguation_example(candidates, wall_locations = []):
+    w = None
+    path = None
+    candidate_1 = None
+    candidate_2 = None
+    if len(candidates) == 0:
+        status = "failure"
+        return (status, w, path, candidate_1, candidate_2)
+    elif len(candidates) == 1:
+        status = "ok"
+        return (status, w, path, candidate_1, candidate_2)
 
-    candidate_1 = candidates[0]
-    candidate_2 = candidates[1]
-    print("================\n{}, {}, {}, {}".format(candidate_1, type(candidate_1), candidate_2, type(candidate_2)))
+    else:
 
-    w, path = disambiguate(candidate_1, candidate_2, 4, 10, wall_locations)
+        candidate_1 = candidates[0]
+        candidate_2 = candidates[1]
 
 
-    return (w, path, candidate_1, candidate_2)
+        w, path = disambiguate(candidate_1, candidate_2, 4, 10, wall_locations)
+        if w is None and path is None:
+
+            if candidate_1 < candidate_2:
+                candidates.remove(candidate_2)
+            else:
+                candidates.remove(candidate_1)
+            pdb.set_trace()
+            return create_disambiguation_example(candidates, wall_locations)
+        else:
+            status = "indoubt"
+
+
+
+        return (status, w, path, candidate_1, candidate_2)
 
 
 
