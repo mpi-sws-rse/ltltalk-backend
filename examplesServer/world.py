@@ -294,6 +294,9 @@ class World:
         if len(events) > 0 and constants.DRY in events[-1]:
             action_events.append(constants.DRY)
 
+        #adding robot's position
+        action_events.append("at_{}_{}".format(robot_position[0], robot_position[1]))
+
         action_events.append("{}_1_x_x_item_{}_{}".format(constants.PICK, robot_position[0], robot_position[1]))
         # the second part of conjunctions should always be true anyway
         # (there should be no picking from empty field)
