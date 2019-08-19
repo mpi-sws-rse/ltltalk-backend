@@ -8,7 +8,7 @@ we want recover the formula that the user had in mind through interaction with t
 ## Pseudocode
 
 ```
- parameters: number of candidate specifications n
+ hyperparameters: number of candidate specifications n
  input: natural language utterance u, example trace t
  
 1: h = createHints(u)
@@ -17,9 +17,9 @@ we want recover the formula that the user had in mind through interaction with t
 4: t_d = USER_INPUT(w)
 5: C = updateCandidates(C, t_d)
 6: while |C| > 1:
-7:     t' = distinguishingTrace(C[0], C[1])
+7:     w', t' = distinguishingTrace(C[0], C[1])
 8:     decision = USER_INPUT(t')
-9:     C = updateCandidates(t_d, C)
+9:     C = updateCandidates(decision, C)
 ```
 - Line 1 takes the utterance and creates a set of hints from that utterance.
 These hints are propositional variables recognized in the utterance. NOT IMPLEMENTED
