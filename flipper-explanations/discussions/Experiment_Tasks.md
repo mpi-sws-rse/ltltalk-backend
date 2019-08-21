@@ -77,7 +77,7 @@ Current environment: robot at location [0,3], two triangles(yellow and red) at [
 at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
  
-  * Move 3 steps right then 4 steps forward and pick a yellow item from that space and in the end step in water
+  * Move 3 steps down then 4 steps right and pick a yellow item from that space and in the end step in water
    (`((at_[3,3] B at_[3,7]) & picked_1_yellow_item_[3,7]) & E(at_wet)`)
 
 
