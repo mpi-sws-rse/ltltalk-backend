@@ -22,7 +22,7 @@ Current environment: robot at location [2,4], two triangles(yellow and red) at [
 at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
  
-  * Get one green triangle from location [10,8] then move 6 steps left direction and pick one square.
+  * Get one green triangle from location [10,8] then move 3 steps left direction and pick one square item.
     (`(picked_1_green_traingle_[10,8] B at_[4,8]) & E(picked_1_square_[4,8])`)
   
 
@@ -45,7 +45,7 @@ Current environment: robot at location [2,4], two triangles(yellow and red) at [
 at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
 
-  * Get one red triangle at location [10,8] while staying dry.
+  * Get one red triangle at location [10,7] while staying dry.
       (`dry Ux picked_1_red_traingle_[10,8]`)
 
 
@@ -56,7 +56,7 @@ Current environment: robot at location [1,0], two circles (green and yellow) at 
 at [7,4], one square (blue) at [11,4] and two triangles (red, green) at [10,8]
 
 
-  * Get one blue square from location [11,1] and move forward to four steps then pick one green item
+  * Get one blue square from location [11,1] and move 1 step downward then 5 steps left to pick one green item
       (`(picked_1_blue_square_[11,1] &  at_[11,5]) & E(picked_1_square_[11,5])`)
 
 
@@ -77,7 +77,7 @@ Current environment: robot at location [0,3], two triangles(yellow and red) at [
 at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
  
-  * Move 3 steps right then 4 steps forward and pick a yellow item from that space and in the end step in water
+  * Move 3 steps down then 4 steps right and pick a yellow item from that space and in the end step in water
    (`((at_[3,3] B at_[3,7]) & picked_1_yellow_item_[3,7]) & E(at_wet)`)
 
 
@@ -86,7 +86,8 @@ at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 Current environment: robot at location [2,4], two triangles(yellow and red) at [1,2], One square and circle at (yellow and blue) at [3,2], four circles (red,blue and green) 
 at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 
-  * Go to location [3,2] and pick all item from that space and afterward get two triangle from location [10,8] and stay dry. 
+  * Go to location [3,2] and pick all item from that space then get two triangles from location [10,8] and stay dry.
+
       (`((F(at_[3,2]) & F(picked_every_item_[3,2])) & (at_dry Ux picked_2_triangle_triangle_[10,8])`)
 
   
@@ -97,7 +98,7 @@ at [7,4], one square (blue) at [11,1] and two triangles (red, green) at [10,8]
 Current environment: robot at location [1,2], two triangles and one circle (green) at [0,8], One circle (yellow) at [4,8], four circles (red) 
 at [3,7], one triangle (red) at [11,1] and two triangles (red, green) at [10,8] 
 
-  * Get all green item at [0,8] then move forward 4 steps to pick one red circle and then move to water tile.
+  * Get all green item from location [0,8] then move forward 4 steps to pick one red circle then move to water tile.
      (`((picked_every_green_item_[0,8] & at_[4,8]) & picked_1_red_circle_[4,8]) & E(at_wet)`)
 
 
