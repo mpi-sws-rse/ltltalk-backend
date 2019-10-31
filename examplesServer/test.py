@@ -8,7 +8,7 @@ import pdb
 import nlp_helpers
 from utils import create_json_spec
 import constants
-from samples2LTL.experiment import start_experiment
+from encoding.experiment import start_experiment
 from candidatesCreation import create_candidates, update_candidates, create_disambiguation_example
 
 """
@@ -25,26 +25,27 @@ def main():
 
     with open("temp.json") as world_file:
         w = json.load(world_file)
-        test_world = World(w)
+        test_world = World(w, json_type=2)
         print(test_world)
         
 
 
 
 
-        sequence_of_actions = []
+        # sequence_of_actions = []
+        # # sequence_of_actions += [("move", "right") for _ in range(5)]
+        # # sequence_of_actions += [("pick", [("red", "circle")])]
+        #
         # sequence_of_actions += [("move", "right") for _ in range(5)]
+        # # sequence_of_actions += [("move", "up")]
+        # # sequence_of_actions += [("move", "down")]
+        # #sequence_of_actions += [("pick", [("red", "circle"),("red", "circle"),("blue", "circle"), ("green", "square"), ("green", "circle")])]
+        # #sequence_of_actions += [("pick", [("red", "circle"), ("red", "circle"), ("blue", "circle"), ("green", "circle"), ("green","square")])]
         # sequence_of_actions += [("pick", [("red", "circle")])]
-
-        sequence_of_actions += [("move", "right") for _ in range(5)]
-        # sequence_of_actions += [("move", "up")]
-        # sequence_of_actions += [("move", "down")]
-        #sequence_of_actions += [("pick", [("red", "circle"),("red", "circle"),("blue", "circle"), ("green", "square"), ("green", "circle")])]
-        #sequence_of_actions += [("pick", [("red", "circle"), ("red", "circle"), ("blue", "circle"), ("green", "circle"), ("green","square")])]
-        sequence_of_actions += [("pick", [("red", "circle")])]
+        sequence_of_actions = [('pick', [('red', 'circle'), ('blue', 'triangle')]), ('move', 'left'), ('move', 'right'), ('pick', [('red', 'circle'), ('blue', 'circle')])]
 
 
-
+        pdb.set_trace()
         (emitted_events, pickup_locations, collection_of_negative, all_locations) = test_world.execute_and_emit_events(sequence_of_actions)
 
 

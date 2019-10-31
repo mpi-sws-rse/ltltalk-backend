@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Arrays;
 import java.util.ArrayList;
+import fig.basic.LogInfo;
 
 /**
  * Utilities for working with Formulas.
@@ -17,6 +18,7 @@ import java.util.ArrayList;
  */
 public abstract class Formulas {
 	public static Formula fromLispTree(LispTree tree) {
+
 		// Try to interpret as ValueFormula
 		if (tree.isLeaf()) // Leaves are name values
 			return new ValueFormula<NameValue>(new NameValue(tree.value, null));
@@ -80,13 +82,25 @@ public abstract class Formulas {
 				return new ArithmeticFormula(mode, fromLispTree(tree.child(1)), fromLispTree(tree.child(2)));
 		}
 
-		{ // ActionFormula
-			ActionFormula.Mode mode = ActionFormula.parseMode(func);
+//		{ // ActionFormula
+//			ActionFormula.Mode mode = ActionFormula.parseMode(func);
+//			if (mode != null) {
+//				List<Formula> args = Lists.newArrayList();
+//				for (int i = 1; i < tree.children.size(); i++)
+//					args.add(fromLispTree(tree.child(i)));
+//				return new ActionFormula(mode, args);
+//			}
+//		}
+
+		{ // DSLTLFormula
+
+			DSLTLFormula.Mode mode = DSLTLFormula.parseMode(func);
 			if (mode != null) {
 				List<Formula> args = Lists.newArrayList();
-				for (int i = 1; i < tree.children.size(); i++)
+				for (int i = 1; i < tree.children.size(); i++) {
 					args.add(fromLispTree(tree.child(i)));
-				return new ActionFormula(mode, args);
+				}
+				return new DSLTLFormula(mode, args);
 			}
 		}
 
@@ -424,17 +438,17 @@ public abstract class Formulas {
 		return itemsWithPropertyFormula;
 	}
 
-	
 
-	
-	
+
+
+
 	public static Formula createFilteredAreaFormula(Formula filter) {
 		ValueFormula worldFormula = Formulas.newNameFormula("world");
 		CallFormula filteredAreaFormula = new CallFormula("filterArea",
 				Arrays.asList(worldFormula, filter));
 		return filteredAreaFormula;
 	}
-	
+
 	public static Formula createPropertyFormula(String property) {
 		if (property == null) {
 			CallFormula allItemsFormula = new CallFormula("allItems", new ArrayList<Formula>());
@@ -445,7 +459,7 @@ public abstract class Formulas {
 			return itemsWithPropertyFormula;
 		}
 	}
-	
+
 	public static Formula createPropertyCombinationFormula(String property1, String property2, String connector) {
 		MergeFormula propertiesCombinationFormula;
 		JoinFormula itemsWithPropertyFormula1 = createItemsWithPropertyFormula(property1);

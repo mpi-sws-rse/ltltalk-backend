@@ -163,6 +163,7 @@ public final class InteractiveUtils {
   }
 
   public static List<String> utterancefromJson(String jsonDef, boolean tokenize) {
+      LogInfo.logs("received string %s", jsonDef);
     @SuppressWarnings("unchecked")
     List<Object> body = Json.readValueHard(jsonDef, List.class);
     // string together the body definition

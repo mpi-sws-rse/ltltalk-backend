@@ -3,9 +3,9 @@ import json
 import pdb
 
 
-DEFAULT_NUM_FORMULAS = 10
-DEFAULT_START_DEPTH = 2
-DEFAULT_MAX_DEPTH = 6
+DEFAULT_NUM_FORMULAS = constants.NUM_CANDIDATE_FORMULAS
+DEFAULT_START_DEPTH = constants.CANDIDATE_START_DEPTH
+DEFAULT_MAX_DEPTH = constants.CANDIDATE_MAX_DEPTH
 
 def create_json_spec(file_name, emitted_events, hints, pickup_locations, all_locations, negative_sequences, num_formulas = DEFAULT_NUM_FORMULAS,
                      start_depth = DEFAULT_START_DEPTH, max_depth = DEFAULT_MAX_DEPTH):
@@ -21,6 +21,7 @@ def create_json_spec(file_name, emitted_events, hints, pickup_locations, all_loc
         example_info["number-of-formulas"] = num_formulas
         example_info["start-depth"] = start_depth
         example_info["max-depth-of-formula"] = max_depth
+        example_info["num-solutions-per-depth"] = constants.NUM_CANDIDATE_FORMULAS_OF_SAME_DEPTH
         example_info["operators"] = constants.OPERATORS
         example_info["hints"] = [[h, hints[h]] for h in hints]
         positive = [";".join( [ ",".join([ e for e in timestep_events ]) for timestep_events in emitted_events] )]
@@ -50,6 +51,15 @@ def convert_path_to_formatted_path(disambiguation_path, disambiguation_world):
 
         if step[0] == "move":
             disambiguation_world.move(step[1])
+            formatted_path.append({"action": "path",
+                                   "x": disambiguation_world.robot_position[0],
+                                   "y": disambiguation_world.robot_position[1],
+                                   "color": "null",
+                                   "shape": "null",
+                                   "possible": "true"
+                                   })
+        elif step[0] == constants.PASS:
+            print("============== pass =============")
             formatted_path.append({"action": "path",
                                    "x": disambiguation_world.robot_position[0],
                                    "y": disambiguation_world.robot_position[1],
@@ -116,3 +126,22 @@ def convert_json_actions_to_world_format(world, actions):
         world.pick(pick_list)
 
     return converted_actions
+
+
+def unwind_actions(actions):
+
+    converted_list = []
+    for action in actions:
+        if action[0] == constants.PASS:
+            converted_list.append(action)
+        elif action[0] == constants.MOVE:
+            converted_list.append(action)
+        elif action[0] == constants.PICK:
+            pick_list = []
+            for item_desc in action[1:]:
+                for _ in range(item_desc[0]):
+                    pick_list.append((item_desc[1], item_desc[2]))
+            converted_list.append((constants.PICK, pick_list))
+
+    return converted_list
+

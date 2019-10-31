@@ -362,7 +362,10 @@ public class RoboWorld extends World {
     else
       return Unit.falseSet();
   }
-  
+
+
+
+
   public Set<?> robotHas(Set<Item> s) {
     if (s.stream().anyMatch(i -> i.isCarried()))
       return Unit.trueSet();
@@ -521,6 +524,8 @@ public class RoboWorld extends World {
   public Point getRobotLocation() {
     return new Point(robot.point.x, robot.point.y);
   }
+
+
   
   protected boolean gotoPoint(Point point, Set<Point> avoidSet) {
     avoidSet.addAll(walls.stream().map(w -> w.point).collect(Collectors.toList()));

@@ -1,0 +1,119 @@
+# skipping semantic function definitions for the moment
+
+# numbers
+(rule $Number ($TOKEN) (NumberFn) (anchored true))
+
+# colors and shapes
+(for @shp (triangle circle square x)
+	(rule $Shape (@shp)  @shp (anchored true))
+)
+
+(for @col (red green blue yellow x)
+	(rule $Color (@col)  @col (anchored true))
+)
+
+(rule $Property ($Color) (IdentityFn) (anchored true))
+(rule $Property ($Shape) (IdentityFn) (anchored true))
+
+(rule $Dry (dry) dry (anchored true))
+(rule $At (at) at (anchored true))
+(rule $Pick (pick) pick (anchored true))
+(rule $Item (item) item (anchored true))
+
+# the comma MUST be there: because of some weird parsing error, otherwise at 2 2 will not be recognized
+# variables
+
+ (rule
+   $LocationVar
+    ($At $Number , $Number)
+    (lambda p
+        (lambda n1
+            (lambda n2
+                (: (var p) (var n1) (var n2))
+          )
+        )
+     )
+    (anchored true)
+    )
+
+
+
+
+
+
+(rule
+    $DryVar
+    ($At $Dry)
+    (lambda p
+        (lambda q
+            (: (var p) (var q))
+        )
+    )
+    (anchored true)
+    )
+
+(rule $Quantity ($TOKEN) (NumberFn) (anchored true))
+(rule $Quantity (every) every (anchored true))
+
+ (rule $ActionVar
+    # ($Pick $Quantity $Color $Shape $Item $At $Number , $Number)
+    ($Pick $Quantity $Property $Property $Item $At $Number , $Number)
+    (lambda p
+        (lambda q
+            (lambda c
+                (lambda s
+                    (lambda i
+                        (lambda a
+                            (lambda n1
+                            (lambda n2
+                                (: (var p) (var q) (var c) (var s) (var i) (var a) (var n1) (var n2))
+                                ))))))))
+    (anchored true)
+    )
+
+
+(for @var ($LocationVar $DryVar $ActionVar)
+	(rule $Var
+	    (@var)
+	  (IdentityFn)
+	    (anchored true)
+	 )
+)
+
+(rule $Var ( { $Var } ) (IdentityFn) (anchored true))
+
+# formulas - much simplified grammar
+(rule $A ($Var) (IdentityFn) (anchored true))
+
+
+
+(rule $B ($A) (IdentityFn) (anchored true))
+(rule $A (neg $A) (lambda p (:neg (var p))) (anchored true))
+
+(rule $B (eventually $A) (lambda p (:eventually (var p))) (anchored true))
+(rule $B
+    ($A until $A)
+    (lambda p
+        (lambda q
+            (:until (var p) (var q) )
+        )
+     )
+    (anchored true))
+
+(rule $B
+    ($A before $A)
+    (lambda p
+        (lambda q
+            (:strictly_before (var p) (var q) )
+        )
+     )
+    (anchored true)
+)
+(rule $A ( { $A } ) (IdentityFn) (anchored true))
+(rule $f ($B) (IdentityFn) (anchored true))
+
+(rule $f ( { $f } ) (IdentityFn) (anchored true))
+
+
+
+(rule $ROOT ($f) (IdentityFn) (anchored true))

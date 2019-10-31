@@ -20,7 +20,6 @@ public class ValueFormula<T extends Value> extends PrimitiveFormula {
 
   @Override
   public String prettyString(){
-	  //LogInfo.logs("value is %s of class %s and its sortString is %s", this.value, this.value.getClass(), this.value.sortString());
 	  if (value.sortString().equals("items?property")){
 		  return "is";
 	  }
