@@ -136,7 +136,7 @@ def create_disambiguation_example(candidates, wall_locations = []):
         candidate_2 = candidates[1]
 
 
-        w, path, disambiguation_trace = disambiguate(candidate_1, candidate_2, 4, 10, wall_locations)
+        w, path, disambiguation_trace = disambiguate(candidate_1, candidate_2, wall_locations)
         if w is None and path is None:
 
             if candidate_1 < candidate_2:

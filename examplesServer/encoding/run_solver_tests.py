@@ -31,6 +31,7 @@ def get_path(f, wall_locations, water_locations, robot_location, items_locations
 
     for tr in itertools.chain(range(constants.MIN_FINE_RANGE, constants.MAX_FINE_RANGE, constants.STEP_FINE_RANGE),
                               range(constants.MIN_COARSE_RANGE, constants.MAX_COARSE_RANGE, constants.STEP_COARSE_RANGE)):
+
         disambiguation = get_finite_witness(f=f, wall_locations=wall_locations, trace_length=tr, water_locations=water_locations, robot_position=robot_location, items_locations=items_locations)
 
         if disambiguation == "unsat":
@@ -40,9 +41,17 @@ def get_path(f, wall_locations, water_locations, robot_location, items_locations
             return path
     return False
 
-def disambiguate(f_1, f_2, min_trace_length, max_trace_length, wall_locations=[], all_vars_to_consider = []):
+def disambiguate(f_1, f_2, wall_locations=[], min_trace_length = None, max_trace_legnth = None, step = None, all_vars_to_consider = []):
 
-    for tr_length in range(min_trace_length, max_trace_length+1):
+    if min_trace_length is None:
+        min_trace_length = constants.MIN_RANGE_DISAMBIGUATION
+    if max_trace_legnth is None:
+        max_trace_legnth = constants.MAX_RANGE_DISAMBIGUATION
+    if step is None:
+        step = constants.STEP_DISAMBIGUATION
+
+
+    for tr_length in range(min_trace_length, max_trace_legnth, step):
         difference_formula = Formula([encodingConstants.LOR,
                                       Formula([encodingConstants.LAND, f_1, Formula([encodingConstants.LNOT, f_2])]),
                                       Formula([encodingConstants.LAND, Formula([encodingConstants.LNOT, f_1]), f_2])
@@ -54,6 +63,7 @@ def disambiguate(f_1, f_2, min_trace_length, max_trace_length, wall_locations=[]
 
         # if tr_length > 8:
         #     pdb.set_trace()
+
         disambiguation = get_finite_witness(f = difference_formula, trace_length=tr_length, wall_locations = wall_locations)
 
         if disambiguation == "unsat":
@@ -115,7 +125,7 @@ def main():
 
 
 
-            disambiguate(f_1, f_2, min_trace_length, max_trace_length)
+            disambiguate(f_1, f_2, min_trace_length, max_trace_length, 1)
 
 
 

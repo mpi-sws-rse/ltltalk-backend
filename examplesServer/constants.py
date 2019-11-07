@@ -27,6 +27,10 @@ MIN_COARSE_RANGE = MAX_FINE_RANGE + 1
 MAX_COARSE_RANGE = 40
 STEP_COARSE_RANGE = 4
 
+# steps when looking for disambiguation
+MIN_RANGE_DISAMBIGUATION = 3
+MAX_RANGE_DISAMBIGUATION = 30
+STEP_DISAMBIGUATION = 4
 
 
 COLORS = ["red", "green", "blue", "yellow"]
