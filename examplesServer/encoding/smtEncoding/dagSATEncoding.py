@@ -78,8 +78,7 @@ class DagSATEncoding:
     """
     def encodeFormula(self, unsatCore=True, hintVariablesWithWeights = {'p':2}):
         self.operatorsAndVariables = self.listOfOperators + self.listOfVariables
-        #print(self.operatorsAndVariables)
-        print("the hints and their weights are {}".format(hintVariablesWithWeights))
+
         self.x = { (i, o) : Bool('x_'+str(i)+'_'+str(o)) for i in range(self.formulaDepth) for o in self.operatorsAndVariables }
 
         self.l = {(parentOperator, childOperator) : Bool('l_'+str(parentOperator)+'_'+str(childOperator))\
@@ -633,6 +632,20 @@ class DagSATEncoding:
                                      )
     def reconstructWholeFormula(self, model):
         return self.reconstructFormula(self.formulaDepth-1, model)
+
+    def reconstructTable(self, model):
+
+        def getValue(row, vars):
+            tt = [k[1] for k in vars if k[0] == row and model[vars[k]] == True]
+            if len(tt) > 1:
+                raise Exception("more than one true value")
+            else:
+                return tt[0]
+
+        table = {}
+        for row in range(self.formulaDepth):
+            table[row] = getValue(row, self.x)
+        return table
 
     def reconstructFormula(self, rowId, model):
 

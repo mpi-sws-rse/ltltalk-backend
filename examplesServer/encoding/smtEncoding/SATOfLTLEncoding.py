@@ -1231,6 +1231,7 @@ class SATOfLTLEncoding:
 
 
 
+
     def reconstructWholeFormula(self, model):
         return self.reconstructFormula(self.formulaDepth-1, model)
 

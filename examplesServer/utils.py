@@ -1,6 +1,7 @@
 import constants
 import json
 import pdb
+import logging
 
 
 DEFAULT_NUM_FORMULAS = constants.NUM_CANDIDATE_FORMULAS
@@ -9,7 +10,7 @@ DEFAULT_MAX_DEPTH = constants.CANDIDATE_MAX_DEPTH
 
 def create_json_spec(file_name, emitted_events, hints, pickup_locations, all_locations, negative_sequences, num_formulas = DEFAULT_NUM_FORMULAS,
                      start_depth = DEFAULT_START_DEPTH, max_depth = DEFAULT_MAX_DEPTH):
-    print("hints when creating json file are {}".format(hints))
+    logging.debug("hints when creating json file are {}".format(hints))
     with open(file_name, "w") as exampleJsonFile:
         example_info = {}
         literals = constants.STATE_EVENTS

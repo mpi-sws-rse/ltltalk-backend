@@ -49,7 +49,7 @@ def main():
         (emitted_events, pickup_locations, collection_of_negative, all_locations) = test_world.execute_and_emit_events(sequence_of_actions)
 
 
-        utterance = "stay dry until picking one red from [7,4]"
+        utterance = "get one triangle from [4,0] and then one item from [11,1]"
         hints = nlp_helpers.get_hints_from_utterance(utterance)
         pdb.set_trace()
         relevant_locations = nlp_helpers.get_locations_from_utterance(utterance)

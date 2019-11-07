@@ -16,6 +16,7 @@ except:
 app = Flask(__name__)
 CORS(app)
 app.logger.setLevel(logging.DEBUG)
+logging.getLogger().setLevel(logging.INFO)
 
 
 @app.route('/')

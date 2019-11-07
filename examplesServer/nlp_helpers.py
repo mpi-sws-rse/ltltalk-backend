@@ -4,6 +4,7 @@ nltk.download('punkt')
 nltk.download('wordnet')
 import re
 import pdb
+import logging
 
 
 from nltk.tokenize import word_tokenize
@@ -67,7 +68,7 @@ of individual subwords. --->  SHOULD BE REPLACED BY SOMETHING BETTER
             score = score / (len(list_of_descriptors) + len(utterance_tokens))
         except:
             score = 0
-        print("assigning score of {} to prop_var {}".format(score, prop_variable))
+        logging.debug("assigning score of {} to prop_var {}".format(score, prop_variable))
         scores[prop_variable] = score
 
 

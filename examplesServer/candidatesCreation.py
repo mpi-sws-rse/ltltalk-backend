@@ -20,6 +20,7 @@ def create_candidates(nl_utterance, context, example):
         example)
 
     hints = nlp_helpers.get_hints_from_utterance(nl_utterance)
+
     relevant_locations = nlp_helpers.get_locations_from_utterance(nl_utterance)
 
 
