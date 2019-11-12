@@ -1,6 +1,7 @@
 from z3 import *
 import pdb
 import logging
+import constants
 try:
     from utils.SimpleTree import SimpleTree, Formula
     import constants
@@ -26,19 +27,32 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
     maxSolutionsPerDepth = maxSolutionsPerDepth
     solutionsPerDepth = 0
     num_attemts = 0
+    num_attemts_per_depth = 0
     while len(results) <= maxNumModels and i < finalDepth:
+        num_attemts_per_depth += 1
         num_attemts += 1
         logging.info("ATTEMPT {}, running solver for depth = {}".format(num_attemts,i))
+
+        if num_attemts_per_depth > constants.NUM_ATTEMPTS_PER_DEPTH:
+            num_attemts_per_depth = 0
+            i += step
+            fg = encoder(i, traces, literals=literals)
+            fg.encodeFormula(hintVariablesWithWeights=traces.hints_with_weights)
+            logging.info("enough attempts for depth {0}".format(i))
+
+
         solverRes = fg.solver.check()
         if not solverRes == sat:
             logging.info("not sat for i = {}".format(i))
             #pdb.set_trace()
             i += step
             solutionsPerDepth = 0
+            num_attemts_per_depth = 0
             fg = encoder(i, traces, literals=literals)
             fg.encodeFormula(hintVariablesWithWeights=traces.hints_with_weights)
 
         else:
+
 
             solverModel = fg.solver.model()
 
@@ -94,6 +108,7 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
                 logging.info("enough solutions for depth {0}".format(i))
                 i += step
                 solutionsPerDepth = 0
+                num_attemts_per_depth = 0
                 fg = encoder(i, traces, literals=literals)
                 fg.encodeFormula(hintVariablesWithWeights=traces.hints_with_weights)
 
