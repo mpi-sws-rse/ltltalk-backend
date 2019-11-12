@@ -275,7 +275,7 @@ class DagSATEncoding:
     def roughGrammarRestrictions(self):
 
         for i in range(self.formulaDepth):
-            # left operator of U, E, G, F, B may only be a propositional variable
+            # left operator of U, E, G, F, B may only be a literal
             allowedLeft =  self.listOfVariables + [k for k in [encodingConstants.LNOT] if k in self.listOfOperators]
 
 
@@ -297,7 +297,7 @@ class DagSATEncoding:
                         ])
                     )
 
-            # right operator of U, G, F, B may only be a propositional variable
+            # right operator of U, G, F, B may only be a literal
             allowedRight = self.listOfVariables + [k for k in [encodingConstants.LNOT] if k in self.listOfOperators]
             for op in [encodingConstants.UNTIL, encodingConstants.G, encodingConstants.F]:
                 if op in self.listOfOperators:
