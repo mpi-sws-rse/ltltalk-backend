@@ -119,3 +119,21 @@ at [7,4], one square (yellow) at [11,1] and two triangles (red, green) at [10,8]
 
   * Get two red items with circle or square shaped from location [9,4] then move 3 steps downward and step in water tile
        (` ((F(picked_2_red_square_[9,4]) | F(picked_2_red_circle_[9,4])) & F(at_[9,1])) & E(at_wet)`)
+       
+## LTL tasks
+- step into water and then visit [7,4]
+- be dry until reaching [10,8]
+- bring one green from [7,4] to [3,4]
+- take all green from [7,4] to water
+- pick two triangle from [4,0]
+- get one triangle from [4,0] and then one item from [11,1]
+- get one item from [4,0] and one from [7,4]  and in the 
+process never step on a water tile:  **choking here, thinking of ways to
+ improve. PROBLEM: formula size is too big and I am searching first over 
+ the space of smaller formulas. ANOTHER PROBLEM: if searching through 
+ bigger formulas, it finds many equivalent ones, resulting in searching 
+ forever**
+- get one green and one blue item from [7,4] **at the moment, this one
+ too takes too long because the formula is of depth 5 and there is not
+  good enough symmetry breaking**
+
