@@ -84,11 +84,14 @@
 
 # formulas - much simplified grammar
 (rule $A ($Var) (IdentityFn) (anchored true))
+(rule $A ( { $A } ) (IdentityFn) (anchored true))
 
+(rule $B ( { $B } ) (IdentityFn) (anchored true))
 
 
 (rule $B ($A) (IdentityFn) (anchored true))
 (rule $A (neg $A) (lambda p (:neg (var p))) (anchored true))
+(rule $B ($B and $B) (lambda p (lambda q (:and (var p) (var q)))) (anchored true))
 
 (rule $B (eventually $A) (lambda p (:eventually (var p))) (anchored true))
 (rule $B
@@ -109,7 +112,7 @@
      )
     (anchored true)
 )
-(rule $A ( { $A } ) (IdentityFn) (anchored true))
+
 (rule $f ($B) (IdentityFn) (anchored true))
 
 (rule $f ( { $f } ) (IdentityFn) (anchored true))
