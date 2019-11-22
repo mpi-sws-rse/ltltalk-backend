@@ -233,6 +233,7 @@ class World:
         return num_items
 
     def execute_and_emit_events(self, sequence_of_actions):
+
         new_sequence_of_actions = []
         for event, next_event in zip(sequence_of_actions, sequence_of_actions[1:]):
             if event[0] == constants.PICK and next_event[0] == constants.PICK:
@@ -311,9 +312,10 @@ class World:
                     collection_of_negative_events.append(forked_events)
 
             # merge position events to the next pick action (they will be mentioned there)
-            if idx < len(sequence_of_actions) - 1:
-                    if sequence_of_actions[idx+1][0] == constants.PICK and sequence_of_actions[idx][0] == constants.MOVE:
-                        continue
+            # I am not sure why this was necessary. At the moment it doesn't seem to be, commenting out
+            # if idx < len(sequence_of_actions) - 1:
+            #         if sequence_of_actions[idx+1][0] == constants.PICK and sequence_of_actions[idx][0] == constants.MOVE:
+            #             continue
 
             events.append(action_events)
         collection_of_negative_events.append(events[:-1])
