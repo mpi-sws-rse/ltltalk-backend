@@ -1,5 +1,6 @@
 import pdb
 import re
+import logging
 try:
     from encoding import encodingConstants
     from ... import constants
@@ -244,8 +245,8 @@ class Formula(SimpleTree):
             #logging.debug(tree.pretty())
             
         except Exception as e:
-            logging.debug("can't parse formula %s" %formulaText)
-            logging.debug("error: %s" %e)
+            logging.error("can't parse formula %s" %formulaText)
+            logging.error("error: %s" %e)
             
         
         f = TreeToFormula().transform(tree)

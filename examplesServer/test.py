@@ -26,8 +26,8 @@ def main():
     with open("temp.json") as world_file:
         w = json.load(world_file)
         test_world = World(w, json_type=2)
-        logging.debug(test_world)
-        
+
+
 
 
 
@@ -63,7 +63,7 @@ def main():
 
         atLocationsHints = {"at_{}_{}".format(loc[0], loc[1]) :middleValue for loc in relevant_locations}
         hintsWithLocations.update(atLocationsHints)
-        logging.debug(hintsWithLocations)
+
         create_json_spec(file_name="data/exampleWithHints.json", emitted_events=emitted_events, hints = hintsWithLocations,
                          pickup_locations=pickup_locations, all_locations=all_locations, negative_sequences=collection_of_negative)
 

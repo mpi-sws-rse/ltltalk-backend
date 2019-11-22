@@ -1,4 +1,5 @@
 import pdb
+import logging
 try:
     from utils.SimpleTree import SimpleTree
 except:
@@ -12,9 +13,9 @@ def test_basic():
     
     
     
-    logging.debug(root)
-    logging.debug(root.getAllLabels())
-    logging.debug(root.getAllNodes())
+    logging.info(root)
+    logging.info(root.getAllLabels())
+    logging.info(root.getAllNodes())
 
     
 

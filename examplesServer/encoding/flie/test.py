@@ -15,7 +15,7 @@ def main():
                  ])
 
     normalized = Formula.normalize(f)
-    logging.debug(normalized)
+
 
 if __name__ == '__main__':
     main()

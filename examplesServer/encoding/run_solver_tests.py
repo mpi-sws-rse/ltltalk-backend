@@ -76,7 +76,7 @@ def disambiguate(f_1, f_2, wall_locations=[], min_trace_length = None, max_trace
                     "looking for witness of satisfiability, but got a trace {} that is not a model for {}".format(
                         disambiguation_example, difference_formula))
 
-            logging.debug("init world is {}".format(init_world))
+
             w = World(worldDescriptionJson = init_world, json_type=1)
             logging.debug("the distinguishing sequence of actions is {}".format(path))
             # emitted_path = w.execute_and_emit_events(path)

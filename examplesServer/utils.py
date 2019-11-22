@@ -48,7 +48,7 @@ def convert_path_to_formatted_path(disambiguation_path, disambiguation_world):
                            })
 
     for step in disambiguation_path:
-        logging.debug("step is {}".format(step))
+
 
         if step[0] == "move":
             disambiguation_world.move(step[1])
@@ -60,7 +60,7 @@ def convert_path_to_formatted_path(disambiguation_path, disambiguation_world):
                                    "possible": "true"
                                    })
         elif step[0] == constants.PASS:
-            logging.debug("============== pass =============")
+
             formatted_path.append({"action": "path",
                                    "x": disambiguation_world.robot_position[0],
                                    "y": disambiguation_world.robot_position[1],

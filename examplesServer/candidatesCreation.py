@@ -144,7 +144,7 @@ def create_disambiguation_example(candidates, wall_locations = []):
                 candidates.remove(candidate_2)
             else:
                 candidates.remove(candidate_1)
-            logging.debug("will call now disambiguation for candidates {}".format(candidates))
+
             return create_disambiguation_example(candidates, wall_locations)
         else:
             status = "indoubt"

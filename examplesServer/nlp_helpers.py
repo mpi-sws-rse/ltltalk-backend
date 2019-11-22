@@ -16,7 +16,7 @@ def get_locations_from_utterance(nl_utterance):
 
     locations = []
     for loc in locations_strings:
-        logging.debug(loc)
+
         try:
             location_pair = loc.split(',')
             locations.append((int(location_pair[0]), int(location_pair[1])))
@@ -68,7 +68,7 @@ of individual subwords. --->  SHOULD BE REPLACED BY SOMETHING BETTER
             score = score / (len(list_of_descriptors) + len(utterance_tokens))
         except:
             score = 0
-        logging.debug("assigning score of {} to prop_var {}".format(score, prop_variable))
+        #logging.debug("assigning score of {} to prop_var {}".format(score, prop_variable))
         scores[prop_variable] = score
 
 

@@ -58,7 +58,7 @@ if __name__ == "__main__":
     depGraph = DependencyGraph2
     depGraph = ModifiedReceivesDependencyGraph
     for fileName in faultyExecutions:
-        logging.debug(fileName)
+
         dgF = depGraph()
         dgF.readGraphFromPropertyFile(fileName)
         newTraces = dgF.generateTraces(maxNumberOfSolutions = args.numTracesLinearizations)
@@ -83,12 +83,12 @@ if __name__ == "__main__":
     
     for trace in correctTraces:
         if trace in faultyTraces:
-            logging.debug("problem!")
-            logging.debug(trace)
+
+
             pdb.set_trace()
     for trace in faultyTraces:
         if trace in correctTraces:
-            logging.debug("problem2!")
+
             pdb.set_trace()
     fileToWrite = args.tracesFileName
     experimentTraces.writeTracesToFile(fileToWrite)

@@ -19,10 +19,13 @@ CORS(app)
 #app.logger.setLevel(logging.INFO)
 logging.getLogger().setLevel(constants.LOGGING_LEVEL)
 
+flask_log = logging.getLogger('werkzeug')
+flask_log.setLevel(logging.ERROR)
+
 
 @app.route('/')
 def hello_world():
-    logging.debug(request.args)
+
     return "Hello world"
 
 @app.route('/get-candidate-spec')
@@ -34,7 +37,7 @@ def candidate_spec():
     sessionId = request.args.get("sessionId")
     world = World(context, json_type=2)
     wall_locations = world.get_wall_locations()
-    logging.debug(nl_utterance, world, example)
+
 
     candidates = create_candidates(nl_utterance, context, example)
 
@@ -45,7 +48,7 @@ def candidate_spec():
     elif len(candidates) == 1:
         answer["status"] = "ok"
     elif len(candidates) > 1:
-        logging.debug(candidates)
+
         answer["status"] = "indoubt"
         status, disambiguation_world, disambiguation_path, candidate_1, candidate_2, considered_candidates, disambiguation_trace = create_disambiguation_example(candidates, wall_locations)
         if not status == "indoubt":
@@ -68,7 +71,7 @@ def candidate_spec():
         answer["formatted_candidates"] = [str(c.reFormat()) for c in considered_candidates]
         answer["disambiguation-candidate-1"] = str(candidate_1)
         answer["disambiguation-candidate-2"] = str(candidate_2)
-
+    logging.info("GET-CANDIDATE-SPEC: created the candidates:\n {}".format( "\n".join(answer["candidates"]) ))
     return answer
 
 
@@ -177,5 +180,5 @@ def user_decision_update():
             answer["candidates"] = [str(f) for f in considered_candidates]
             answer["formatted_candidates"] = [str(f.reFormat()) for f in considered_candidates]
             answer["actions"] = disambiguation_path
-            logging.debug(answer)
+
             return answer

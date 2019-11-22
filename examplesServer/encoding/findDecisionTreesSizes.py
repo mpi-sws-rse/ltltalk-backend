@@ -40,7 +40,7 @@ def findDTDepth(fileName):
     overallSubs = set(overallSubs)
     overallDepth += len(overallSubs)
     overallDepth -= 1 
-    logging.debug(overallDepth, overallSubs)
+
     return overallDepth
 
 def findSizeOfTextFormula(formulaText):
@@ -80,7 +80,7 @@ def main():
                     if not formulaDepth == "/":                    
                         writer.writerow([line[1], formulaDepth, dtDepth, dtDepth/(formulaDepth*1.0)])
                 except:
-                    logging.debug("failed with "+ repr(line))
+                    logging.error("failed with "+ repr(line))
     
     
     

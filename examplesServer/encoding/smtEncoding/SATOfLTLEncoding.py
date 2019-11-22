@@ -471,7 +471,7 @@ class SATOfLTLEncoding:
 
             v_desc = self.var_combinations[v]
 
-            logging.debug("++==++== {}".format(v_desc))
+
             # emitting upon pick event
 
             # if quantity_desc == 1:
@@ -487,7 +487,7 @@ class SATOfLTLEncoding:
                 y_pos_desc = v_desc[7]
                 if quantity_desc in constants.numbersToWords:
                     quantity_desc = constants.numbersToWords[quantity_desc]
-                logging.debug("--==--== {}".format(v_desc))
+
                 if quantity_desc == "every":
                     goal_relation = lambda post, pre, num: And(pre > 0, post == 0)
                 else:
