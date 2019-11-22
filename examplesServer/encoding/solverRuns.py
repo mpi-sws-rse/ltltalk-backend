@@ -3,10 +3,12 @@ try:
     from smtEncoding.dagSATEncoding import DagSATEncoding
     from smtEncoding.SATOfLTLEncoding import SATOfLTLEncoding
     import encodingConstants
+    from . import constants
 except:
     from encoding.smtEncoding.dagSATEncoding import DagSATEncoding
     from encoding.smtEncoding.SATOfLTLEncoding import SATOfLTLEncoding
     from encoding import encodingConstants
+    import constants
 
 from pytictoc import TicToc
 try:
@@ -65,7 +67,7 @@ def get_finite_witness(f, trace_length=5, operators=[encodingConstants.G, encodi
     else:
         # logging.debug(solverRes)
         # pdb.set_trace()
-        if logging.root.getEffectiveLevel() == logging.DEBUG:
+        if constants.DEBUG_UNSAT_CORE is True:
             filename = "debug_files/unsatCore"
             os.makedirs(os.path.dirname(filename), exist_ok=True)
             with open(filename, "w") as unsat_core_file:

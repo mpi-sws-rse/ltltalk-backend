@@ -1,4 +1,5 @@
 from encoding import encodingConstants
+import logging
 
 UP = "up"
 DOWN = "down"
@@ -90,3 +91,6 @@ NUM_ATTEMPTS_PER_DEPTH = NUM_CANDIDATE_FORMULAS_OF_SAME_DEPTH + 2
 
 CANDIDATE_START_DEPTH = 2
 CANDIDATE_MAX_DEPTH = 6
+
+DEBUG_UNSAT_CORE = False
+LOGGING_LEVEL = logging.DEBUG

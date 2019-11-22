@@ -6,6 +6,7 @@ from world import World
 from candidatesCreation import create_candidates, update_candidates, create_disambiguation_example, create_path_from_formula
 from utils import convert_path_to_formatted_path, unwind_actions
 import logging
+import constants
 
 try:
     from utils.SimpleTree import Formula
@@ -15,8 +16,8 @@ except:
 
 app = Flask(__name__)
 CORS(app)
-app.logger.setLevel(logging.DEBUG)
-logging.getLogger().setLevel(logging.INFO)
+#app.logger.setLevel(logging.INFO)
+logging.getLogger().setLevel(constants.LOGGING_LEVEL)
 
 
 @app.route('/')
@@ -112,8 +113,8 @@ def debug_disambiguation():
     converted_candidates = [Formula.convertTextToFormula(c) for c in candidates]
     status, disambiguation_world, disambiguation_path, candidate_1, candidate_2, considered_candidates, disambiguation_trace = create_disambiguation_example(
         converted_candidates, wall_locations=wall_locations)
-    logging.debug(status, disambiguation_path)
-    logging.debug(disambiguation_world)
+    logging.debug("status is {}, disambiguation path is {}".format(status, disambiguation_path))
+    logging.debug("disambiguation world is {}".format(disambiguation_world))
     answer = {}
     answer["status"] = status
     answer["path"] = disambiguation_path

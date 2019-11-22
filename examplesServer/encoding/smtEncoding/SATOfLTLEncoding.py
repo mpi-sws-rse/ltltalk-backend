@@ -43,7 +43,7 @@ except:
     NUMBERS_CODES = TwoWayDict({1: "one", 2: "two", 3: "three", -1: "every"})
 
 
-DEBUG_UNSAT_CORE = False
+DEBUG_UNSAT_CORE = constants.DEBUG_UNSAT_CORE
 #DEBUG_UNSAT_CORE = True
 
 

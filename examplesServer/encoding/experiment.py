@@ -32,7 +32,7 @@ def start_experiment(experiment_specification, iteration_step=1):
 
     [formulas, timePassed] = run_solver(finalDepth=maxDepth, traces=traces, maxNumOfFormulas=numFormulas,
                                         startValue=startDepth, step=iteration_step, maxSolutionsPerDepth=maxSolutionsPerDepth)
-    logging.debug(formulas, timePassed)
+    logging.debug("found formulas are {} and the time needed is {}".format(formulas, timePassed))
     return formulas
 
 
