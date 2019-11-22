@@ -124,7 +124,7 @@ class Trace:
 
                 # return self.truthValue(formula.left, timestep) and not self.truthValue(formula, self.nextPos(timestep))
             elif label == encodingConstants.UNTIL:
-                #print(timestep, formula)
+                #logging.debug(timestep, formula)
                 qEventuallyTrue = max([self.truthValue(formula.right, futureTimestep) for futureTimestep in futureTracePositions]) == True
                 if qEventuallyTrue == False:
                     return False

@@ -73,7 +73,7 @@ def update_candidates(old_candidates, path, decision, world, actions):
     converted_path = unwind_actions(actions)
 
 
-    print(converted_path)
+    logging.debug(converted_path)
 
 
 
@@ -86,25 +86,25 @@ def update_candidates(old_candidates, path, decision, world, actions):
         old_candidate_formulas.append(f)
         all_relevant_literals += f.getAllVariables()
     all_relevant_literals = list(set(all_relevant_literals))
-    # print("emitted events are {}".format(emitted_events))
-    # print("+-+-------------- all relevant literals are {}".format(all_relevant_literals))
+    # logging.debug("emitted events are {}".format(emitted_events))
+    # logging.debug("+-+-------------- all relevant literals are {}".format(all_relevant_literals))
 
 
     trace = Trace.create_trace_from_events_list(emitted_events, literals_to_consider=all_relevant_literals)
 
 
 
-    # print("+++++++++++++++++=======================\n elimination trace is {}".format(trace))
-    # print("desired formula value is {}".format(formula_value))
+    # logging.debug("+++++++++++++++++=======================\n elimination trace is {}".format(trace))
+    # logging.debug("desired formula value is {}".format(formula_value))
 
     for f in old_candidate_formulas:
 
         if trace.evaluateFormulaOnTrace(f) == formula_value:
             collection_of_candidates.append(str(f))
             collection_of_formulas.append(f)
-            print("candidate {} was retained".format(f))
+            logging.debug("candidate {} was retained".format(f))
         else:
-            print("candidate {} was eliminated".format(f))
+            logging.debug("candidate {} was eliminated".format(f))
 
 
 
@@ -119,7 +119,7 @@ def create_path_from_formula(f, wall_locations, water_locations, robot_position,
 
 
 def create_disambiguation_example(candidates, wall_locations = []):
-    print("creating disambiguation examples for candidates {}".format(candidates))
+    logging.debug("creating disambiguation examples for candidates {}".format(candidates))
     w = None
     path = None
     candidate_1 = None
@@ -144,7 +144,7 @@ def create_disambiguation_example(candidates, wall_locations = []):
                 candidates.remove(candidate_2)
             else:
                 candidates.remove(candidate_1)
-            print("will call now disambiguation for candidates {}".format(candidates))
+            logging.debug("will call now disambiguation for candidates {}".format(candidates))
             return create_disambiguation_example(candidates, wall_locations)
         else:
             status = "indoubt"

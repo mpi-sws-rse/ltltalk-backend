@@ -17,7 +17,7 @@ class StateOfNodesDependencyGraph:
         
     def readGraphFromPropertyFile(self, propertyFileName):
         self.labelsToIds = {}
-        print(propertyFileName)
+        logging.debug(propertyFileName)
         with open(propertyFileName) as propertyFile:
             for line in propertyFile:
                 line = line.replace("=", ": ")
@@ -92,7 +92,7 @@ class StateOfNodesDependencyGraph:
         allStates += [ (machineId, ev) for machineId in range(self.numMachines) for ev in ["crash", "end"]]
         
         allStates = sorted(allStates)
-        print({idx: allStates[idx] for idx in range(len(allStates))})
+        logging.debug({idx: allStates[idx] for idx in range(len(allStates))})
         
         for solution in allSolutions:
             trace = [[0 for _ in range(len(allStates))] for _ in range(self.lengthOfTrace)]

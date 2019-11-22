@@ -25,7 +25,7 @@ def run(encoder):
     
     for testFileName in allFiles:
         foundSat = False
-        print(testFileName)
+        logging.debug(testFileName)
         if '~' in testFileName:
             continue
         
@@ -33,7 +33,7 @@ def run(encoder):
         
         traces = ExperimentTraces()
         traces.readTracesFromFile(testFileName)
-        print(traces)
+        logging.debug(traces)
         
         if traces.depthOfSolution == None or traces.depthOfSolution < 0:
             finalDepth = maxDepth
@@ -48,23 +48,23 @@ def run(encoder):
                 debugFile.write(repr(fg.solver))
             if fg.solver.check() == sat:
                 foundSat = True
-                print("depth %d: sat"%i)
+                logging.debug("depth %d: sat"%i)
                 m = fg.solver.model()
                 with open('log/model.txt', 'w+') as debugFile:
                     debugFile.write(repr(m))
                 
                 formula = fg.reconstructWholeFormula(m)
-                print(formula)
+                logging.debug(formula)
                 assert(traces.isFormulaConsistent(formula))
                 break
             elif fg.solver.check() == unsat:
-                print("depth %d: unsat"% i)
+                logging.debug("depth %d: unsat"% i)
                 
                 
             else:
                 assert(False)
         if foundSat == False:
-            print("unsat even after reaching max depth")
+            logging.debug("unsat even after reaching max depth")
             assert(traces.isFormulaConsistent(None))
                     
 if __name__ == "__main__":

@@ -17,7 +17,7 @@ class ReceivesDependencyGraph:
         
     def readGraphFromPropertyFile(self, propertyFileName):
         self.labelsToIds = {}
-        print(propertyFileName)
+        logging.debug(propertyFileName)
         with open(propertyFileName) as propertyFile:
             for line in propertyFile:
                 line = line.replace("=", ": ")
@@ -83,7 +83,7 @@ class ReceivesDependencyGraph:
         
         
         allStates = { allStates[i] : i for i in range(len(allStates)) }
-        print(allStates)
+        logging.debug(allStates)
         for solution in allSolutions:
             trace = [[0 for _ in range(len(allStates))] for _ in range(self.lengthOfTrace)]
             

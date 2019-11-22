@@ -17,7 +17,7 @@ class AlternativeReceives:
         
     def readGraphFromPropertyFile(self, propertyFileName):
         self.labelsToIds = {}
-        print(propertyFileName)
+        logging.debug(propertyFileName)
         with open(propertyFileName) as propertyFile:
             for line in propertyFile:
                 line = line.replace("=", ": ")
@@ -83,15 +83,15 @@ class AlternativeReceives:
         
         
         allStates = { allStates[i] : i for i in range(len(allStates)) }
-        #print(self.labelsToIds)
-       # print(allStates)
+        #logging.debug(self.labelsToIds)
+       # logging.debug(allStates)
         for solution in allSolutions:
             trace = [[0 for _ in range(len(allStates))] for _ in range(self.lengthOfTrace)]
             
             for p in propositions:
                 el = propositions[p]
                 try:
-                    #print("setting 1 to [%d][%d]"%(int(solution[el].as_string()), propositionToEvent(p, allStates) ))
+                    #logging.debug("setting 1 to [%d][%d]"%(int(solution[el].as_string()), propositionToEvent(p, allStates) ))
                     trace[int(solution[el].as_string())][propositionToEvent(p, allStates)] = 1
                 except:
                     pdb.set_trace()

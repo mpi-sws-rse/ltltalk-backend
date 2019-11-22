@@ -46,7 +46,7 @@ def isExecutionFaulty(fileName):
         maxVotes = max(leaderVotes.values())
         if maxVotes < len(leaderVotes.keys()):
         #if maxVotes == len(leaderVotes.keys()) and (leaderVotes[1] > 0 or leaderVotes[0] > 0):
-            #print(leaderVotes)
+            #logging.debug(leaderVotes)
             
             return True
         else:
@@ -60,9 +60,9 @@ def findFaults(folderContainingExperimentsResults):
         #if isNodeRestartedAfterItSentMessageToItself(file,1) == True and isExecutionFaulty(file) == False:
         if isExecutionFaulty(file) == True:
             fileNumber = file.split("/")[-2]
-            print(fileNumber)
-            print("\n")
-            #print(file)
+            logging.debug(fileNumber)
+            logging.debug("\n")
+            #logging.debug(file)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

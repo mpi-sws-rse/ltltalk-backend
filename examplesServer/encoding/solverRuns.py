@@ -63,7 +63,7 @@ def get_finite_witness(f, trace_length=5, operators=[encodingConstants.G, encodi
         (cex_trace, init_world, path) = fg.reconstructWitnessTrace(solverModel)
         return (cex_trace, init_world, path)
     else:
-        # print(solverRes)
+        # logging.debug(solverRes)
         # pdb.set_trace()
         if logging.root.getEffectiveLevel() == logging.DEBUG:
             filename = "debug_files/unsatCore"

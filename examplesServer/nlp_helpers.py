@@ -16,7 +16,7 @@ def get_locations_from_utterance(nl_utterance):
 
     locations = []
     for loc in locations_strings:
-        print(loc)
+        logging.debug(loc)
         try:
             location_pair = loc.split(',')
             locations.append((int(location_pair[0]), int(location_pair[1])))

@@ -68,7 +68,7 @@ class ModifiedReceivesDependencyGraph:
         allSolutions = []
         propositions = { node.eventId : z3.Int(repr(node.eventId)) for node in self.nodes }
         
-        #print("number of propositions = %d" % len(propositions))
+        #logging.debug("number of propositions = %d" % len(propositions))
         sol = z3.Solver()
         self.lengthOfTrace = self.lengthOfLongestChain + 4
         
@@ -103,10 +103,10 @@ class ModifiedReceivesDependencyGraph:
         
         allStatesDict = { allStates[i] : i for i in range(len(allStates)) }
         allStatesReverseDict = {i : allStates[i] for i in range(len(allStates))}
-        print(allStatesReverseDict)
-        #print(self.labelsToIds)
-       # print(allStates)
-        #print(propositions)
+        logging.debug(allStatesReverseDict)
+        #logging.debug(self.labelsToIds)
+       # logging.debug(allStates)
+        #logging.debug(propositions)
         
         for solution in allSolutions:
             trace = [[0 for _ in range(len(allStatesDict))] for _ in range(self.lengthOfTrace)]
@@ -115,7 +115,7 @@ class ModifiedReceivesDependencyGraph:
             for p in propositions:
                 el = propositions[p]
                 try:
-                    #print("setting 1 to [%d][%d]"%(int(solution[el].as_string()), propositionToEvent(p, allStates) ))
+                    #logging.debug("setting 1 to [%d][%d]"%(int(solution[el].as_string()), propositionToEvent(p, allStates) ))
                     
                     # trace [moment][prop]
                     desc = self.idToNodes[p].label
@@ -126,8 +126,8 @@ class ModifiedReceivesDependencyGraph:
                     trace[int(solution[el].as_string())][propositionToEvent(p, allStatesDict)] = 1
                 except:
                     pdb.set_trace()
-#             print("-----------")
-#             print(illustrationTrace)
+#             logging.debug("-----------")
+#             logging.debug(illustrationTrace)
             #pdb.set_trace()
             traces.append(trace)
         

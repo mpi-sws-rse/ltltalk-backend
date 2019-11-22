@@ -21,7 +21,7 @@ logging.getLogger().setLevel(logging.INFO)
 
 @app.route('/')
 def hello_world():
-    print(request.args)
+    logging.debug(request.args)
     return "Hello world"
 
 @app.route('/get-candidate-spec')
@@ -33,7 +33,7 @@ def candidate_spec():
     sessionId = request.args.get("sessionId")
     world = World(context, json_type=2)
     wall_locations = world.get_wall_locations()
-    print(nl_utterance, world, example)
+    logging.debug(nl_utterance, world, example)
 
     candidates = create_candidates(nl_utterance, context, example)
 
@@ -44,16 +44,16 @@ def candidate_spec():
     elif len(candidates) == 1:
         answer["status"] = "ok"
     elif len(candidates) > 1:
-        print(candidates)
+        logging.debug(candidates)
         answer["status"] = "indoubt"
         status, disambiguation_world, disambiguation_path, candidate_1, candidate_2, considered_candidates, disambiguation_trace = create_disambiguation_example(candidates, wall_locations)
         if not status == "indoubt":
             answer[status] = status
             return answer
-        print("disambiguation world is {}, disambiguation path is {} for candidate1 = {} and candidate2 = {}".format(disambiguation_world, disambiguation_path, candidate_1, candidate_2))
+        logging.debug("disambiguation world is {}, disambiguation path is {} for candidate1 = {} and candidate2 = {}".format(disambiguation_world, disambiguation_path, candidate_1, candidate_2))
         answer["world"] = disambiguation_world.export_as_json()
         formatted_path = convert_path_to_formatted_path(disambiguation_path, disambiguation_world)
-        print("formatted path is {}".format(formatted_path))
+        logging.debug("formatted path is {}".format(formatted_path))
         answer["path"] = formatted_path
         answer["actions"] = disambiguation_path
         answer["query"] = nl_utterance
@@ -112,8 +112,8 @@ def debug_disambiguation():
     converted_candidates = [Formula.convertTextToFormula(c) for c in candidates]
     status, disambiguation_world, disambiguation_path, candidate_1, candidate_2, considered_candidates, disambiguation_trace = create_disambiguation_example(
         converted_candidates, wall_locations=wall_locations)
-    print(status, disambiguation_path)
-    print(disambiguation_world)
+    logging.debug(status, disambiguation_path)
+    logging.debug(disambiguation_world)
     answer = {}
     answer["status"] = status
     answer["path"] = disambiguation_path
@@ -176,5 +176,5 @@ def user_decision_update():
             answer["candidates"] = [str(f) for f in considered_candidates]
             answer["formatted_candidates"] = [str(f.reFormat()) for f in considered_candidates]
             answer["actions"] = disambiguation_path
-            print(answer)
+            logging.debug(answer)
             return answer

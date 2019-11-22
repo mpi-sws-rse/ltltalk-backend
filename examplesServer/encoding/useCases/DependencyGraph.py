@@ -35,7 +35,7 @@ class DependencyGraph:
                     try:
                         newNode.addPredecessor(self.idToNodes[self.lastActionByNode[infoStringYaml["nodeId"]]])
                     except Exception as e:
-                        print(e)                                        
+                        logging.debug(e)
                     self.addANode(newNode)
     
         self.lengthOfLongestChain = max( [ node.positionInChain for node in self.nodes ] ) + 1
@@ -53,7 +53,7 @@ class DependencyGraph:
         allEvents = [("message", i, j) for i in range(self.numMachines) for j in range(self.numMachines)]        
         allEvents += [("nodeRestart", i) for i in range(self.numMachines)]
         allEvents = { allEvents[i] : i for i in range(len(allEvents)) }
-        print(allEvents)
+        logging.debug(allEvents)
         propositions = { node.eventId : z3.Int(repr(node.eventId)) for node in self.nodes }
         sol = z3.Solver()
         for node in self.nodes:

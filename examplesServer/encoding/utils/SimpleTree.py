@@ -241,11 +241,11 @@ class Formula(SimpleTree):
         
             
             tree = formula_parser.parse(formulaText)
-            #print(tree.pretty())
+            #logging.debug(tree.pretty())
             
         except Exception as e:
-            print("can't parse formula %s" %formulaText)
-            print("error: %s" %e)
+            logging.debug("can't parse formula %s" %formulaText)
+            logging.debug("error: %s" %e)
             
         
         f = TreeToFormula().transform(tree)

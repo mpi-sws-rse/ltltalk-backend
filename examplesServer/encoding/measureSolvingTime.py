@@ -50,7 +50,7 @@ def test_run(encoder, outputFile, outputFolder, testTracesFolder, solvingTimeout
             comment = ""
             q = Queue()
             qDT = Queue()
-            print(testFileName)
+            logging.debug(testFileName)
             if '~' in testFileName:
                 continue
             
@@ -74,7 +74,7 @@ def test_run(encoder, outputFile, outputFolder, testTracesFolder, solvingTimeout
                 p.terminate()
                  
                 while p.exitcode == None:
-                    print("going to sleep")
+                    logging.debug("going to sleep")
                     time.sleep(1)
                 if p.exitcode == 0:
                     [formula, timePassed] = q.get()
@@ -93,7 +93,7 @@ def test_run(encoder, outputFile, outputFolder, testTracesFolder, solvingTimeout
                 
                 subsetSize = config.DT_SUBSET_SIZE
                 treeRepresentationFile = outputFolder+os.path.basename(testFileName).split('.')[0]+"_tree.txt"
-                print(treeRepresentationFile)
+                logging.debug(treeRepresentationFile)
                 p = Process(target = run_dt_solver, args = (traces, subsetSize, treeRepresentationFile, dtStrategy, dtDecreaseRate,\
                                                             dtRepetitions, dtRestarts, qDT))
                 #run_dt_solver(testFileName, subsetSize, treeRepresentationFile, dtStrategy, dtDecreaseRate, dtRepetitions, dtRestarts)

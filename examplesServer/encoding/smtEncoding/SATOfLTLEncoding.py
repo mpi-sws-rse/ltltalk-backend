@@ -471,7 +471,7 @@ class SATOfLTLEncoding:
 
             v_desc = self.var_combinations[v]
 
-            print("++==++== {}".format(v_desc))
+            logging.debug("++==++== {}".format(v_desc))
             # emitting upon pick event
 
             # if quantity_desc == 1:
@@ -487,7 +487,7 @@ class SATOfLTLEncoding:
                 y_pos_desc = v_desc[7]
                 if quantity_desc in constants.numbersToWords:
                     quantity_desc = constants.numbersToWords[quantity_desc]
-                print("--==--== {}".format(v_desc))
+                logging.debug("--==--== {}".format(v_desc))
                 if quantity_desc == "every":
                     goal_relation = lambda post, pre, num: And(pre > 0, post == 0)
                 else:
@@ -500,7 +500,7 @@ class SATOfLTLEncoding:
                 #
                 # if not DEBUG_UNSAT_CORE:
                 #     for c in COLORS:
-                #         print("adding soft")
+                #         logging.debug("adding soft")
                 #         for s in SHAPES:
                 #             for t in range(self.traceLength-1):
                 #                 self.solver.add_soft(
@@ -1153,7 +1153,7 @@ class SATOfLTLEncoding:
                 else:
                     self.solver.add(condition)
 
-                #print(condition)
+                #logging.debug(condition)
 
             # p strictly before q
             elif subf.label == encodingConstants.STRICTLY_BEFORE:
@@ -1389,6 +1389,6 @@ class SATOfLTLEncoding:
 
         generatedTrace = Trace(witnessTraceVector,  literals=self.listOfVariables)
         #logging.info("distinguishing sequence of actions is {}, witness trace vector is {}".format(actionWitnessVector, witnessTraceVector))
-        print("++++++++++++++++++distinguishing sequence of actions is {}, witness trace vector is {}".format(actionWitnessVector,
+        logging.debug("++++++++++++++++++distinguishing sequence of actions is {}, witness trace vector is {}".format(actionWitnessVector,
                                                                                                    witnessTraceVector))
         return (generatedTrace, world, actionWitnessVector)

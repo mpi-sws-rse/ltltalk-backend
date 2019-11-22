@@ -12,9 +12,9 @@ def test_basic():
     
     
     
-    print(root)
-    print(root.getAllLabels())
-    print(root.getAllNodes())
+    logging.debug(root)
+    logging.debug(root.getAllLabels())
+    logging.debug(root.getAllNodes())
 
     
 

@@ -179,7 +179,7 @@ class TreeSATEncoding:
             self.solver.add(Implies(possibleOperators[operator], leftChildNoneConnector == False))
             self.solver.add(Implies(possibleOperators[operator], rightChildNoneConnector == True))
         else:
-            print("arityOfOperatorRestrictions: unsupported arity -"+str(arity))
+            logging.debug("arityOfOperatorRestrictions: unsupported arity -"+str(arity))
 
 
         

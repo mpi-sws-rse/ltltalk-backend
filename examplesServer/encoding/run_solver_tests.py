@@ -70,24 +70,24 @@ def disambiguate(f_1, f_2, wall_locations=[], min_trace_length = None, max_trace
             continue
         else:
             (disambiguation_example, init_world, path) = disambiguation
-            print("+=+=+=++++ disambiguation example is {}".format(disambiguation_example))
+            logging.debug("+=+=+=++++ disambiguation example is {}".format(disambiguation_example))
             if disambiguation_example.evaluateFormulaOnTrace(difference_formula) == False:
                 raise RuntimeError(
                     "looking for witness of satisfiability, but got a trace {} that is not a model for {}".format(
                         disambiguation_example, difference_formula))
 
-            print("init world is {}".format(init_world))
+            logging.debug("init world is {}".format(init_world))
             w = World(worldDescriptionJson = init_world, json_type=1)
-            print("the distinguishing sequence of actions is {}".format(path))
+            logging.debug("the distinguishing sequence of actions is {}".format(path))
             # emitted_path = w.execute_and_emit_events(path)
-            # print("+=+=+=++++ emitted path is is {}".format(emitted_path))
+            # logging.debug("+=+=+=++++ emitted path is is {}".format(emitted_path))
 
-            print("distinguishing between {} and {}".format(f_1, f_2))
-            print("the initial world is {}".format(w))
+            logging.debug("distinguishing between {} and {}".format(f_1, f_2))
+            logging.debug("the initial world is {}".format(w))
 
 
-            print("the distinguishing traces are {}".format(disambiguation_example))
-            print("\n\n====\n\n")
+            logging.debug("the distinguishing traces are {}".format(disambiguation_example))
+            logging.debug("\n\n====\n\n")
             return w, path, disambiguation_example
     logging.error("Could not find a path disambiguating between {} and {}".format(f_1, f_2))
     return None, None, None

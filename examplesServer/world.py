@@ -1,6 +1,7 @@
 import pdb
 import constants
 from collections import defaultdict
+import logging
 
 class World:
     def __init__(self, worldDescriptionJson, json_type = 0):
@@ -287,7 +288,7 @@ class World:
             elif action[0] == constants.PICK:
                 pickup_locations.append(self.robot_position)
                 old_field_items = self.items_on_the_floor[self.robot_position].copy()
-                print(old_field_items)
+                logging.debug(old_field_items)
                 old_robot_items = self.items_on_robot.copy()
                 list_of_items = [tuple(it) for it in action[1]]
                 self.pick(list_of_items)
@@ -332,7 +333,7 @@ class World:
 
         numbersToWords = {num: constants.numbersToWords[num] for num in constants.numbersToWords if
                           constants.numbersToWords[num] in constants.QUANTIFIERS}
-        print(numbersToWords)
+        logging.debug(numbersToWords)
 
         # adding what happened to items without any restrictions (on the color or the shape)
         if self._get_num_items(old_field_items) > 0 and self._get_num_items(new_field_items) == 0:
