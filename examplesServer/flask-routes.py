@@ -20,6 +20,11 @@ from flask import session
 
 
 app = Flask(__name__)
+
+# in order for using sessions, I had to set support_credentials to True.
+# However, with this, default CORS policy of allowing every domain was not allowed.
+# Therefore, I had to specify exact domains by setting "origins"
+# https://flask-cors.readthedocs.io/en/latest/api.html#using-cors-with-cookies
 CORS(app, origins = ["http://localhost:3000"], supports_credentials=True)
 if constants.TESTING:
     app.secret_key = "notsosecret"
@@ -96,10 +101,9 @@ def candidate_spec():
         answer["disambiguation-candidate-2"] = str(candidate_2)
 
     logging.info("GET-CANDIDATE-SPEC: created the candidates:\n {}".format( "\n".join(answer["candidates"]) ))
-    resp = make_response(answer)
-    
-    resp.set_cookie("num_questions_asked", str(num_questions_asked))
-    return resp
+
+    session["num_questions_asked"] = num_questions_asked
+    return answer
 
 
 @app.route('/get-path')
@@ -155,7 +159,7 @@ def user_decision_update():
     
     if constants.TESTING:
         try:
-            num_questions_asked = int(request.cookies["num_questions_asked"])
+            num_questions_asked = session["num_questions_asked"]
         except:
             num_questions_asked = 0
 
@@ -217,6 +221,6 @@ def user_decision_update():
             answer["formatted_candidates"] = [str(f.reFormat()) for f in considered_candidates]
             answer["actions"] = disambiguation_path
 
-            resp = make_response(answer)
-            resp.set_cookie("num_questions_asked", str(num_questions_asked))
-            return resp
+
+            session["num_questions_asked"] = num_questions_asked
+            return answer
