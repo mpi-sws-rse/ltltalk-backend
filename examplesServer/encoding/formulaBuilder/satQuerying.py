@@ -116,5 +116,7 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
                 fg = encoder(i, traces, literals=literals)
                 fg.encodeFormula(hintVariablesWithWeights=traces.hints_with_weights)
 
+    stats_log.info("number of initial candidates: {}".format(len(results)))
+    stats_log.debug("number of candidates per depth: {}".format(constants.NUM_CANDIDATE_FORMULAS_OF_SAME_DEPTH))
     stats_log.info("number of attempts to get initial candidates: {}".format(num_attemts))
     return results

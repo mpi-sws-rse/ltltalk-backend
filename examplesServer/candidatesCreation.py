@@ -25,7 +25,7 @@ def create_candidates(nl_utterance, context, example):
 
     t.tic()
     hints = nlp_helpers.get_hints_from_utterance(nl_utterance)
-    stats_log.debug("nlp hints creation time: {}".format(t.toc()))
+    stats_log.debug("nlp hints creation time: {}".format(t.tocvalue()))
 
     relevant_locations = nlp_helpers.get_locations_from_utterance(nl_utterance)
 
@@ -45,12 +45,16 @@ def create_candidates(nl_utterance, context, example):
     else:
         maxHintsWithLocations = 0
         minHintsWithLocations = 0
+
+    stats_log.debug("hints: {}".format("\n\t".join(hints)))
     middleValue = (maxHintsWithLocations + minHintsWithLocations) / 2
 
     atLocationsHints = {"at_{}_{}".format(loc[0],loc[1]): max(middleValue,1) for loc in relevant_locations}
     hintsWithLocations.update(atLocationsHints)
 
     os.makedirs("data", exist_ok=True)
+    hints_report = [ "{} --> {}".format(k, hintsWithLocations[k]) for k in hintsWithLocations ]
+    stats_log.debug("hints: \n\t{}".format("\n\t".join(hints_report)))
     create_json_spec(file_name="data/exampleWithHints.json", emitted_events=emitted_events, hints=hintsWithLocations,
                      pickup_locations=pickup_locations, all_locations=all_locations,
                      negative_sequences=collection_of_negative)

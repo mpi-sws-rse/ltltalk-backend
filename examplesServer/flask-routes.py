@@ -17,6 +17,7 @@ except:
     from encoding.utils.SimpleTree import Formula
 
 from flask import session
+from pytictoc import TicToc
 
 
 app = Flask(__name__)
@@ -44,15 +45,22 @@ def hello_world():
 
 @app.route('/get-candidate-spec')
 def candidate_spec():
-    
+
+    stats_log.info("\n======\n")
+
     answer = {}
+    t = TicToc()
+
     if constants.TESTING:
+
         num_questions_asked = 0
+        disambiguation_stats = {}
+        num_disambiguations = 0
 
 
     nl_utterance = request.args.get("query")
     example = json.loads(request.args.get("path"))
-    stats_log.debug("debug stats")
+
 
     context = json.loads(request.args.get("context"))
     sessionId = request.args.get("sessionId")
@@ -74,12 +82,21 @@ def candidate_spec():
     elif len(candidates) > 1:
 
         answer["status"] = "indoubt"
+
+        t.tic()
         status, disambiguation_world, disambiguation_path, candidate_1, candidate_2, considered_candidates, disambiguation_trace = create_disambiguation_example(candidates, wall_locations)
+        disambiguation_time = t.tocvalue()
+        num_disambiguations += 1
+        disambiguation_stats[str(num_disambiguations)] = disambiguation_time
         if not status == "indoubt":
             answer[status] = status
             if constants.TESTING:
                 stats_log.info("num questions asked to disambiguate: {}".format(num_questions_asked))
+                stats_log.info("num disambiguations: {}".format(num_disambiguations))
+                stats_log.info("average disambiguation time: {}".format(sum(disambiguation_stats.values())/len(disambiguation_stats)))
+
             return answer
+
 
 
         logging.debug("disambiguation world is {}, disambiguation path is {} for candidate1 = {} and candidate2 = {}".format(disambiguation_world, disambiguation_path, candidate_1, candidate_2))
@@ -103,6 +120,9 @@ def candidate_spec():
     logging.info("GET-CANDIDATE-SPEC: created the candidates:\n {}".format( "\n".join(answer["candidates"]) ))
 
     session["num_questions_asked"] = num_questions_asked
+    session["num_disambiguations"] = num_disambiguations
+    session["disambiguation_stats"] = disambiguation_stats
+
     return answer
 
 
@@ -156,12 +176,16 @@ def debug_disambiguation():
 
 @app.route('/user-decision-update')
 def user_decision_update():
-    
+    t = TicToc()
     if constants.TESTING:
         try:
             num_questions_asked = session["num_questions_asked"]
+            num_disambiguations = session["num_disambiguations"]
+            disambiguation_stats = session["disambiguation_stats"]
         except:
             num_questions_asked = 0
+            num_disambiguations = 0
+            disambiguation_stats = {}
 
         num_questions_asked += 1
     decision = request.args.get("decision")
@@ -189,6 +213,9 @@ def user_decision_update():
     elif len(updated_candidates) == 1:
         if constants.TESTING:
             stats_log.info("num questions asked to disambiguate: {}".format(num_questions_asked))
+            stats_log.info("num disambiguations: {}".format(num_disambiguations))
+            stats_log.info("average disambiguation time: {}".format(
+                sum(disambiguation_stats.values()) / len(disambiguation_stats)))
         answer["status"] = "ok"
         return answer
     elif len(updated_candidates) > 1:
@@ -196,14 +223,19 @@ def user_decision_update():
 
         converted_candidates = [Formula.convertTextToFormula(c) for c in updated_candidates]
 
-
+        t.tic()
         status, disambiguation_world, disambiguation_path, candidate_1, candidate_2, considered_candidates, disambiguation_trace = create_disambiguation_example(
             converted_candidates, wall_locations=wall_locations)
-
+        disambiguation_time = t.tocvalue()
+        num_disambiguations += 1
+        disambiguation_stats[str(num_disambiguations)] = disambiguation_time
         if not status == "indoubt":
             answer["status"] = status
             if status == "ok":
                 stats_log.info("num questions asked to disambiguate: {}".format(num_questions_asked))
+                stats_log.info("num disambiguations: {}".format(num_disambiguations))
+                stats_log.info("average disambiguation time: {}".format(
+                    sum(disambiguation_stats.values()) / len(disambiguation_stats)))
                 answer["candidates"] = [str(candidate_1)]
                 answer["formatted_candidates"] = [str(candidate_1.reFormat())]
             else:
@@ -223,4 +255,6 @@ def user_decision_update():
 
 
             session["num_questions_asked"] = num_questions_asked
+            session["num_disambiguations"] = num_disambiguations
+            session["disambiguation_stats"] = disambiguation_stats
             return answer
