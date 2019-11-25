@@ -1,5 +1,7 @@
 import pdb
 from flask import Flask, request
+from flask import make_response
+
 from flask_cors import CORS
 import json
 from world import World
@@ -7,20 +9,27 @@ from candidatesCreation import create_candidates, update_candidates, create_disa
 from utils import convert_path_to_formatted_path, unwind_actions
 import logging
 import constants
+from logger_initialization import stats_log
 
 try:
     from utils.SimpleTree import Formula
 except:
     from encoding.utils.SimpleTree import Formula
 
+from flask import session
+
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins = ["http://localhost:3000"], supports_credentials=True)
+if constants.TESTING:
+    app.secret_key = "notsosecret"
+
 #app.logger.setLevel(logging.INFO)
 logging.getLogger().setLevel(constants.LOGGING_LEVEL)
 
 flask_log = logging.getLogger('werkzeug')
 flask_log.setLevel(logging.ERROR)
+
 
 
 @app.route('/')
@@ -30,30 +39,44 @@ def hello_world():
 
 @app.route('/get-candidate-spec')
 def candidate_spec():
+    
+    answer = {}
+    if constants.TESTING:
+        num_questions_asked = 0
+
+
     nl_utterance = request.args.get("query")
     example = json.loads(request.args.get("path"))
+    stats_log.debug("debug stats")
 
     context = json.loads(request.args.get("context"))
     sessionId = request.args.get("sessionId")
     world = World(context, json_type=2)
     wall_locations = world.get_wall_locations()
+    stats_log.info("utterance: {}".format(nl_utterance))
 
 
     candidates = create_candidates(nl_utterance, context, example)
 
-    answer = {}
+
     answer["sessionId"] = sessionId
     if len(candidates) == 0:
         answer["status"] = "failed"
     elif len(candidates) == 1:
         answer["status"] = "ok"
+        if constants.TESTING:
+            stats_log.info("num questions asked to disambiguate: {}".format(num_questions_asked))
     elif len(candidates) > 1:
 
         answer["status"] = "indoubt"
         status, disambiguation_world, disambiguation_path, candidate_1, candidate_2, considered_candidates, disambiguation_trace = create_disambiguation_example(candidates, wall_locations)
         if not status == "indoubt":
             answer[status] = status
+            if constants.TESTING:
+                stats_log.info("num questions asked to disambiguate: {}".format(num_questions_asked))
             return answer
+
+
         logging.debug("disambiguation world is {}, disambiguation path is {} for candidate1 = {} and candidate2 = {}".format(disambiguation_world, disambiguation_path, candidate_1, candidate_2))
         answer["world"] = disambiguation_world.export_as_json()
         formatted_path = convert_path_to_formatted_path(disambiguation_path, disambiguation_world)
@@ -71,8 +94,12 @@ def candidate_spec():
         answer["formatted_candidates"] = [str(c.reFormat()) for c in considered_candidates]
         answer["disambiguation-candidate-1"] = str(candidate_1)
         answer["disambiguation-candidate-2"] = str(candidate_2)
+
     logging.info("GET-CANDIDATE-SPEC: created the candidates:\n {}".format( "\n".join(answer["candidates"]) ))
-    return answer
+    resp = make_response(answer)
+    
+    resp.set_cookie("num_questions_asked", str(num_questions_asked))
+    return resp
 
 
 @app.route('/get-path')
@@ -125,7 +152,14 @@ def debug_disambiguation():
 
 @app.route('/user-decision-update')
 def user_decision_update():
+    
+    if constants.TESTING:
+        try:
+            num_questions_asked = int(request.cookies["num_questions_asked"])
+        except:
+            num_questions_asked = 0
 
+        num_questions_asked += 1
     decision = request.args.get("decision")
     sessionId = request.args.get("sessionId")
 
@@ -145,11 +179,12 @@ def user_decision_update():
     answer["sessionId"] = sessionId
     answer["candidates"] = updated_candidates
     answer["formatted_candidates"] = [str(f.reFormat()) for f in updated_formulas]
-
     if len(updated_candidates) == 0:
         answer["status"] = "failed"
         return answer
     elif len(updated_candidates) == 1:
+        if constants.TESTING:
+            stats_log.info("num questions asked to disambiguate: {}".format(num_questions_asked))
         answer["status"] = "ok"
         return answer
     elif len(updated_candidates) > 1:
@@ -164,6 +199,7 @@ def user_decision_update():
         if not status == "indoubt":
             answer["status"] = status
             if status == "ok":
+                stats_log.info("num questions asked to disambiguate: {}".format(num_questions_asked))
                 answer["candidates"] = [str(candidate_1)]
                 answer["formatted_candidates"] = [str(candidate_1.reFormat())]
             else:
@@ -181,4 +217,6 @@ def user_decision_update():
             answer["formatted_candidates"] = [str(f.reFormat()) for f in considered_candidates]
             answer["actions"] = disambiguation_path
 
-            return answer
+            resp = make_response(answer)
+            resp.set_cookie("num_questions_asked", str(num_questions_asked))
+            return resp

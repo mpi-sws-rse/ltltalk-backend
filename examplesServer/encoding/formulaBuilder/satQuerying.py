@@ -7,7 +7,7 @@ try:
     import constants
 except:
     from encoding.utils.SimpleTree import SimpleTree, Formula
-
+from logger_initialization import stats_log
 
 
 def get_models_with_safety_restrictions(safety_restrictions, traces, final_depth, literals, encoder, operators,
@@ -28,7 +28,8 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
     solutionsPerDepth = 0
     num_attemts = 0
     num_attemts_per_depth = 0
-    while len(results) <= maxNumModels and i < finalDepth:
+
+    while len(results) < maxNumModels and i < finalDepth:
 
         num_attemts_per_depth += 1
         num_attemts += 1
@@ -115,5 +116,5 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
                 fg = encoder(i, traces, literals=literals)
                 fg.encodeFormula(hintVariablesWithWeights=traces.hints_with_weights)
 
-
+    stats_log.info("number of attempts to get initial candidates: {}".format(num_attemts))
     return results

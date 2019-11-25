@@ -13,6 +13,7 @@ except:
 
 import logging
 import json
+from logger_initialization import stats_log
 
 def helper(m, d, vars):
     tt = { k : m[vars[k]] for k in vars if k[0] == d }
@@ -32,6 +33,10 @@ def start_experiment(experiment_specification, iteration_step=1):
 
     [formulas, timePassed] = run_solver(finalDepth=maxDepth, traces=traces, maxNumOfFormulas=numFormulas,
                                         startValue=startDepth, step=iteration_step, maxSolutionsPerDepth=maxSolutionsPerDepth)
+    stats_log.info("initial candidates creation time: {}".format(timePassed))
+    stats_log.debug("number of found formulas: {}".format(len(formulas)))
+    stats_log.debug("found formulas: \n\t{}".format("\n\t".join([str(f) for f in formulas])))
+
     logging.debug("found formulas are {} and the time needed is {}".format(formulas, timePassed))
     return formulas
 

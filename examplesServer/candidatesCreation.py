@@ -12,14 +12,20 @@ import os
 import logging
 from copy import deepcopy
 import constants
+from logger_initialization import stats_log
+from pytictoc import TicToc
+
 
 def create_candidates(nl_utterance, context, example):
+    t = TicToc()
 
     test_world = World(context, json_type=2)
     (emitted_events, pickup_locations, collection_of_negative, all_locations) = test_world.execute_and_emit_events(
         example)
 
+    t.tic()
     hints = nlp_helpers.get_hints_from_utterance(nl_utterance)
+    stats_log.debug("nlp hints creation time: {}".format(t.toc()))
 
     relevant_locations = nlp_helpers.get_locations_from_utterance(nl_utterance)
 
