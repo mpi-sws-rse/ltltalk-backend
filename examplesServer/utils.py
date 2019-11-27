@@ -10,6 +10,11 @@ DEFAULT_MAX_DEPTH = constants.CANDIDATE_MAX_DEPTH
 
 def create_json_spec(file_name, emitted_events, hints, pickup_locations, all_locations, negative_sequences, num_formulas = DEFAULT_NUM_FORMULAS,
                      start_depth = DEFAULT_START_DEPTH, max_depth = DEFAULT_MAX_DEPTH):
+
+    if num_formulas is None:
+        num_formulas = DEFAULT_NUM_FORMULAS
+    if start_depth is None:
+        start_depth = DEFAULT_START_DEPTH
     logging.debug("hints when creating json file are {}".format(hints))
     with open(file_name, "w") as exampleJsonFile:
         example_info = {}

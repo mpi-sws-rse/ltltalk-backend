@@ -2,6 +2,7 @@ from z3 import *
 import pdb
 import logging
 import constants
+
 try:
     from utils.SimpleTree import SimpleTree, Formula
     import constants
@@ -11,15 +12,12 @@ from logger_initialization import stats_log
 
 
 def get_models_with_safety_restrictions(safety_restrictions, traces, final_depth, literals, encoder, operators,
-                                         start_value = 1, step=1, max_num_solutions = 10):
+                                        start_value=1, step=1, max_num_solutions=10):
     raise NotImplementedError
 
 
-
-
-
-def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumModels=1, maxSolutionsPerDepth = 1):
-
+def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumModels=1, maxSolutionsPerDepth=1,
+               testing=False):
     results = []
     i = startValue
     fg = encoder(i, traces, literals=literals)
@@ -33,7 +31,7 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
 
         num_attemts_per_depth += 1
         num_attemts += 1
-        logging.info("ATTEMPT {}, running solver for depth = {}".format(num_attemts,i))
+        logging.info("ATTEMPT {}, running solver for depth = {}".format(num_attemts, i))
 
         if num_attemts_per_depth > constants.NUM_ATTEMPTS_PER_DEPTH:
             logging.info("enough attempts for depth {0}".format(i))
@@ -43,12 +41,10 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
             fg = encoder(i, traces, literals=literals)
             fg.encodeFormula(hintVariablesWithWeights=traces.hints_with_weights)
 
-
-
         solverRes = fg.solver.check()
         if not solverRes == sat:
             logging.info("not sat for i = {}".format(i))
-            
+
             i += step
             solutionsPerDepth = 0
             num_attemts_per_depth = 0
@@ -56,7 +52,6 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
             fg.encodeFormula(hintVariablesWithWeights=traces.hints_with_weights)
 
         else:
-
 
             solverModel = fg.solver.model()
 
@@ -66,8 +61,8 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
             formula = Formula.normalize(formula)
             if not os.path.exists("debug_models/"):
                 os.makedirs("debug_models/")
-            model_filename = "debug_models/"+str(num_attemts)+".model"
-            table_filename = "debug_models/"+str(num_attemts)+".table"
+            model_filename = "debug_models/" + str(num_attemts) + ".model"
+            table_filename = "debug_models/" + str(num_attemts) + ".table"
             with open(table_filename, "w") as table_file:
                 table_file.write(str(table))
             with open(model_filename, "w") as model_file:
@@ -78,9 +73,10 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
             logging.info("normalized formula {}\n=============\n".format(formula))
             if formula not in results:
                 results.append(formula)
-                logging.info("added formula {} to the set. Currently we have {} formulas and looking for total of {}".format(formula, len(results), maxNumModels))
+                logging.info(
+                    "added formula {} to the set. Currently we have {} formulas and looking for total of {}".format(
+                        formula, len(results), maxNumModels))
                 solutionsPerDepth += 1
-
 
             if solutionsPerDepth <= maxSolutionsPerDepth:
                 logging.info("blocking the solution {} from appearing again".format(formula))
@@ -119,4 +115,7 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
     stats_log.info("number of initial candidates: {}".format(len(results)))
     stats_log.debug("number of candidates per depth: {}".format(constants.NUM_CANDIDATE_FORMULAS_OF_SAME_DEPTH))
     stats_log.info("number of attempts to get initial candidates: {}".format(num_attemts))
-    return results
+    if testing:
+        return results, num_attemts
+    else:
+        return results

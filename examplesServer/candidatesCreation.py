@@ -16,7 +16,7 @@ from logger_initialization import stats_log
 from pytictoc import TicToc
 
 
-def create_candidates(nl_utterance, context, example):
+def create_candidates(nl_utterance, context, example, testing=False, num_formulas=None, starting_depth=None):
     t = TicToc()
 
     test_world = World(context, json_type=2)
@@ -57,13 +57,16 @@ def create_candidates(nl_utterance, context, example):
     stats_log.debug("hints: \n\t{}".format("\n\t".join(hints_report)))
     create_json_spec(file_name="data/exampleWithHints.json", emitted_events=emitted_events, hints=hintsWithLocations,
                      pickup_locations=pickup_locations, all_locations=all_locations,
-                     negative_sequences=collection_of_negative)
+                     negative_sequences=collection_of_negative, num_formulas=num_formulas, start_depth=starting_depth)
 
 
-    collection_of_candidates = start_experiment(experiment_specification="data/exampleWithHints.json")
-
-
-    return collection_of_candidates
+    if testing:
+        collection_of_candidates, num_attempts = start_experiment(experiment_specification="data/exampleWithHints.json", testing=testing)
+        return collection_of_candidates, num_attempts
+    else:
+        collection_of_candidates = start_experiment(experiment_specification="data/exampleWithHints.json",
+                                                                  testing=testing)
+        return collection_of_candidates
 
 def update_candidates(old_candidates, path, decision, world, actions):
 
@@ -112,9 +115,9 @@ def update_candidates(old_candidates, path, decision, world, actions):
         if trace.evaluateFormulaOnTrace(f) == formula_value:
             collection_of_candidates.append(str(f))
             collection_of_formulas.append(f)
-            logging.debug("candidate {} was retained".format(f))
+            stats_log.debug("candidate {} was retained".format(f))
         else:
-            logging.debug("candidate {} was eliminated".format(f))
+            stats_log.debug("candidate {} was eliminated".format(f))
 
 
 
@@ -151,9 +154,13 @@ def create_disambiguation_example(candidates, wall_locations = []):
         if w is None and path is None:
 
             if candidate_1 < candidate_2:
-                candidates.remove(candidate_2)
+                longer_candidate = candidate_2
+
             else:
-                candidates.remove(candidate_1)
+                longer_candidate = candidate_1
+
+            candidates.remove(longer_candidate)
+            stats_log.warning("was not able to disambiguate between {} and {}. Removing {}".format(candidate_1, candidate_2, longer_candidate))
 
             return create_disambiguation_example(candidates, wall_locations)
         else:

@@ -7,6 +7,8 @@ class World:
     def __init__(self, worldDescriptionJson, json_type = 0):
 
         # it is a complete mess with different formats used by different servers. That will have to be unified :/
+
+        # items' positions are given in a list, robot's position as well
         if json_type == 0:
             self.width = int(worldDescriptionJson["width"])
             self.height = int(worldDescriptionJson["height"])
@@ -33,6 +35,7 @@ class World:
                     found_item = (world_place[3], world_place[4])
                     self.items_on_the_floor[pos][found_item] += 1
 
+        # items' position and robots' position are given as (x,y) coordinates
         elif json_type == 1:
             self.width = int(worldDescriptionJson["width"])
             self.height = int(worldDescriptionJson["height"])
@@ -52,6 +55,7 @@ class World:
                     found_item = (field["color"], field["shape"])
                     self.items_on_the_floor[pos][found_item] = int(field["quantity"])
 
+        # robot's position is given as a list, items' position with (x,y) coordinates
         elif json_type == 2:
             self.width = int(worldDescriptionJson["width"])
             self.height = int(worldDescriptionJson["height"])
@@ -194,6 +198,7 @@ class World:
                 newPosition = (roboX, roboY-1)
 
         if newPosition in self.wall:
+            pdb.set_trace()
             raise RuntimeError("Can't move into the wall")
 
         self.robot_position = newPosition

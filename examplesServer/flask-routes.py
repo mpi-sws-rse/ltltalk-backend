@@ -49,12 +49,12 @@ def candidate_spec():
     stats_log.info("\n======\n")
 
     answer = {}
-    t = TicToc()
+
 
     if constants.TESTING:
 
-        num_questions_asked = 0
-        disambiguation_stats = {}
+
+        disambiguation_stats = []
         num_disambiguations = 0
 
 
@@ -68,8 +68,17 @@ def candidate_spec():
     wall_locations = world.get_wall_locations()
     stats_log.info("utterance: {}".format(nl_utterance))
 
-
-    candidates = create_candidates(nl_utterance, context, example)
+    if constants.TESTING:
+        try:
+            num_formulas = json.loads(request.args.get("num-formulas"))
+            starting_depth = json.loads(request.args.get("starting_depth"))
+        except:
+            num_formulas = None
+            starting_depth = None
+        candidates, num_attempts = create_candidates(nl_utterance, context, example, testing=constants.TESTING, num_formulas=num_formulas, starting_depth=starting_depth)
+        answer["num_attempts"] = num_attempts
+    else:
+        candidates = create_candidates(nl_utterance, context, example, testing=constants.TESTING)
 
 
     answer["sessionId"] = sessionId
@@ -77,23 +86,23 @@ def candidate_spec():
         answer["status"] = "failed"
     elif len(candidates) == 1:
         answer["status"] = "ok"
-        if constants.TESTING:
-            stats_log.info("num questions asked to disambiguate: {}".format(num_questions_asked))
+
     elif len(candidates) > 1:
 
         answer["status"] = "indoubt"
-
+        t = TicToc()
         t.tic()
         status, disambiguation_world, disambiguation_path, candidate_1, candidate_2, considered_candidates, disambiguation_trace = create_disambiguation_example(candidates, wall_locations)
         disambiguation_time = t.tocvalue()
-        num_disambiguations += 1
-        disambiguation_stats[str(num_disambiguations)] = disambiguation_time
+        if constants.TESTING:
+            num_disambiguations += 1
+            disambiguation_stats.append(disambiguation_time)
         if not status == "indoubt":
             answer[status] = status
             if constants.TESTING:
-                stats_log.info("num questions asked to disambiguate: {}".format(num_questions_asked))
-                stats_log.info("num disambiguations: {}".format(num_disambiguations))
-                stats_log.info("average disambiguation time: {}".format(sum(disambiguation_stats.values())/len(disambiguation_stats)))
+                answer["num_disambiguations"] = num_disambiguations
+                answer["disambiguation_stats"] = disambiguation_stats
+
 
             return answer
 
@@ -119,9 +128,10 @@ def candidate_spec():
 
     logging.info("GET-CANDIDATE-SPEC: created the candidates:\n {}".format( "\n".join(answer["candidates"]) ))
 
-    session["num_questions_asked"] = num_questions_asked
-    session["num_disambiguations"] = num_disambiguations
-    session["disambiguation_stats"] = disambiguation_stats
+    if constants.TESTING:
+
+        answer["num_disambiguations"] = num_disambiguations
+        answer["disambiguation_stats"] = disambiguation_stats
 
     return answer
 
@@ -176,18 +186,14 @@ def debug_disambiguation():
 
 @app.route('/user-decision-update')
 def user_decision_update():
+
     t = TicToc()
     if constants.TESTING:
-        try:
-            num_questions_asked = session["num_questions_asked"]
-            num_disambiguations = session["num_disambiguations"]
-            disambiguation_stats = session["disambiguation_stats"]
-        except:
-            num_questions_asked = 0
-            num_disambiguations = 0
-            disambiguation_stats = {}
+        num_disambiguations = 0
+        disambiguation_stats = []
 
-        num_questions_asked += 1
+
+
     decision = request.args.get("decision")
     sessionId = request.args.get("sessionId")
 
@@ -211,36 +217,37 @@ def user_decision_update():
         answer["status"] = "failed"
         return answer
     elif len(updated_candidates) == 1:
-        if constants.TESTING:
-            stats_log.info("num questions asked to disambiguate: {}".format(num_questions_asked))
-            stats_log.info("num disambiguations: {}".format(num_disambiguations))
-            stats_log.info("average disambiguation time: {}".format(
-                sum(disambiguation_stats.values()) / len(disambiguation_stats)))
+
         answer["status"] = "ok"
+        if constants.TESTING:
+            answer["num_disambiguations"] = num_disambiguations
+            answer["disambiguation_stats"] = disambiguation_stats
         return answer
     elif len(updated_candidates) > 1:
         answer["status"] = "indoubt"
 
         converted_candidates = [Formula.convertTextToFormula(c) for c in updated_candidates]
 
+        t = TicToc()
         t.tic()
         status, disambiguation_world, disambiguation_path, candidate_1, candidate_2, considered_candidates, disambiguation_trace = create_disambiguation_example(
             converted_candidates, wall_locations=wall_locations)
         disambiguation_time = t.tocvalue()
-        num_disambiguations += 1
-        disambiguation_stats[str(num_disambiguations)] = disambiguation_time
+        if constants.TESTING:
+            num_disambiguations += 1
+            disambiguation_stats.append(disambiguation_time)
         if not status == "indoubt":
             answer["status"] = status
             if status == "ok":
-                stats_log.info("num questions asked to disambiguate: {}".format(num_questions_asked))
-                stats_log.info("num disambiguations: {}".format(num_disambiguations))
-                stats_log.info("average disambiguation time: {}".format(
-                    sum(disambiguation_stats.values()) / len(disambiguation_stats)))
+
                 answer["candidates"] = [str(candidate_1)]
                 answer["formatted_candidates"] = [str(candidate_1.reFormat())]
             else:
                 answer["candidates"] = []
                 answer["formatted_candidates"] = []
+            if constants.TESTING:
+                answer["num_disambiguations"] = num_disambiguations
+                answer["disambiguation_stats"] = disambiguation_stats
             return answer
         else:
 
@@ -253,8 +260,8 @@ def user_decision_update():
             answer["formatted_candidates"] = [str(f.reFormat()) for f in considered_candidates]
             answer["actions"] = disambiguation_path
 
+            if constants.TESTING:
 
-            session["num_questions_asked"] = num_questions_asked
-            session["num_disambiguations"] = num_disambiguations
-            session["disambiguation_stats"] = disambiguation_stats
+                answer["num_disambiguations"] = num_disambiguations
+                answer["disambiguation_stats"] = disambiguation_stats
             return answer

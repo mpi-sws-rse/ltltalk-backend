@@ -21,7 +21,8 @@ import logging, os
 
 
 
-def run_solver(finalDepth, traces, maxNumOfFormulas=1, startValue=1, step=1, q=None, encoder=DagSATEncoding, maxSolutionsPerDepth = 1):
+def run_solver(finalDepth, traces, maxNumOfFormulas=1, startValue=1, step=1, q=None, encoder=DagSATEncoding,
+               maxSolutionsPerDepth = 1, testing=False):
 
 
     if q is not None:
@@ -31,16 +32,24 @@ def run_solver(finalDepth, traces, maxNumOfFormulas=1, startValue=1, step=1, q=N
 
     t = TicToc()
     t.tic()
-
-    results = get_models(finalDepth=finalDepth, traces=traces, startValue=startValue, step=step,
-                             encoder=encoder, literals=traces.literals, maxNumModels=maxNumOfFormulas, maxSolutionsPerDepth=maxSolutionsPerDepth)
+    if not testing:
+        results = get_models(finalDepth=finalDepth, traces=traces, startValue=startValue, step=step,
+                             encoder=encoder, literals=traces.literals, maxNumModels=maxNumOfFormulas, maxSolutionsPerDepth=maxSolutionsPerDepth, testing=testing)
+    else:
+        results, num_attempts = get_models(finalDepth=finalDepth, traces=traces, startValue=startValue, step=step,
+                             encoder=encoder, literals=traces.literals, maxNumModels=maxNumOfFormulas, maxSolutionsPerDepth=maxSolutionsPerDepth, testing=testing)
 
     time_passed = t.tocvalue()
 
-    if separate_process == True:
-        q.put([results, time_passed])
+    if testing:
+        ret = [results, time_passed, num_attempts]
     else:
-        return [results, time_passed]
+        ret = [results, time_passed]
+
+    if separate_process == True:
+        q.put(ret)
+    else:
+        return ret
 
 
 def get_finite_witness(f, trace_length=5, operators=[encodingConstants.G, encodingConstants.F, encodingConstants.LAND, encodingConstants.LOR, encodingConstants.ENDS, encodingConstants.LNOT, encodingConstants.BEFORE, encodingConstants.STRICTLY_BEFORE, encodingConstants.UNTIL], wall_locations = [], water_locations=None, robot_position = None, items_locations=None):

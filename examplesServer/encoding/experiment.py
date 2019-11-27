@@ -20,7 +20,7 @@ def helper(m, d, vars):
     return tt
 
 
-def start_experiment(experiment_specification, iteration_step=1):
+def start_experiment(experiment_specification, iteration_step=1, testing=False):
 
     traces = ExperimentTraces()
     json_traces = json.load(open(experiment_specification))
@@ -31,14 +31,22 @@ def start_experiment(experiment_specification, iteration_step=1):
     startDepth = json_traces["start-depth"]
     maxSolutionsPerDepth = json_traces["num-solutions-per-depth"]
 
-    [formulas, timePassed] = run_solver(finalDepth=maxDepth, traces=traces, maxNumOfFormulas=numFormulas,
-                                        startValue=startDepth, step=iteration_step, maxSolutionsPerDepth=maxSolutionsPerDepth)
+    if testing:
+        [formulas, timePassed, num_attempts] = run_solver(finalDepth=maxDepth, traces=traces, maxNumOfFormulas=numFormulas,
+                                        startValue=startDepth, step=iteration_step, maxSolutionsPerDepth=maxSolutionsPerDepth, testing=testing)
+    else:
+        [formulas, timePassed, num_attempts] = run_solver(finalDepth=maxDepth, traces=traces, maxNumOfFormulas=numFormulas,
+                                                      startValue=startDepth, step=iteration_step,
+                                                      maxSolutionsPerDepth=maxSolutionsPerDepth, testing=testing)
     stats_log.info("initial candidates creation time: {}".format(timePassed))
     stats_log.debug("number of found formulas: {}".format(len(formulas)))
     stats_log.debug("found formulas: \n\t{}".format("\n\t".join([str(f) for f in formulas])))
 
     logging.debug("found formulas are {} and the time needed is {}".format(formulas, timePassed))
-    return formulas
+    if testing:
+        return formulas, num_attempts
+    else:
+        return formulas
 
 
 
