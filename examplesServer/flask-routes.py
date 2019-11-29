@@ -49,6 +49,7 @@ def candidate_spec():
     stats_log.info("\n======\n")
 
     answer = {}
+    answer["candidates"] = []
 
 
     if constants.TESTING:
@@ -57,7 +58,7 @@ def candidate_spec():
         disambiguation_stats = []
         num_disambiguations = 0
 
-
+    #pdb.set_trace()
     nl_utterance = request.args.get("query")
     example = json.loads(request.args.get("path"))
 
@@ -67,23 +68,29 @@ def candidate_spec():
     world = World(context, json_type=2)
     wall_locations = world.get_wall_locations()
     stats_log.info("utterance: {}".format(nl_utterance))
-
     if constants.TESTING:
         try:
             num_formulas = json.loads(request.args.get("num-formulas"))
-            starting_depth = json.loads(request.args.get("starting_depth"))
+            starting_depth = json.loads(request.args.get("starting-depth"))
         except:
             num_formulas = None
             starting_depth = None
         candidates, num_attempts = create_candidates(nl_utterance, context, example, testing=constants.TESTING, num_formulas=num_formulas, starting_depth=starting_depth)
         answer["num_attempts"] = num_attempts
+
     else:
         candidates = create_candidates(nl_utterance, context, example, testing=constants.TESTING)
 
 
     answer["sessionId"] = sessionId
+
+
     if len(candidates) == 0:
         answer["status"] = "failed"
+    elif str(candidates[0]) == constants.UNKNOWN_SOLVER_RES:
+        answer["status"] = constants.UNKNOWN_SOLVER_RES
+
+
     elif len(candidates) == 1:
         answer["status"] = "ok"
 
@@ -92,13 +99,14 @@ def candidate_spec():
         answer["status"] = "indoubt"
         t = TicToc()
         t.tic()
-        status, disambiguation_world, disambiguation_path, candidate_1, candidate_2, considered_candidates, disambiguation_trace = create_disambiguation_example(candidates, wall_locations)
+        status, disambiguation_world, disambiguation_path, candidate_1, candidate_2, considered_candidates, disambiguation_trace = create_disambiguation_example(
+            candidates, wall_locations, testing=constants.TESTING)
         disambiguation_time = t.tocvalue()
         if constants.TESTING:
             num_disambiguations += 1
             disambiguation_stats.append(disambiguation_time)
         if not status == "indoubt":
-            answer[status] = status
+            answer['status'] = status
             if constants.TESTING:
                 answer["num_disambiguations"] = num_disambiguations
                 answer["disambiguation_stats"] = disambiguation_stats
@@ -208,7 +216,6 @@ def user_decision_update():
     actions = json.loads(request.args.get("actions"))
     updated_candidates, updated_formulas = update_candidates(candidates, path, decision, world, actions)
 
-
     answer = {}
     answer["sessionId"] = sessionId
     answer["candidates"] = updated_candidates
@@ -265,3 +272,6 @@ def user_decision_update():
                 answer["num_disambiguations"] = num_disambiguations
                 answer["disambiguation_stats"] = disambiguation_stats
             return answer
+
+# if __name__=='__main__':
+#     app.run(request_handler=TimeoutRequestHandler)

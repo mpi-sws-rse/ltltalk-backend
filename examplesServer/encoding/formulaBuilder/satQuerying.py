@@ -38,11 +38,13 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
             num_attemts_per_depth = 0
             solutionsPerDepth = 0
             i += step
-            fg = encoder(i, traces, literals=literals)
+            fg = encoder(i, traces, literals=literals, testing=testing)
             fg.encodeFormula(hintVariablesWithWeights=traces.hints_with_weights)
 
         solverRes = fg.solver.check()
-        if not solverRes == sat:
+
+        if solverRes == unsat:
+
             logging.info("not sat for i = {}".format(i))
 
             i += step
@@ -50,6 +52,10 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
             num_attemts_per_depth = 0
             fg = encoder(i, traces, literals=literals)
             fg.encodeFormula(hintVariablesWithWeights=traces.hints_with_weights)
+        elif solverRes == unknown:
+
+            results = [constants.UNKNOWN_SOLVER_RES]
+            break
 
         else:
 

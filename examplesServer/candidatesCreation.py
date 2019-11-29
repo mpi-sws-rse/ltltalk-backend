@@ -131,13 +131,14 @@ def create_path_from_formula(f, wall_locations, water_locations, robot_position,
 
 
 
-def create_disambiguation_example(candidates, wall_locations = []):
+def create_disambiguation_example(candidates, wall_locations = [], testing=False):
+
     logging.debug("creating disambiguation examples for candidates {}".format(candidates))
     w = None
     path = None
     candidate_1 = None
     candidate_2 = None
-    if len(candidates) == 0:
+    if len(candidates) == 0 or str(candidates[0]) == constants.UNKNOWN_SOLVER_RES:
         status = "failure"
         return (status, w, path, None, None, None, None)
     elif len(candidates) == 1:
@@ -150,7 +151,9 @@ def create_disambiguation_example(candidates, wall_locations = []):
         candidate_2 = candidates[1]
 
 
-        w, path, disambiguation_trace = disambiguate(candidate_1, candidate_2, wall_locations)
+        w, path, disambiguation_trace = disambiguate(candidate_1, candidate_2, wall_locations, testing=testing)
+        if w == constants.UNKNOWN_SOLVER_RES:
+            return (w, None, None, None, None, None, None)
         if w is None and path is None:
 
             if candidate_1 < candidate_2:

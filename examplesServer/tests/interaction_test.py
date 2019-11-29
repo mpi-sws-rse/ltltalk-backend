@@ -15,38 +15,55 @@ import constants
 FLIPPER_URL = "http://localhost:5000"
 TEST_SESSION_ID = "test"
 
+CANDIDATES_GENERATION_TIMEOUT = 60
+WAITING_FOR_A_QUESTION_TIMEOUT = 60
+
 INIT_CANDIDATES_HEADER = "init_candidates_time"
 NUM_INIT_CANDIDATES_HEADER = "num_initial_candidates"
 NL_UTTERANCE_HEADER = "nl_utterance"
 FORMULA_HEADER = "target_formula"
 IS_FORMULA_FOUND_HEADER = "formula_is_found"
-RESULT_FORMULA_HEADER="result_formula"
+RESULT_FORMULA_HEADER = "result_formula"
 NUM_QUESTIONS_ASKED_HEADER = "num_questions_asked"
 AVERAGE_WAITING_FOR_QUESTIONS_HEADER = "average_question_waiting"
 AVERAGE_DISAMBIGUATION_DURATION_HEADER = "average_disambiguation_duration"
 NUM_DISAMBIGUATIONS_HEADER = "num_disambiguations"
 NUM_ATTEMPTS_FOR_CANDIDATES_GENERATION_HEADER = "num_attempts_candidates_generation"
-TEST_FILENAME_HEADER="filename"
+TEST_FILENAME_HEADER = "filename"
 TEST_ID_HEADER = "test_id"
 MAX_NUM_CANDIDATES_HEADER = "max_num_candidates"
 STARTING_DEPTH_HEADER = "start_depth"
 
-
+HEADERS = [
+    TEST_ID_HEADER,
+    MAX_NUM_CANDIDATES_HEADER,
+    STARTING_DEPTH_HEADER,
+    NL_UTTERANCE_HEADER,
+    FORMULA_HEADER,
+    INIT_CANDIDATES_HEADER,
+    NUM_INIT_CANDIDATES_HEADER,
+    NUM_ATTEMPTS_FOR_CANDIDATES_GENERATION_HEADER,
+    NUM_QUESTIONS_ASKED_HEADER,
+    AVERAGE_WAITING_FOR_QUESTIONS_HEADER,
+    AVERAGE_DISAMBIGUATION_DURATION_HEADER,
+    NUM_DISAMBIGUATIONS_HEADER,
+    IS_FORMULA_FOUND_HEADER,
+    RESULT_FORMULA_HEADER
+]
 
 main_log = logging.getLogger('main_logger')
 logging.basicConfig(level=logging.INFO, format='%(message)s')
+
 
 # ch = logging.StreamHandler()
 # ch.setLevel(logging.DEBUG)
 # main_log.addHandler(ch)
 
 
-def flipper_session(test_def, max_num_init_candidates,starting_depth):
+def flipper_session(test_def, max_num_init_candidates, starting_depth, questions_timeout, candidates_timeout):
     stats = {}
     server_num_disambiguations = 0
     server_disambiguations_stats = []
-
-
 
     nl_utterance = test_def["description"]
     world_context = test_def["context"]
@@ -62,10 +79,24 @@ def flipper_session(test_def, max_num_init_candidates,starting_depth):
     candidate_spec_payload["num-formulas"] = max_num_init_candidates
     candidate_spec_payload["starting-depth"] = starting_depth
 
-
+    # try:
+    #     r = requests.get(FLIPPER_URL + "/get-candidate-spec", params=candidate_spec_payload, timeout=candidates_timeout)
+    # except requests.exceptions.Timeout:
+    #     stats[INIT_CANDIDATES_HEADER] = "timeout"
+    #     for h in HEADERS:
+    #         if h not in stats:
+    #             stats[h] = "/"
+    #     return stats
     r = requests.get(FLIPPER_URL + "/get-candidate-spec", params=candidate_spec_payload)
     init_candidates_time = r.elapsed.total_seconds()
     json_response = r.json()
+
+    if json_response["status"] == constants.UNKNOWN_SOLVER_RES:
+        stats[INIT_CANDIDATES_HEADER] = "timeout"
+        for h in HEADERS:
+            if h not in stats:
+                stats[h] = "/"
+        return stats
 
     candidates = json_response["candidates"]
     main_log.info("init candidates are {}\n\n".format(candidates))
@@ -107,18 +138,33 @@ def flipper_session(test_def, max_num_init_candidates,starting_depth):
                                    "path": json.dumps(converted_path), "candidates": json.dumps(candidates),
                                    "actions": json.dumps(actions)}
 
-
+        # try:
+        #     decision_update_request = requests.get(FLIPPER_URL + "/user-decision-update",
+        #                                            params=decision_update_payload, timeout=questions_timeout)
+        # except requests.exceptions.Timeout:
+        #     stats[AVERAGE_WAITING_FOR_QUESTIONS_HEADER] = "timeout"
+        #     for h in HEADERS:
+        #         if not h in stats:
+        #             stats[h] = "/"
+        #     return stats
         decision_update_request = requests.get(FLIPPER_URL + "/user-decision-update", params=decision_update_payload)
         decision_time = decision_update_request.elapsed.total_seconds()
         decision_update_durations.append(decision_time)
-        # try:
-        #     result_decision_update = decision_update_request.json()
-        # except json.decoder.JSONDecodeError as e:
-        #     print(e)
-        #     pdb.set_trace()
+
         result_decision_update = decision_update_request.json()
+
+
+
         num_questions_asked += 1
         status = result_decision_update["status"]
+
+        if status == constants.UNKNOWN_SOLVER_RES:
+            stats[AVERAGE_WAITING_FOR_QUESTIONS_HEADER] = "timeout"
+            for h in HEADERS:
+                if not h in stats:
+                    stats[h] = "/"
+            return stats
+
         candidates = result_decision_update["candidates"]
         server_num_disambiguations += result_decision_update["num_disambiguations"]
         server_disambiguations_stats += result_decision_update["disambiguation_stats"]
@@ -165,9 +211,13 @@ def main():
     parser.add_argument("--tests_definition_folder", dest="testsFolder")
     parser.add_argument("--output", dest="statsOutput", default="stats.csv")
     parser.add_argument("--num_repetitions", dest="numRepetitions", type=int, default=1)
-    parser.add_argument("--num_init_candidates", dest="numInitCandidates", nargs='+', type=int, default=[3,6,10])
-    parser.add_argument("--starting_depth", dest="startingDepth", type=int, nargs='+', default=[2,3])
+    parser.add_argument("--num_init_candidates", dest="numInitCandidates", nargs='+', type=int, default=[3, 6, 10])
+    parser.add_argument("--starting_depth", dest="startingDepth", type=int, nargs='+', default=[2, 3])
     parser.add_argument("--continue_test", dest="continueTest", action='store_true', default=False)
+    parser.add_argument("--candidates_timeout", dest="candidatesTimeout", type=int,
+                        default=CANDIDATES_GENERATION_TIMEOUT)
+    parser.add_argument("--questions_timeout", dest="questionsTimeout", type=int,
+                        default=WAITING_FOR_A_QUESTION_TIMEOUT)
 
     args, unknown = parser.parse_known_args()
     directory = args.testsFolder
@@ -178,23 +228,7 @@ def main():
         statsOpeningMode = "w"
 
     with open(args.statsOutput, statsOpeningMode) as csv_stats:
-        headers = [
-            TEST_ID_HEADER,
-            MAX_NUM_CANDIDATES_HEADER,
-            STARTING_DEPTH_HEADER,
-            NL_UTTERANCE_HEADER,
-            FORMULA_HEADER,
-            INIT_CANDIDATES_HEADER,
-            NUM_INIT_CANDIDATES_HEADER,
-            NUM_ATTEMPTS_FOR_CANDIDATES_GENERATION_HEADER,
-            NUM_QUESTIONS_ASKED_HEADER,
-            AVERAGE_WAITING_FOR_QUESTIONS_HEADER,
-            AVERAGE_DISAMBIGUATION_DURATION_HEADER,
-            NUM_DISAMBIGUATIONS_HEADER,
-            IS_FORMULA_FOUND_HEADER,
-            RESULT_FORMULA_HEADER
-        ]
-
+        headers = HEADERS
         writer = csv.DictWriter(csv_stats, fieldnames=headers)
         tests_already_covered = []
 
@@ -202,8 +236,7 @@ def main():
             with open(args.statsOutput) as csv_read_stats:
                 reader = csv.DictReader(csv_read_stats)
 
-
-                tests_already_covered = [ row[TEST_ID_HEADER] for row in reader ]
+                tests_already_covered = [row[TEST_ID_HEADER] for row in reader]
         else:
 
             writer.writeheader()
@@ -218,9 +251,12 @@ def main():
                         main_log.info("\t\tstarting depth: {}".format(starting_depth))
                         for rep in range(args.numRepetitions):
                             main_log.info("\t\t\trepetition {}".format(rep))
-                            test_id = test_filename.name+str(num_init_candidates)+str(starting_depth)+str(rep)
+                            test_id = test_filename.name + str(num_init_candidates) + str(starting_depth) + str(rep)
                             if not test_id in tests_already_covered:
-                                stats = flipper_session(test_def, max_num_init_candidates=num_init_candidates, starting_depth=starting_depth)
+                                stats = flipper_session(test_def, max_num_init_candidates=num_init_candidates,
+                                                        starting_depth=starting_depth,
+                                                        questions_timeout=args.questionsTimeout,
+                                                        candidates_timeout=args.candidatesTimeout)
                                 stats[TEST_ID_HEADER] = test_id
                                 writer.writerow(stats)
                                 main_log.info("\n")
@@ -228,5 +264,4 @@ def main():
 
 
 if __name__ == '__main__':
-
     main()

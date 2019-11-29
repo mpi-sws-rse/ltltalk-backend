@@ -58,7 +58,7 @@ class SATOfLTLEncoding:
     """
     def __init__(self, f, init_part_length, lasso_part_length, operators, literals,
                  world_width=12, world_height=9, wall_positions = [], water_locations = None, robot_position = None,
-                 items_locations = None):
+                 items_locations = None, testing=True):
 
         defaultOperators = [encodingConstants.G, encodingConstants.F, encodingConstants.LNOT, encodingConstants.UNTIL, encodingConstants.LAND,encodingConstants.LOR, encodingConstants.IMPLIES, encodingConstants.X]
         unary = [encodingConstants.G, encodingConstants.F, encodingConstants.LNOT, encodingConstants.X, encodingConstants.ENDS]
@@ -105,6 +105,13 @@ class SATOfLTLEncoding:
             self.solver = Solver()
         else:
             self.solver = Optimize()
+        if testing:
+            self.solver.set("timeout", encodingConstants.SOLVER_TIMEOUT)
+            # if random.randint(0,1) == 0:
+            #     self.solver.set("timeout", 1)
+            # else:
+            #     self.solver.set("timeout", encodingConstants.SOLVER_TIMEOUT)
+
         all_subformulas = f.getSetOfSubformulas()
         self.formulaDepth = len(all_subformulas)
         self.literals = literals

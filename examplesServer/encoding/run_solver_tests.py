@@ -41,7 +41,7 @@ def get_path(f, wall_locations, water_locations, robot_location, items_locations
             return path
     return False
 
-def disambiguate(f_1, f_2, wall_locations=[], min_trace_length = None, max_trace_legnth = None, step = None, all_vars_to_consider = []):
+def disambiguate(f_1, f_2, wall_locations=[], min_trace_length = None, max_trace_legnth = None, step = None, all_vars_to_consider = [], testing=False):
 
     if min_trace_length is None:
         min_trace_length = constants.MIN_RANGE_DISAMBIGUATION
@@ -64,10 +64,12 @@ def disambiguate(f_1, f_2, wall_locations=[], min_trace_length = None, max_trace
         # if tr_length > 8:
         #     pdb.set_trace()
 
-        disambiguation = get_finite_witness(f = difference_formula, trace_length=tr_length, wall_locations = wall_locations)
+        disambiguation = get_finite_witness(f = difference_formula, trace_length=tr_length, wall_locations = wall_locations, testing=testing)
 
         if disambiguation == "unsat":
             continue
+        elif disambiguation == constants.UNKNOWN_SOLVER_RES:
+            return disambiguation, disambiguation, disambiguation
         else:
             (disambiguation_example, init_world, path) = disambiguation
             logging.debug("+=+=+=++++ disambiguation example is {}".format(disambiguation_example))

@@ -16,7 +16,7 @@ class DagSATEncoding:
       - each trace is a list of recordings at time units (time point)
       - each time point is a list of variable values (x1,..., xk)
     """
-    def __init__(self, D, testTraces, literals):
+    def __init__(self, D, testTraces, literals, testing=False):
         
         defaultOperators = [encodingConstants.G, encodingConstants.F, encodingConstants.LNOT, encodingConstants.UNTIL, encodingConstants.LAND,encodingConstants.LOR, encodingConstants.IMPLIES, encodingConstants.X]
         unary = [encodingConstants.G, encodingConstants.F, encodingConstants.LNOT, encodingConstants.X, encodingConstants.ENDS]
@@ -38,6 +38,10 @@ class DagSATEncoding:
         
         
         self.solver = Optimize()
+        if testing:
+            self.solver.set("timeout", encodingConstants.SOLVER_TIMEOUT)
+            #self.solver.set("timeout", 6)
+
         self.formulaDepth = D
 
         self.literals = literals

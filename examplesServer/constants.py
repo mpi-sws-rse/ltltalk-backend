@@ -96,3 +96,5 @@ DEBUG_UNSAT_CORE = False
 LOGGING_LEVEL = logging.INFO
 
 TESTING = True
+
+UNKNOWN_SOLVER_RES = "timeout"

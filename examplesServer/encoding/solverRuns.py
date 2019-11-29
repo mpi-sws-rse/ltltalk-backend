@@ -9,14 +9,14 @@ except:
     from encoding.smtEncoding.SATOfLTLEncoding import SATOfLTLEncoding
     from encoding import encodingConstants
     import constants
-
+from logger_initialization import stats_log
 from pytictoc import TicToc
 try:
     from formulaBuilder.satQuerying import get_models#, get_models_with_safety_restrictions
 except:
     from encoding.formulaBuilder.satQuerying import get_models  # , get_models_with_safety_restrictions
 
-from z3 import sat
+from z3 import sat, unknown
 import logging, os
 
 
@@ -52,19 +52,26 @@ def run_solver(finalDepth, traces, maxNumOfFormulas=1, startValue=1, step=1, q=N
         return ret
 
 
-def get_finite_witness(f, trace_length=5, operators=[encodingConstants.G, encodingConstants.F, encodingConstants.LAND, encodingConstants.LOR, encodingConstants.ENDS, encodingConstants.LNOT, encodingConstants.BEFORE, encodingConstants.STRICTLY_BEFORE, encodingConstants.UNTIL], wall_locations = [], water_locations=None, robot_position = None, items_locations=None):
+def get_finite_witness(f, trace_length=5, operators=[encodingConstants.G, encodingConstants.F, encodingConstants.LAND,
+                                                     encodingConstants.LOR, encodingConstants.ENDS,
+                                                     encodingConstants.LNOT, encodingConstants.BEFORE,
+                                                     encodingConstants.STRICTLY_BEFORE, encodingConstants.UNTIL],
+                       wall_locations=[], water_locations=None, robot_position=None, items_locations=None,
+                       testing=False):
 
     t = TicToc()
     solvingTic = TicToc()
     t.tic()
     all_variables = [str(v) for v in f.getAllVariables()]
 
-    fg = SATOfLTLEncoding(f, trace_length, 0, operators=None, literals=all_variables, wall_positions=wall_locations, water_locations=water_locations, robot_position=robot_position, items_locations=items_locations)
+    fg = SATOfLTLEncoding(f, trace_length, 0, operators=None, literals=all_variables, wall_positions=wall_locations,
+                          water_locations=water_locations, robot_position=robot_position,
+                          items_locations=items_locations, testing=testing)
     fg.encodeFormula()
-    logging.info("creation time was {}".format(t.tocvalue()))
+    stats_log.debug("creation time was {}".format(t.tocvalue()))
     solvingTic.tic()
     solverRes = fg.solver.check()
-    logging.info("solving time was {}".format(solvingTic.tocvalue()))
+    stats_log.debug("solving time was {}".format(solvingTic.tocvalue()))
 
     if solverRes == sat:
         solverModel = fg.solver.model()
@@ -73,6 +80,8 @@ def get_finite_witness(f, trace_length=5, operators=[encodingConstants.G, encodi
 
         (cex_trace, init_world, path) = fg.reconstructWitnessTrace(solverModel)
         return (cex_trace, init_world, path)
+    elif solverRes == unknown:
+        return constants.UNKNOWN_SOLVER_RES
     else:
         # logging.debug(solverRes)
         # pdb.set_trace()
