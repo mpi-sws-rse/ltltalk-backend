@@ -19,3 +19,13 @@ detailed_fh.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname
 
 stats_log.addHandler(fh)
 stats_log.addHandler(detailed_fh)
+
+
+error_log = logging.getLogger('error_logger')
+error_log.setLevel(logging.ERROR)
+
+error_fh = logging.FileHandler('logs/error.log')
+error_fh.setLevel(logging.INFO)
+error_fh.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+
+error_log.addHandler(error_fh)

@@ -89,10 +89,22 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
     #         if h not in stats:
     #             stats[h] = "/"
     #     return stats
+    stats[STARTING_DEPTH_HEADER] = starting_depth
+    stats[MAX_NUM_CANDIDATES_HEADER] = max_num_init_candidates
+    stats[NL_UTTERANCE_HEADER] = nl_utterance
+
     r = requests.get(FLIPPER_URL + "/get-candidate-spec", params=candidate_spec_payload)
     init_candidates_time = r.elapsed.total_seconds()
-    json_response = r.json()
+    response_status = r.status_code
+    if response_status == 500:
+        stats[INIT_CANDIDATES_HEADER] = "error"
+        for h in HEADERS:
+            if h not in stats:
+                stats[h] = "/"
+        return stats
 
+
+    json_response = r.json()
     if json_response["status"] == constants.UNKNOWN_SOLVER_RES:
         stats[INIT_CANDIDATES_HEADER] = "timeout"
         for h in HEADERS:
@@ -111,11 +123,9 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
     server_num_disambiguations += json_response["num_disambiguations"]
     server_disambiguations_stats += json_response["disambiguation_stats"]
 
-    stats[STARTING_DEPTH_HEADER] = starting_depth
-    stats[MAX_NUM_CANDIDATES_HEADER] = max_num_init_candidates
     stats[INIT_CANDIDATES_HEADER] = init_candidates_time
     stats[NUM_INIT_CANDIDATES_HEADER] = num_initial_candidates
-    stats[NL_UTTERANCE_HEADER] = nl_utterance
+
     stats[NUM_ATTEMPTS_FOR_CANDIDATES_GENERATION_HEADER] = json_response["num_attempts"]
     stats[FORMULA_HEADER] = test_def["target-formula"]
 
@@ -153,6 +163,14 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
         decision_update_request = requests.get(FLIPPER_URL + "/user-decision-update", params=decision_update_payload)
         decision_time = decision_update_request.elapsed.total_seconds()
         decision_update_durations.append(decision_time)
+
+        if decision_update_request.status_code == 500:
+                stats[AVERAGE_WAITING_FOR_QUESTIONS_HEADER] = "error"
+                for h in HEADERS:
+                    if not h in stats:
+                        stats[h] = "/"
+                return stats
+
 
         result_decision_update = decision_update_request.json()
 
@@ -245,8 +263,9 @@ def main():
         else:
 
             writer.writeheader()
+        all_files = sorted(os.scandir(directory), key= lambda dir_entry: dir_entry.name)
 
-        for test_filename in os.scandir(directory):
+        for test_filename in all_files:
 
             with open(test_filename) as test_file:
                 test_def = json.load(test_file)

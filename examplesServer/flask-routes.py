@@ -9,7 +9,7 @@ from candidatesCreation import create_candidates, update_candidates, create_disa
 from utils import convert_path_to_formatted_path, unwind_actions
 import logging
 import constants
-from logger_initialization import stats_log
+from logger_initialization import stats_log, error_log
 
 try:
     from utils.SimpleTree import Formula
@@ -46,135 +46,143 @@ def hello_world():
 @app.route('/get-candidate-spec')
 def candidate_spec():
 
-    stats_log.info("\n======\n")
+    try:
 
-    answer = {}
-    answer["candidates"] = []
+        stats_log.info("\n======\n")
 
-
-    if constants.TESTING:
-
-
-        disambiguation_stats = []
-        num_disambiguations = 0
-
-    #pdb.set_trace()
-    nl_utterance = request.args.get("query")
-    example = json.loads(request.args.get("path"))
+        answer = {}
+        answer["candidates"] = []
 
 
-    context = json.loads(request.args.get("context"))
-    sessionId = request.args.get("sessionId")
-    world = World(context, json_type=2)
-    wall_locations = world.get_wall_locations()
-    stats_log.info("utterance: {}".format(nl_utterance))
-    if constants.TESTING:
-        try:
-            num_formulas = json.loads(request.args.get("num-formulas"))
-            starting_depth = json.loads(request.args.get("starting-depth"))
-        except:
-            num_formulas = None
-            starting_depth = None
-        candidates, num_attempts = create_candidates(nl_utterance, context, example, testing=constants.TESTING, num_formulas=num_formulas, starting_depth=starting_depth)
-        answer["num_attempts"] = num_attempts
-
-    else:
-        candidates = create_candidates(nl_utterance, context, example, testing=constants.TESTING)
-
-
-    answer["sessionId"] = sessionId
-
-
-    if len(candidates) == 0:
-        answer["status"] = constants.FAILED_CANDIDATES_GENERATION_STATUS
-    elif str(candidates[0]) == constants.UNKNOWN_SOLVER_RES:
-        answer["status"] = constants.UNKNOWN_SOLVER_RES
-
-
-    elif len(candidates) == 1:
-        answer["status"] = "ok"
-
-    elif len(candidates) > 1:
-
-        answer["status"] = "indoubt"
-        t = TicToc()
-        t.tic()
-        status, disambiguation_world, disambiguation_path, candidate_1, candidate_2, considered_candidates, disambiguation_trace = create_disambiguation_example(
-            candidates, wall_locations, testing=constants.TESTING)
-        disambiguation_time = t.tocvalue()
         if constants.TESTING:
-            num_disambiguations += 1
-            disambiguation_stats.append(disambiguation_time)
-        if not status == "indoubt":
-            answer['status'] = status
-            if constants.TESTING:
-                answer["num_disambiguations"] = num_disambiguations
-                answer["disambiguation_stats"] = disambiguation_stats
 
 
-            return answer
+            disambiguation_stats = []
+            num_disambiguations = 0
+
+        #pdb.set_trace()
+        nl_utterance = request.args.get("query")
+        example = json.loads(request.args.get("path"))
 
 
-
-        logging.debug("disambiguation world is {}, disambiguation path is {} for candidate1 = {} and candidate2 = {}".format(disambiguation_world, disambiguation_path, candidate_1, candidate_2))
-        answer["world"] = disambiguation_world.export_as_json()
-        formatted_path = convert_path_to_formatted_path(disambiguation_path, disambiguation_world)
-        logging.debug("formatted path is {}".format(formatted_path))
-        answer["path"] = formatted_path
-        answer["actions"] = disambiguation_path
-        answer["query"] = nl_utterance
-        answer["trace"] = disambiguation_trace.traceVector
-
-
-
-
-
-        answer["candidates"] = [str(c) for c in considered_candidates]
-        answer["formatted_candidates"] = [str(c.reFormat()) for c in considered_candidates]
-        answer["disambiguation-candidate-1"] = str(candidate_1)
-        answer["disambiguation-candidate-2"] = str(candidate_2)
-
-    logging.info("GET-CANDIDATE-SPEC: created the candidates:\n {}".format( "\n".join(answer["candidates"]) ))
-
-    if constants.TESTING:
-
-        answer["num_disambiguations"] = num_disambiguations
-        answer["disambiguation_stats"] = disambiguation_stats
-
-    return answer
-
-
-@app.route('/get-path')
-def get_path_from_formula():
-    answer = {}
-    context = json.loads(request.args.get("context"))
-    world = World(context, json_type=2)
-    wall_locations = world.get_wall_locations()
-    water_locations = world.get_water_locations()
-    robot_position = world.get_robot_position()
-    items_locations = world.get_items_locations()
-
-    formulas = json.loads(request.args.get("formulas"))
-
-    paths = []
-    answer["status"] = "ok"
-    for f in formulas:
-
-
-        path = create_path_from_formula(f, wall_locations, water_locations, robot_position, items_locations)
-        if path is False:
-            paths.append("false")
-            answer["status"] = "error"
+        context = json.loads(request.args.get("context"))
+        sessionId = request.args.get("sessionId")
+        world = World(context, json_type=2)
+        wall_locations = world.get_wall_locations()
+        stats_log.info("utterance: {}".format(nl_utterance))
+        if constants.TESTING:
+            try:
+                num_formulas = json.loads(request.args.get("num-formulas"))
+                starting_depth = json.loads(request.args.get("starting-depth"))
+            except:
+                num_formulas = None
+                starting_depth = None
+            candidates, num_attempts = create_candidates(nl_utterance, context, example, testing=constants.TESTING, num_formulas=num_formulas, starting_depth=starting_depth)
+            answer["num_attempts"] = num_attempts
 
         else:
+            candidates = create_candidates(nl_utterance, context, example, testing=constants.TESTING)
 
-            formatted_path = convert_path_to_formatted_path(path, World(context, json_type=2))
-            paths.append(formatted_path)
 
-    answer["paths"] = paths
-    answer["world"] = context
+        answer["sessionId"] = sessionId
 
-    return answer
+
+        if len(candidates) == 0:
+            answer["status"] = constants.FAILED_CANDIDATES_GENERATION_STATUS
+        elif str(candidates[0]) == constants.UNKNOWN_SOLVER_RES:
+            answer["status"] = constants.UNKNOWN_SOLVER_RES
+
+
+        elif len(candidates) == 1:
+            answer["status"] = "ok"
+
+        elif len(candidates) > 1:
+
+            answer["status"] = "indoubt"
+            t = TicToc()
+            t.tic()
+            status, disambiguation_world, disambiguation_path, candidate_1, candidate_2, considered_candidates, disambiguation_trace = create_disambiguation_example(
+                candidates, wall_locations, testing=constants.TESTING)
+            disambiguation_time = t.tocvalue()
+            if constants.TESTING:
+                num_disambiguations += 1
+                disambiguation_stats.append(disambiguation_time)
+            if not status == "indoubt":
+                answer['status'] = status
+                if constants.TESTING:
+                    answer["num_disambiguations"] = num_disambiguations
+                    answer["disambiguation_stats"] = disambiguation_stats
+
+
+                return answer
+
+
+
+            logging.debug("disambiguation world is {}, disambiguation path is {} for candidate1 = {} and candidate2 = {}".format(disambiguation_world, disambiguation_path, candidate_1, candidate_2))
+            answer["world"] = disambiguation_world.export_as_json()
+            formatted_path = convert_path_to_formatted_path(disambiguation_path, disambiguation_world)
+            logging.debug("formatted path is {}".format(formatted_path))
+            answer["path"] = formatted_path
+            answer["actions"] = disambiguation_path
+            answer["query"] = nl_utterance
+            answer["trace"] = disambiguation_trace.traceVector
+
+
+
+
+
+            answer["candidates"] = [str(c) for c in considered_candidates]
+            answer["formatted_candidates"] = [str(c.reFormat()) for c in considered_candidates]
+            answer["disambiguation-candidate-1"] = str(candidate_1)
+            answer["disambiguation-candidate-2"] = str(candidate_2)
+
+        logging.info("GET-CANDIDATE-SPEC: created the candidates:\n {}".format( "\n".join(answer["candidates"]) ))
+
+        if constants.TESTING:
+
+            answer["num_disambiguations"] = num_disambiguations
+            answer["disambiguation_stats"] = disambiguation_stats
+
+        return answer
+
+    except Exception as e:
+        error_log.error("exception {}".format(e))
+        return (str(e), 500)
+
+
+    @app.route('/get-path')
+    def get_path_from_formula():
+        answer = {}
+        context = json.loads(request.args.get("context"))
+        world = World(context, json_type=2)
+        wall_locations = world.get_wall_locations()
+        water_locations = world.get_water_locations()
+        robot_position = world.get_robot_position()
+        items_locations = world.get_items_locations()
+
+        formulas = json.loads(request.args.get("formulas"))
+
+        paths = []
+        answer["status"] = "ok"
+        for f in formulas:
+
+
+            path = create_path_from_formula(f, wall_locations, water_locations, robot_position, items_locations)
+            if path is False:
+                paths.append("false")
+                answer["status"] = "error"
+
+            else:
+
+                formatted_path = convert_path_to_formatted_path(path, World(context, json_type=2))
+                paths.append(formatted_path)
+
+        answer["paths"] = paths
+        answer["world"] = context
+
+        return answer
+
+
 
 @app.route('/debug-disambiguation')
 def debug_disambiguation():
@@ -195,83 +203,89 @@ def debug_disambiguation():
 @app.route('/user-decision-update')
 def user_decision_update():
 
-    t = TicToc()
-    if constants.TESTING:
-        num_disambiguations = 0
-        disambiguation_stats = []
-
-
-
-    decision = request.args.get("decision")
-    sessionId = request.args.get("sessionId")
-
-    candidates = json.loads(request.args.get("candidates"))
-
-    path = json.loads(request.args.get("path"))
-
-
-    context = json.loads(request.args.get("context"))
-    world = World(context, json_type=2)
-    wall_locations = world.get_wall_locations()
-    actions = json.loads(request.args.get("actions"))
-    updated_candidates, updated_formulas = update_candidates(candidates, path, decision, world, actions)
-
-    answer = {}
-    answer["sessionId"] = sessionId
-    answer["candidates"] = updated_candidates
-    answer["formatted_candidates"] = [str(f.reFormat()) for f in updated_formulas]
-    if len(updated_candidates) == 0:
-        answer["status"] = constants.FAILED_CANDIDATES_GENERATION_STATUS
-        return answer
-    elif len(updated_candidates) == 1:
-
-        answer["status"] = "ok"
-        if constants.TESTING:
-            answer["num_disambiguations"] = num_disambiguations
-            answer["disambiguation_stats"] = disambiguation_stats
-        return answer
-    elif len(updated_candidates) > 1:
-        answer["status"] = "indoubt"
-
-        converted_candidates = [Formula.convertTextToFormula(c) for c in updated_candidates]
+    try:
 
         t = TicToc()
-        t.tic()
-        status, disambiguation_world, disambiguation_path, candidate_1, candidate_2, considered_candidates, disambiguation_trace = create_disambiguation_example(
-            converted_candidates, wall_locations=wall_locations)
-        disambiguation_time = t.tocvalue()
         if constants.TESTING:
-            num_disambiguations += 1
-            disambiguation_stats.append(disambiguation_time)
-        if not status == "indoubt":
-            answer["status"] = status
-            if status == "ok":
+            num_disambiguations = 0
+            disambiguation_stats = []
 
-                answer["candidates"] = [str(candidate_1)]
-                answer["formatted_candidates"] = [str(candidate_1.reFormat())]
+
+
+        decision = request.args.get("decision")
+        sessionId = request.args.get("sessionId")
+
+        candidates = json.loads(request.args.get("candidates"))
+
+        path = json.loads(request.args.get("path"))
+
+
+        context = json.loads(request.args.get("context"))
+        world = World(context, json_type=2)
+        wall_locations = world.get_wall_locations()
+        actions = json.loads(request.args.get("actions"))
+        updated_candidates, updated_formulas = update_candidates(candidates, path, decision, world, actions)
+
+        answer = {}
+        answer["sessionId"] = sessionId
+        answer["candidates"] = updated_candidates
+        answer["formatted_candidates"] = [str(f.reFormat()) for f in updated_formulas]
+        if len(updated_candidates) == 0:
+            answer["status"] = constants.FAILED_CANDIDATES_GENERATION_STATUS
+            return answer
+        elif len(updated_candidates) == 1:
+
+            answer["status"] = "ok"
+            if constants.TESTING:
+                answer["num_disambiguations"] = num_disambiguations
+                answer["disambiguation_stats"] = disambiguation_stats
+            return answer
+        elif len(updated_candidates) > 1:
+            answer["status"] = "indoubt"
+
+            converted_candidates = [Formula.convertTextToFormula(c) for c in updated_candidates]
+
+            t = TicToc()
+            t.tic()
+            status, disambiguation_world, disambiguation_path, candidate_1, candidate_2, considered_candidates, disambiguation_trace = create_disambiguation_example(
+                converted_candidates, wall_locations=wall_locations)
+            disambiguation_time = t.tocvalue()
+            if constants.TESTING:
+                num_disambiguations += 1
+                disambiguation_stats.append(disambiguation_time)
+            if not status == "indoubt":
+                answer["status"] = status
+                if status == "ok":
+
+                    answer["candidates"] = [str(candidate_1)]
+                    answer["formatted_candidates"] = [str(candidate_1.reFormat())]
+                else:
+                    answer["candidates"] = []
+                    answer["formatted_candidates"] = []
+                if constants.TESTING:
+                    answer["num_disambiguations"] = num_disambiguations
+                    answer["disambiguation_stats"] = disambiguation_stats
+                return answer
             else:
-                answer["candidates"] = []
-                answer["formatted_candidates"] = []
-            if constants.TESTING:
-                answer["num_disambiguations"] = num_disambiguations
-                answer["disambiguation_stats"] = disambiguation_stats
-            return answer
-        else:
 
-            answer["world"] = disambiguation_world.export_as_json()
-            formatted_path = convert_path_to_formatted_path(disambiguation_path, disambiguation_world)
-            answer["path"] = formatted_path
-            answer["disambiguation-candidate-1"] = str(candidate_1)
-            answer["disambiguation-candidate-2"] = str(candidate_2)
-            answer["candidates"] = [str(f) for f in considered_candidates]
-            answer["formatted_candidates"] = [str(f.reFormat()) for f in considered_candidates]
-            answer["actions"] = disambiguation_path
+                answer["world"] = disambiguation_world.export_as_json()
+                formatted_path = convert_path_to_formatted_path(disambiguation_path, disambiguation_world)
+                answer["path"] = formatted_path
+                answer["disambiguation-candidate-1"] = str(candidate_1)
+                answer["disambiguation-candidate-2"] = str(candidate_2)
+                answer["candidates"] = [str(f) for f in considered_candidates]
+                answer["formatted_candidates"] = [str(f.reFormat()) for f in considered_candidates]
+                answer["actions"] = disambiguation_path
 
-            if constants.TESTING:
+                if constants.TESTING:
 
-                answer["num_disambiguations"] = num_disambiguations
-                answer["disambiguation_stats"] = disambiguation_stats
-            return answer
+                    answer["num_disambiguations"] = num_disambiguations
+                    answer["disambiguation_stats"] = disambiguation_stats
+                return answer
+    except Exception as e:
+        error_log.error("exception {}".format(e))
+        return (str(e), 500)
+
 
 # if __name__=='__main__':
 #     app.run(request_handler=TimeoutRequestHandler)

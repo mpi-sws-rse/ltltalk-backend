@@ -17,6 +17,7 @@ from pytictoc import TicToc
 
 
 def create_candidates(nl_utterance, context, example, testing=False, num_formulas=None, starting_depth=None):
+
     t = TicToc()
 
     test_world = World(context, json_type=2)
@@ -69,6 +70,7 @@ def create_candidates(nl_utterance, context, example, testing=False, num_formula
         return collection_of_candidates
 
 def update_candidates(old_candidates, path, decision, world, actions):
+
 
     collection_of_candidates = []
     collection_of_formulas = []
