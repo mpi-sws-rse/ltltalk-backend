@@ -139,7 +139,7 @@ def create_disambiguation_example(candidates, wall_locations = [], testing=False
     candidate_1 = None
     candidate_2 = None
     if len(candidates) == 0 or str(candidates[0]) == constants.UNKNOWN_SOLVER_RES:
-        status = "failure"
+        status = constants.FAILED_CANDIDATES_GENERATION_STATUS
         return (status, w, path, None, None, None, None)
     elif len(candidates) == 1:
         status = "ok"

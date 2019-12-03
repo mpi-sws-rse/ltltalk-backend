@@ -86,7 +86,7 @@ def candidate_spec():
 
 
     if len(candidates) == 0:
-        answer["status"] = "failed"
+        answer["status"] = constants.FAILED_CANDIDATES_GENERATION_STATUS
     elif str(candidates[0]) == constants.UNKNOWN_SOLVER_RES:
         answer["status"] = constants.UNKNOWN_SOLVER_RES
 
@@ -221,7 +221,7 @@ def user_decision_update():
     answer["candidates"] = updated_candidates
     answer["formatted_candidates"] = [str(f.reFormat()) for f in updated_formulas]
     if len(updated_candidates) == 0:
-        answer["status"] = "failed"
+        answer["status"] = constants.FAILED_CANDIDATES_GENERATION_STATUS
         return answer
     elif len(updated_candidates) == 1:
 

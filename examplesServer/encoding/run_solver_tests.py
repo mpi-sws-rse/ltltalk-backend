@@ -20,6 +20,7 @@ try:
 except:
     from encoding.utils.Traces import Trace, ExperimentTraces
 
+from logger_initialization import stats_log
 
 from world import World
 
@@ -43,6 +44,7 @@ def get_path(f, wall_locations, water_locations, robot_location, items_locations
 
 def disambiguate(f_1, f_2, wall_locations=[], min_trace_length = None, max_trace_legnth = None, step = None, all_vars_to_consider = [], testing=False):
 
+    stats_log.debug("disambiguation between {} and {}".format(f_1, f_2))
     if min_trace_length is None:
         min_trace_length = constants.MIN_RANGE_DISAMBIGUATION
     if max_trace_legnth is None:

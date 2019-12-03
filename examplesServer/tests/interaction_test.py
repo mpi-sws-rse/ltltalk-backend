@@ -98,6 +98,7 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
                 stats[h] = "/"
         return stats
 
+
     candidates = json_response["candidates"]
     main_log.info("init candidates are {}\n\n".format(candidates))
 
@@ -194,8 +195,12 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
             except ZeroDivisionError:
                 stats[AVERAGE_WAITING_FOR_QUESTIONS_HEADER] = "/"
             break
-        if status == "failure":
-            raise ValueError("got failure, check with backend")
+        if status == constants.FAILED_CANDIDATES_GENERATION_STATUS:
+            stats[AVERAGE_WAITING_FOR_QUESTIONS_HEADER] = "candidates generation failure"
+            for h in HEADERS:
+                if not h in stats:
+                    stats[h] = "/"
+            return stats
 
         world_context = result_decision_update["world"]
         world = World(world_context, json_type=2)
