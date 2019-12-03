@@ -2,6 +2,8 @@ import argparse
 import os
 import json
 import pdb
+import time
+
 from world import World
 from encoding.utils.SimpleTree import Formula
 import requests
@@ -98,7 +100,6 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
                 stats[h] = "/"
         return stats
 
-
     candidates = json_response["candidates"]
     main_log.info("init candidates are {}\n\n".format(candidates))
 
@@ -125,6 +126,7 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
     num_questions_asked = 0
     decision_update_durations = []
     while num_questions_asked < num_initial_candidates:
+        time.sleep(5)
 
         converted_path = unwind_actions(actions)
 
@@ -153,8 +155,6 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
         decision_update_durations.append(decision_time)
 
         result_decision_update = decision_update_request.json()
-
-
 
         num_questions_asked += 1
         status = result_decision_update["status"]
@@ -247,15 +247,18 @@ def main():
             writer.writeheader()
 
         for test_filename in os.scandir(directory):
-            main_log.info("testing {}".format(test_filename.name))
+
             with open(test_filename) as test_file:
                 test_def = json.load(test_file)
                 for num_init_candidates in args.numInitCandidates:
-                    main_log.info("\tnum candidates: {}".format(num_init_candidates))
+
                     for starting_depth in args.startingDepth:
                         main_log.info("\t\tstarting depth: {}".format(starting_depth))
                         for rep in range(args.numRepetitions):
-                            main_log.info("\t\t\trepetition {}".format(rep))
+
+                            main_log.info(
+                                "testing {}, for max {} candidates, with starting depth {}, repetition {}".format(
+                                    test_filename.name, num_init_candidates, starting_depth, rep))
                             test_id = test_filename.name + str(num_init_candidates) + str(starting_depth) + str(rep)
                             if not test_id in tests_already_covered:
                                 stats = flipper_session(test_def, max_num_init_candidates=num_init_candidates,
@@ -265,6 +268,8 @@ def main():
                                 stats[TEST_ID_HEADER] = test_id
                                 writer.writerow(stats)
                                 main_log.info("\n")
+                                time.sleep(10)
+
             main_log.info("\n\n===\n\n")
 
 
