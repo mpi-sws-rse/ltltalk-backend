@@ -1,0 +1,53 @@
+task 0: Step into water and then visit [6,4]
+ - with three initial candidate formulas was not able to find the correct one (which makes sense because the search goes from initial depth and looks for 3 formulas of that depth.)
+
+- on the other hand, with 6 or 10 initial candidates, the initial candidates generation time is large. potentially, due to more attempts than necessary to find the desired number of candidates (many found formulas are equivalent after the normalization)
+
+- necessary number of questions seems reasonable, as well as the time needed to come up with the questions
+
+===
+
+task 1: stay dry until reaching [4,1]
+ - similar to task 0, the bottleneck is generation of many candidates. however, in this case, even when three candidates are generated, the true candidate is found
+
+===
+
+task 2: bring one green from [7,4] to [3,4]
+ - initial candidates generation takes a long time. the true answer is always found. number of questions for disambiguation is reasonable
+
+===
+
+task 3: take all green from [7,4] to water
+ - bad performance: takes a long time to find initial candidates, even for only three candidates. interestingly, here there are fewer attempts, the reason for taking so long is not clear.
+
+===
+
+task 4: pick two squares from [4,0]
+ - performs well for initial number of candidates small
+ - for 10 initial candidates, it takes a long time to generate (also, many attempts)
+ - if it starts from the too large depth, it fails to find the original candidate (because the formula is of a smaller depth)
+
+===
+
+task 5: get one triangle from [4,0] and then one item from [11,1]
+ - terrible performance (the task is a combination of the two simpler one), even the SMT solver times out once (10 minutes!)
+
+===
+
+task 6: get one item from [1,2] and one from [3,1] and in the process never step on a water tile
+ - a complex task, our process never manages to recover the actual formula.
+
+===
+
+task 7: get one green and one blue item from [7,4]
+ - spends much time on the formulas of smaller depth, where there is no hope of recovering the actual true formula.  [ and(eventually(pick_one_blue_x_item_at_7_4),eventually(pick_one_green_x_item_at_7_4))]. Therefore, the initial candidate generation is a lengthy process
+
+===
+
+task 8: reach [5,4] by only going through the water
+ - often, the right formula is not even among the initial candidates
+
+===
+
+task 9: first get one red item from [7,4] and afterwards one green item from [10,8]
+ - the correct formula is always found, although often the initial candidates generation takes a long time
