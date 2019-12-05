@@ -96,6 +96,7 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
     r = requests.get(FLIPPER_URL + "/get-candidate-spec", params=candidate_spec_payload)
     init_candidates_time = r.elapsed.total_seconds()
     response_status = r.status_code
+
     if response_status == 500:
         stats[INIT_CANDIDATES_HEADER] = "error"
         for h in HEADERS:
@@ -116,7 +117,12 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
     main_log.info("init candidates are {}\n\n".format(candidates))
 
     num_initial_candidates = len(candidates)
+    interaction_status = json_response["status"]
+    if interaction_status == "ok":
+        return stats
+
     world_context = json_response["world"]
+
     world = World(world_context, json_type=2)
     disambiguation_path = json_response["path"]
 
@@ -129,7 +135,7 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
     stats[NUM_ATTEMPTS_FOR_CANDIDATES_GENERATION_HEADER] = json_response["num_attempts"]
     stats[FORMULA_HEADER] = test_def["target-formula"]
 
-    interaction_status = json_response["status"]
+
 
     actions = json_response["actions"]
 
@@ -280,10 +286,16 @@ def main():
                                     test_filename.name, num_init_candidates, starting_depth, rep))
                             test_id = test_filename.name + str(num_init_candidates) + str(starting_depth) + str(rep)
                             if not test_id in tests_already_covered:
-                                stats = flipper_session(test_def, max_num_init_candidates=num_init_candidates,
+                                try:
+                                    stats = flipper_session(test_def, max_num_init_candidates=num_init_candidates,
                                                         starting_depth=starting_depth,
                                                         questions_timeout=args.questionsTimeout,
                                                         candidates_timeout=args.candidatesTimeout)
+                                except:
+                                    stats = {}
+                                    for h in HEADERS:
+                                            stats[h] = "unknown error"
+
                                 stats[TEST_ID_HEADER] = test_id
                                 writer.writerow(stats)
                                 main_log.info("\n")

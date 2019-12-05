@@ -109,6 +109,8 @@ def candidate_spec():
                 disambiguation_stats.append(disambiguation_time)
             if not status == "indoubt":
                 answer['status'] = status
+                if status == "ok":
+                    answer["candidates"].append(candidate_1)
                 if constants.TESTING:
                     answer["num_disambiguations"] = num_disambiguations
                     answer["disambiguation_stats"] = disambiguation_stats
