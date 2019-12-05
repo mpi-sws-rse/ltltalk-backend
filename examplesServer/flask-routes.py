@@ -150,37 +150,37 @@ def candidate_spec():
         return (str(e), 500)
 
 
-    @app.route('/get-path')
-    def get_path_from_formula():
-        answer = {}
-        context = json.loads(request.args.get("context"))
-        world = World(context, json_type=2)
-        wall_locations = world.get_wall_locations()
-        water_locations = world.get_water_locations()
-        robot_position = world.get_robot_position()
-        items_locations = world.get_items_locations()
+@app.route('/get-path')
+def get_path_from_formula():
+    answer = {}
+    context = json.loads(request.args.get("context"))
+    world = World(context, json_type=2)
+    wall_locations = world.get_wall_locations()
+    water_locations = world.get_water_locations()
+    robot_position = world.get_robot_position()
+    items_locations = world.get_items_locations()
 
-        formulas = json.loads(request.args.get("formulas"))
+    formulas = json.loads(request.args.get("formulas"))
 
-        paths = []
-        answer["status"] = "ok"
-        for f in formulas:
+    paths = []
+    answer["status"] = "ok"
+    for f in formulas:
 
 
-            path = create_path_from_formula(f, wall_locations, water_locations, robot_position, items_locations)
-            if path is False:
-                paths.append("false")
-                answer["status"] = "error"
+        path = create_path_from_formula(f, wall_locations, water_locations, robot_position, items_locations)
+        if path is False:
+            paths.append("false")
+            answer["status"] = "error"
 
-            else:
+        else:
 
-                formatted_path = convert_path_to_formatted_path(path, World(context, json_type=2))
-                paths.append(formatted_path)
+            formatted_path = convert_path_to_formatted_path(path, World(context, json_type=2))
+            paths.append(formatted_path)
 
-        answer["paths"] = paths
-        answer["world"] = context
+    answer["paths"] = paths
+    answer["world"] = context
 
-        return answer
+    return answer
 
 
 
