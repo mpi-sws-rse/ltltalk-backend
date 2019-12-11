@@ -10,6 +10,7 @@ from utils import convert_path_to_formatted_path, unwind_actions
 import logging
 import constants
 from logger_initialization import stats_log, error_log
+import os
 
 try:
     from utils.SimpleTree import Formula
@@ -37,6 +38,16 @@ flask_log = logging.getLogger('werkzeug')
 flask_log.setLevel(logging.ERROR)
 
 
+try:
+    if int(os.environ['TESTING']) == 1:
+        constants.TESTING = True
+    else:
+        constants.TESTING = False
+except:
+    pass
+
+
+
 
 @app.route('/')
 def hello_world():
@@ -47,6 +58,7 @@ def hello_world():
 def candidate_spec():
 
     try:
+
 
         stats_log.info("\n======\n")
 
@@ -61,15 +73,19 @@ def candidate_spec():
             num_disambiguations = 0
 
         #pdb.set_trace()
-        nl_utterance = request.args.get("query")
-        example = json.loads(request.args.get("path"))
+
+        nl_utterance = json.loads(request.args.get('query'))
+
+        examples = json.loads(request.args.get("examples"))
 
 
-        context = json.loads(request.args.get("context"))
         sessionId = request.args.get("sessionId")
-        world = World(context, json_type=2)
-        wall_locations = world.get_wall_locations()
+        world_1 = World(examples[0]["context"], json_type=2)
+        wall_locations = world_1.get_wall_locations()
+
+
         stats_log.info("utterance: {}".format(nl_utterance))
+
         if constants.TESTING:
             try:
                 num_formulas = json.loads(request.args.get("num-formulas"))
@@ -77,11 +93,20 @@ def candidate_spec():
             except:
                 num_formulas = None
                 starting_depth = None
-            candidates, num_attempts = create_candidates(nl_utterance, context, example, testing=constants.TESTING, num_formulas=num_formulas, starting_depth=starting_depth)
+
+            candidates, num_attempts, candidates_generation_time, solver_solving_times = create_candidates(nl_utterance, examples, testing=constants.TESTING, num_formulas=num_formulas, starting_depth=starting_depth, id=sessionId)
             answer["num_attempts"] = num_attempts
+            answer["candidates_generation_time"] = candidates_generation_time
+            stats_log.info("solving times are {}".format(solver_solving_times))
+
+            try:
+                answer["candidates_generation_solving_time"] = sum(solver_solving_times)
+            except:
+                answer["candidates_generation_solving_time"] = -1
+
 
         else:
-            candidates = create_candidates(nl_utterance, context, example, testing=constants.TESTING)
+            candidates = create_candidates(nl_utterance, examples, testing=constants.TESTING, id=sessionId)
 
 
         answer["sessionId"] = sessionId

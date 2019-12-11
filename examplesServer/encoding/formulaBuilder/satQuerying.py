@@ -10,6 +10,8 @@ except:
     from encoding.utils.SimpleTree import SimpleTree, Formula
 from logger_initialization import stats_log
 
+from pytictoc import TicToc
+
 
 def get_models_with_safety_restrictions(safety_restrictions, traces, final_depth, literals, encoder, operators,
                                         start_value=1, step=1, max_num_solutions=10):
@@ -18,16 +20,26 @@ def get_models_with_safety_restrictions(safety_restrictions, traces, final_depth
 
 def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumModels=1, maxSolutionsPerDepth=1,
                testing=False):
+    formula_generation_times = []
     results = []
     i = startValue
-    fg = encoder(i, traces, literals=literals)
-    fg.encodeFormula(hintVariablesWithWeights=traces.hints_with_weights)
+    generation_tic = TicToc()
+    generation_tic.tic()
+    fg = encoder(finalDepth, traces, literals=literals, testing=testing, hintVariablesWithWeights=traces.hints_with_weights)
+    fg.encodeFormula(depth=i)
+    formula_generation_times.append(generation_tic.tocvalue())
+
+
     maxSolutionsPerDepth = maxSolutionsPerDepth
     solutionsPerDepth = 0
     num_attemts = 0
     num_attemts_per_depth = 0
+    blocking_constraints = []
+    solver_solving_times = []
+
 
     while len(results) < maxNumModels and i < finalDepth:
+
 
         num_attemts_per_depth += 1
         num_attemts += 1
@@ -36,12 +48,17 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
         if num_attemts_per_depth > constants.NUM_ATTEMPTS_PER_DEPTH:
             logging.info("enough attempts for depth {0}".format(i))
             num_attemts_per_depth = 0
+
             solutionsPerDepth = 0
             i += step
-            fg = encoder(i, traces, literals=literals, testing=testing)
-            fg.encodeFormula(hintVariablesWithWeights=traces.hints_with_weights)
-
+            generation_tic.tic()
+            #fg = encoder(i, traces, literals=literals, testing=testing)
+            fg.encodeFormula(depth=i)
+            formula_generation_times.append(generation_tic.tocvalue())
+        solverTic = TicToc()
+        solverTic.tic()
         solverRes = fg.solver.check()
+        solver_solving_times.append(solverTic.tocvalue())
 
         if solverRes == unsat:
 
@@ -49,9 +66,11 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
 
             i += step
             solutionsPerDepth = 0
+
             num_attemts_per_depth = 0
-            fg = encoder(i, traces, literals=literals)
-            fg.encodeFormula(hintVariablesWithWeights=traces.hints_with_weights)
+            generation_tic.tic()
+            fg.encodeFormula(depth=i)
+            formula_generation_times.append(generation_tic.tocvalue())
         elif solverRes == unknown:
 
             results = [constants.UNKNOWN_SOLVER_RES]
@@ -61,8 +80,8 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
 
             solverModel = fg.solver.model()
 
-            formula = fg.reconstructWholeFormula(solverModel)
-            table = fg.reconstructTable(solverModel)
+            formula = fg.reconstructWholeFormula(solverModel, depth=i)
+            table = fg.reconstructTable(solverModel, depth=i)
             logging.info("found formula {}".format(formula.prettyPrint()))
             formula = Formula.normalize(formula)
             if not os.path.exists("debug_models/"):
@@ -84,26 +103,20 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
                         formula, len(results), maxNumModels))
                 solutionsPerDepth += 1
 
-            if solutionsPerDepth <= maxSolutionsPerDepth:
+            if solutionsPerDepth < maxSolutionsPerDepth:
                 logging.info("blocking the solution {} from appearing again".format(formula))
                 # prevent current result from being found again
                 block = []
 
-                infVariables = fg.getInformativeVariables()
+                infVariables = fg.getInformativeVariables(depth=i, model = solverModel)
+
 
                 logging.debug("informative variables of the model:")
                 for v in infVariables:
-                    logging.debug((v, solverModel[v]))
+                    block.append(Not(v))
                 logging.debug("===========================")
-                for d in solverModel:
-                    # d is a declaration
-                    if d.arity() > 0:
-                        raise Z3Exception("uninterpreted functions are not supported")
-                    # create a constant from declaration
-                    c = d()
-                    if is_array(c) or c.sort().kind() == Z3_UNINTERPRETED_SORT:
-                        raise Z3Exception("arrays and uninterpreted sorts are not supported")
-                    block.append(c != solverModel[d])
+
+
 
                 fg.solver.add(Or(block))
 
@@ -115,13 +128,15 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
                 i += step
                 solutionsPerDepth = 0
                 num_attemts_per_depth = 0
-                fg = encoder(i, traces, literals=literals)
-                fg.encodeFormula(hintVariablesWithWeights=traces.hints_with_weights)
+                generation_tic.tic()
+                fg.encodeFormula(depth=i)
+                formula_generation_times.append(generation_tic.tocvalue())
 
     stats_log.info("number of initial candidates: {}".format(len(results)))
     stats_log.debug("number of candidates per depth: {}".format(constants.NUM_CANDIDATE_FORMULAS_OF_SAME_DEPTH))
     stats_log.info("number of attempts to get initial candidates: {}".format(num_attemts))
+    stats_log.info("propositional formula building times are {}".format(formula_generation_times))
     if testing:
-        return results, num_attemts
+        return results, num_attemts, solver_solving_times
     else:
         return results

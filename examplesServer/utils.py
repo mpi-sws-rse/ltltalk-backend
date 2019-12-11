@@ -8,8 +8,9 @@ DEFAULT_NUM_FORMULAS = constants.NUM_CANDIDATE_FORMULAS
 DEFAULT_START_DEPTH = constants.CANDIDATE_START_DEPTH
 DEFAULT_MAX_DEPTH = constants.CANDIDATE_MAX_DEPTH
 
-def create_json_spec(file_name, emitted_events, hints, pickup_locations, all_locations, negative_sequences, num_formulas = DEFAULT_NUM_FORMULAS,
+def create_json_spec(file_name, emitted_events_sequences, hints, pickup_locations, all_locations, negative_sequences, num_formulas = DEFAULT_NUM_FORMULAS,
                      start_depth = DEFAULT_START_DEPTH, max_depth = DEFAULT_MAX_DEPTH):
+
 
     if num_formulas is None:
         num_formulas = DEFAULT_NUM_FORMULAS
@@ -18,11 +19,13 @@ def create_json_spec(file_name, emitted_events, hints, pickup_locations, all_loc
     logging.debug("hints when creating json file are {}".format(hints))
     with open(file_name, "w") as exampleJsonFile:
         example_info = {}
-        literals = constants.STATE_EVENTS
+        literals = []
+        literals += constants.STATE_EVENTS
         for loc in pickup_locations:
             literals += constants.PICKUP_EVENTS_PER_LOCATION[loc]
         for loc in all_locations:
             literals.append(constants.AT_EVENTS_PER_LOCATION[loc])
+
         example_info["literals"] = literals
         example_info["number-of-formulas"] = num_formulas
         example_info["start-depth"] = start_depth
@@ -30,10 +33,13 @@ def create_json_spec(file_name, emitted_events, hints, pickup_locations, all_loc
         example_info["num-solutions-per-depth"] = constants.NUM_CANDIDATE_FORMULAS_OF_SAME_DEPTH
         example_info["operators"] = constants.OPERATORS
         example_info["hints"] = [[h, hints[h]] for h in hints]
-        positive = [";".join( [ ",".join([ e for e in timestep_events ]) for timestep_events in emitted_events] )]
+        
+        positive = [";".join([",".join([e for e in timestep_events])
+                              for timestep_events in emitted_events])
+                    for emitted_events in emitted_events_sequences]
         example_info["positive"] = positive
-        negative = [";".join( [ ",".join([ e for e in timestep_events ])
-                                for timestep_events in neg_emitted_events] )
+        negative = [";".join([",".join([e for e in timestep_events])
+                              for timestep_events in neg_emitted_events])
                     for neg_emitted_events in negative_sequences]
         example_info["negative"] = negative
 

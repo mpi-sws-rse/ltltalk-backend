@@ -36,13 +36,13 @@ def run_solver(finalDepth, traces, maxNumOfFormulas=1, startValue=1, step=1, q=N
         results = get_models(finalDepth=finalDepth, traces=traces, startValue=startValue, step=step,
                              encoder=encoder, literals=traces.literals, maxNumModels=maxNumOfFormulas, maxSolutionsPerDepth=maxSolutionsPerDepth, testing=testing)
     else:
-        results, num_attempts = get_models(finalDepth=finalDepth, traces=traces, startValue=startValue, step=step,
+        results, num_attempts, solver_solving_times = get_models(finalDepth=finalDepth, traces=traces, startValue=startValue, step=step,
                              encoder=encoder, literals=traces.literals, maxNumModels=maxNumOfFormulas, maxSolutionsPerDepth=maxSolutionsPerDepth, testing=testing)
 
     time_passed = t.tocvalue()
 
     if testing:
-        ret = [results, time_passed, num_attempts]
+        ret = [results, time_passed, num_attempts, solver_solving_times]
     else:
         ret = [results, time_passed]
 

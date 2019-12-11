@@ -16,13 +16,29 @@ from logger_initialization import stats_log
 from pytictoc import TicToc
 
 
-def create_candidates(nl_utterance, context, example, testing=False, num_formulas=None, starting_depth=None):
+def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, starting_depth=None, id=None):
 
     t = TicToc()
+    emitted_events_seq = []
+    collection_of_negative = []
+    pickup_locations = []
+    all_locations = []
 
-    test_world = World(context, json_type=2)
-    (emitted_events, pickup_locations, collection_of_negative, all_locations) = test_world.execute_and_emit_events(
-        example)
+    for ex in examples:
+        context = ex["context"]
+        path = ex["init-path"]
+        test_world = World(context, json_type=2)
+        (emitted_events, pickup_locations_ex, collection_of_negative_ex, all_locations_ex) = test_world.execute_and_emit_events(
+        path)
+        emitted_events_seq.append(emitted_events)
+        collection_of_negative += collection_of_negative_ex
+        pickup_locations += pickup_locations_ex
+        all_locations += all_locations_ex
+
+    pickup_locations = list(set(pickup_locations))
+    all_locations = list(set(all_locations))
+
+
 
     t.tic()
     hints = nlp_helpers.get_hints_from_utterance(nl_utterance)
@@ -56,16 +72,20 @@ def create_candidates(nl_utterance, context, example, testing=False, num_formula
     os.makedirs("data", exist_ok=True)
     hints_report = [ "{} --> {}".format(k, hintsWithLocations[k]) for k in hintsWithLocations ]
     stats_log.debug("hints: \n\t{}".format("\n\t".join(hints_report)))
-    create_json_spec(file_name="data/exampleWithHints.json", emitted_events=emitted_events, hints=hintsWithLocations,
+
+    json_name = "data/"+id+".json"
+    txt_name = "data/"+id+".txt"
+
+    create_json_spec(file_name=json_name, emitted_events_sequences=emitted_events_seq, hints=hintsWithLocations,
                      pickup_locations=pickup_locations, all_locations=all_locations,
                      negative_sequences=collection_of_negative, num_formulas=num_formulas, start_depth=starting_depth)
 
 
     if testing:
-        collection_of_candidates, num_attempts = start_experiment(experiment_specification="data/exampleWithHints.json", testing=testing)
-        return collection_of_candidates, num_attempts
+        collection_of_candidates, num_attempts, time_passed, solver_solving_times = start_experiment(experiment_specification=json_name, testing=testing, trace_out=txt_name)
+        return collection_of_candidates, num_attempts, time_passed, solver_solving_times
     else:
-        collection_of_candidates = start_experiment(experiment_specification="data/exampleWithHints.json",
+        collection_of_candidates = start_experiment(experiment_specification=json_name,
                                                                   testing=testing)
         return collection_of_candidates
 

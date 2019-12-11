@@ -1,4 +1,5 @@
 import argparse
+import copy
 import os
 import json
 import pdb
@@ -20,7 +21,9 @@ TEST_SESSION_ID = "test"
 CANDIDATES_GENERATION_TIMEOUT = 60
 WAITING_FOR_A_QUESTION_TIMEOUT = 60
 
-INIT_CANDIDATES_HEADER = "init_candidates_time"
+WAITING_TIME_FOR_FIRST_CANDIDATES_HEADER = "initial_user_waiting"
+INIT_CANDIDATES_GENERATION_TIME = "initial_candidates_generation_time"
+INIT_CANDIDATES_ONLY_SOLVING_TIME = "candidates_generation_solving_time"
 NUM_INIT_CANDIDATES_HEADER = "num_initial_candidates"
 NL_UTTERANCE_HEADER = "nl_utterance"
 FORMULA_HEADER = "target_formula"
@@ -42,7 +45,9 @@ HEADERS = [
     STARTING_DEPTH_HEADER,
     NL_UTTERANCE_HEADER,
     FORMULA_HEADER,
-    INIT_CANDIDATES_HEADER,
+    WAITING_TIME_FOR_FIRST_CANDIDATES_HEADER,
+    INIT_CANDIDATES_GENERATION_TIME,
+    INIT_CANDIDATES_ONLY_SOLVING_TIME,
     NUM_INIT_CANDIDATES_HEADER,
     NUM_ATTEMPTS_FOR_CANDIDATES_GENERATION_HEADER,
     NUM_QUESTIONS_ASKED_HEADER,
@@ -56,28 +61,53 @@ HEADERS = [
 main_log = logging.getLogger('main_logger')
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
+fh = logging.FileHandler('main.log')
+fh.setLevel(logging.INFO)
+main_log.addHandler(fh)
+
 
 # ch = logging.StreamHandler()
 # ch.setLevel(logging.DEBUG)
 # main_log.addHandler(ch)
 
+def sanity_check(path, w, f):
+    world = copy.deepcopy(w)
+    try:
+        (emitted_events, _, _, _) = world.execute_and_emit_events(path)
 
-def flipper_session(test_def, max_num_init_candidates, starting_depth, questions_timeout, candidates_timeout):
+        all_relevant_literals = f.getAllVariables()
+        trace = Trace.create_trace_from_events_list(emitted_events, literals_to_consider=all_relevant_literals)
+        return Trace.evaluateFormulaOnTrace(trace, f)
+
+    except Exception as e:
+        print(e)
+        print(w)
+        print(path)
+        pdb.set_trace()
+        return False
+
+
+def flipper_session(test_def, max_num_init_candidates, starting_depth, questions_timeout, candidates_timeout, test_id=TEST_SESSION_ID):
     stats = {}
     server_num_disambiguations = 0
     server_disambiguations_stats = []
 
     nl_utterance = test_def["description"]
-    world_context = test_def["context"]
-    world = World(world_context, json_type=2)
-    init_path = test_def["init-path"]
     target_formula = Formula.convertTextToFormula(test_def["target-formula"])
 
+    examples = test_def["examples"]
+
+    #world_context = test_def["context"]
+    #world = World(world_context, json_type=2)
+    #init_path = test_def["init-path"]
+
+
     candidate_spec_payload = {}
-    candidate_spec_payload["context"] = json.dumps(world_context)
+    #candidate_spec_payload["context"] = json.dumps(world_context)
     candidate_spec_payload["query"] = json.dumps(nl_utterance)
-    candidate_spec_payload["path"] = json.dumps(init_path)
-    candidate_spec_payload["sessionId"] = TEST_SESSION_ID
+    #candidate_spec_payload["path"] = json.dumps(init_path)
+    candidate_spec_payload["examples"] = json.dumps(examples)
+    candidate_spec_payload["sessionId"] = test_id
     candidate_spec_payload["num-formulas"] = max_num_init_candidates
     candidate_spec_payload["starting-depth"] = starting_depth
 
@@ -89,6 +119,17 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
     #         if h not in stats:
     #             stats[h] = "/"
     #     return stats
+
+    for ex in examples:
+        world_s = World(ex["context"], json_type=2)
+        f_s = target_formula
+        path_s = ex["init-path"]
+        if not sanity_check(path_s, world_s, target_formula):
+            pdb.set_trace()
+            raise ValueError("test is not correct")
+
+
+
     stats[STARTING_DEPTH_HEADER] = starting_depth
     stats[MAX_NUM_CANDIDATES_HEADER] = max_num_init_candidates
     stats[NL_UTTERANCE_HEADER] = nl_utterance
@@ -98,7 +139,7 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
     response_status = r.status_code
 
     if response_status == 500:
-        stats[INIT_CANDIDATES_HEADER] = "error"
+        stats[WAITING_TIME_FOR_FIRST_CANDIDATES_HEADER] = "error"
         for h in HEADERS:
             if h not in stats:
                 stats[h] = "/"
@@ -107,7 +148,7 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
 
     json_response = r.json()
     if json_response["status"] == constants.UNKNOWN_SOLVER_RES:
-        stats[INIT_CANDIDATES_HEADER] = "timeout"
+        stats[WAITING_TIME_FOR_FIRST_CANDIDATES_HEADER] = "timeout"
         for h in HEADERS:
             if h not in stats:
                 stats[h] = "/"
@@ -125,11 +166,13 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
 
     world = World(world_context, json_type=2)
     disambiguation_path = json_response["path"]
-
     server_num_disambiguations += json_response["num_disambiguations"]
     server_disambiguations_stats += json_response["disambiguation_stats"]
 
-    stats[INIT_CANDIDATES_HEADER] = init_candidates_time
+
+    stats[WAITING_TIME_FOR_FIRST_CANDIDATES_HEADER] = init_candidates_time
+    stats[INIT_CANDIDATES_GENERATION_TIME] = json_response["candidates_generation_time"]
+    stats[INIT_CANDIDATES_ONLY_SOLVING_TIME] = json_response["candidates_generation_solving_time"]
     stats[NUM_INIT_CANDIDATES_HEADER] = num_initial_candidates
 
     stats[NUM_ATTEMPTS_FOR_CANDIDATES_GENERATION_HEADER] = json_response["num_attempts"]
@@ -290,11 +333,16 @@ def main():
                                     stats = flipper_session(test_def, max_num_init_candidates=num_init_candidates,
                                                         starting_depth=starting_depth,
                                                         questions_timeout=args.questionsTimeout,
-                                                        candidates_timeout=args.candidatesTimeout)
-                                except:
+                                                        candidates_timeout=args.candidatesTimeout, test_id=test_id)
+                                except Exception as e:
                                     stats = {}
                                     for h in HEADERS:
                                             stats[h] = "unknown error"
+                                    main_log.error("Failed with the exception {}".format(e))
+                                # stats = flipper_session(test_def, max_num_init_candidates=num_init_candidates,
+                                #                         starting_depth=starting_depth,
+                                #                         questions_timeout=args.questionsTimeout,
+                                #                         candidates_timeout=args.candidatesTimeout)
 
                                 stats[TEST_ID_HEADER] = test_id
                                 writer.writerow(stats)

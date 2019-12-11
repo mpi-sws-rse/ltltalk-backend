@@ -20,7 +20,7 @@ def helper(m, d, vars):
     return tt
 
 
-def start_experiment(experiment_specification, iteration_step=1, testing=False):
+def start_experiment(experiment_specification, iteration_step=1, testing=False, trace_out=None):
 
     traces = ExperimentTraces()
     json_traces = json.load(open(experiment_specification))
@@ -32,7 +32,7 @@ def start_experiment(experiment_specification, iteration_step=1, testing=False):
     maxSolutionsPerDepth = json_traces["num-solutions-per-depth"]
 
     if testing:
-        [formulas, timePassed, num_attempts] = run_solver(finalDepth=maxDepth, traces=traces,
+        [formulas, timePassed, num_attempts, solver_solving_times] = run_solver(finalDepth=maxDepth, traces=traces,
                                                           maxNumOfFormulas=numFormulas,
                                                           startValue=startDepth, step=iteration_step,
                                                           maxSolutionsPerDepth=maxSolutionsPerDepth, testing=testing)
@@ -45,9 +45,12 @@ def start_experiment(experiment_specification, iteration_step=1, testing=False):
     stats_log.debug("number of found formulas: {}".format(len(formulas)))
     stats_log.debug("found formulas: \n\t{}".format("\n\t".join([str(f) for f in formulas])))
 
+    if not trace_out is None:
+        traces.writeTracesToFile(trace_out)
+
     logging.debug("found formulas are {} and the time needed is {}".format(formulas, timePassed))
     if testing:
-        return formulas, num_attempts
+        return formulas, num_attempts, timePassed, solver_solving_times
     else:
         return formulas
 

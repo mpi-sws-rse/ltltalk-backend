@@ -121,6 +121,10 @@ class Formula(SimpleTree):
         elif self.getDepth() > other.getDepth():
             return False
         else:
+            if self.getNumberOfSubformulas() < other.getNumberOfSubformulas():
+                return True
+            elif self.getNumberOfSubformulas() > other.getNumberOfSubformulas():
+                return False
             if self._isLeaf() and other._isLeaf():
                 return self.label < other.label
 

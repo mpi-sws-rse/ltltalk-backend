@@ -16,13 +16,14 @@ class DagSATEncoding:
       - each trace is a list of recordings at time units (time point)
       - each time point is a list of variable values (x1,..., xk)
     """
-    def __init__(self, D, testTraces, literals, testing=False):
+    def __init__(self, D, testTraces, literals, testing=False, hintVariablesWithWeights = {'p':2}):
         
         defaultOperators = [encodingConstants.G, encodingConstants.F, encodingConstants.LNOT, encodingConstants.UNTIL, encodingConstants.LAND,encodingConstants.LOR, encodingConstants.IMPLIES, encodingConstants.X]
         unary = [encodingConstants.G, encodingConstants.F, encodingConstants.LNOT, encodingConstants.X, encodingConstants.ENDS]
         binary = [encodingConstants.LAND, encodingConstants.LOR, encodingConstants.UNTIL, encodingConstants.IMPLIES, encodingConstants.BEFORE, encodingConstants.STRICTLY_BEFORE]
         #except for the operators, the nodes of the "syntax table" are additionally the propositional variables 
         
+
         if testTraces.operators == None:
             self.listOfOperators = defaultOperators
         else:
@@ -31,16 +32,20 @@ class DagSATEncoding:
         if 'prop' in self.listOfOperators:
             self.listOfOperators.remove('prop')
 
-
+        self.hints = hintVariablesWithWeights
         self.unaryOperators = [op for op in self.listOfOperators if op in unary]
         self.binaryOperators = [op for op in self.listOfOperators if op in binary]
 
         
         
         self.solver = Optimize()
+        #z3.set_param("verbose",10)
         if testing:
             self.solver.set("timeout", encodingConstants.SOLVER_TIMEOUT)
-            #self.solver.set("timeout", 6)
+            z3.set_param("smt.random_seed", encodingConstants.SEED_VALUE)
+
+
+
 
         self.formulaDepth = D
 
@@ -54,22 +59,48 @@ class DagSATEncoding:
         
         self.traces = testTraces
 
+        self.operatorsAndVariables = self.listOfOperators + self.listOfVariables
 
+        self.x = {(i, o): Bool('x_' + str(i) + '_' + str(o)) for i in range(self.formulaDepth) for o in
+                  self.operatorsAndVariables}
+
+        self.l = {(parentOperator, childOperator): Bool('l_' + str(parentOperator) + '_' + str(childOperator)) \
+                  for parentOperator in range(1, self.formulaDepth) \
+                  for childOperator in range(parentOperator)}
+        self.r = {(parentOperator, childOperator): Bool('r_' + str(parentOperator) + '_' + str(childOperator)) \
+                  for parentOperator in range(1, self.formulaDepth) \
+                  for childOperator in range(parentOperator)}
+
+        self.y = {(i, traceIdx, positionInTrace): Bool('y_' + str(i) + '_' + str(traceIdx) + '_' + str(positionInTrace)) \
+                  for i in range(self.formulaDepth) \
+                  for traceIdx, trace in enumerate(self.traces.acceptedTraces + self.traces.rejectedTraces) \
+                  for positionInTrace in range(trace.lengthOfTrace)}
 
         #self.listOfVariables = [i for i in range(self.traces.numVariables)]
-        
-        
-        
-        
-        #keeping track of which positions in a tree (and in time) are visited, so that constraints are not generated twice
-#        self.visitedPositions = set()
+
+        self.exactlyOneOperator()
+        self.firstOperatorVariable()
+        self.propVariablesSemantics()
+        self.operatorsSemantics()
 
 
-    def getInformativeVariables(self):
+
+        self.roughGrammarRestrictions()
+
+
+
+        self.solver.push()
+
+
+    def getInformativeVariables(self, depth=None, model=None):
+        if depth is None:
+            depth = self.formulaDepth
+        if model is None:
+            model = self.solver.model()
         res = []
-        res += [v for v in self.x.values()]
-        res += [v for v in self.l.values()]
-        res += [v for v in self.r.values()]
+        res += [self.x[k] for k in self.x if (k[0] in range(depth) and model[self.x[k]] == True)]
+        res += [self.l[k] for k in self.l if k[0] in range(depth) and model[self.l[k]] == True]
+        res += [self.r[k] for k in self.r if k[0] in range(depth) and model[self.r[k]]==True]
 
 
         return res
@@ -80,59 +111,40 @@ class DagSATEncoding:
         - r[i][j]: "right operand of subformula i is subformula j"
         - y[i][tr][t]: semantics of formula i in time point t of trace tr
     """
-    def encodeFormula(self, unsatCore=True, hintVariablesWithWeights = {'p':2}):
-        self.operatorsAndVariables = self.listOfOperators + self.listOfVariables
+    def encodeFormula(self, unsatCore=True, depth=None):
+        self.solver.pop()
 
-        self.x = { (i, o) : Bool('x_'+str(i)+'_'+str(o)) for i in range(self.formulaDepth) for o in self.operatorsAndVariables }
+        # making sure that the last reference frame is the clean state
+        self.solver.push()
 
-        self.l = {(parentOperator, childOperator) : Bool('l_'+str(parentOperator)+'_'+str(childOperator))\
-                                                 for parentOperator in range(1, self.formulaDepth)\
-                                                 for childOperator in range(parentOperator)}
-        self.r = {(parentOperator, childOperator) : Bool('r_'+str(parentOperator)+'_'+str(childOperator))\
-                                                 for parentOperator in range(1, self.formulaDepth)\
-                                                 for childOperator in range(parentOperator)}
 
-        self.y = { (i, traceIdx, positionInTrace) : Bool('y_'+str(i)+'_'+str(traceIdx)+'_'+str(positionInTrace))\
-                  for i in range(self.formulaDepth)\
-                  for traceIdx, trace in enumerate(self.traces.acceptedTraces + self.traces.rejectedTraces)\
-                  for positionInTrace in range(trace.lengthOfTrace)}
-        
-        
-        #self.solver.set(unsat_core=unsatCore)
+        if depth is None:
+            depth = self.formulaDepth
 
-#        pdb.set_trace()
 
-        self.exactlyOneOperator()       
-        self.firstOperatorVariable()
 
-        #self.FandGOnlyTopLevel()
 
-        self.propVariablesSemantics()
-         
-        self.operatorsSemantics()
-        self.noDanglingVariables()
+        self.noDanglingVariables(depth=depth)
+        self.include_hint_variables_softly(depth=depth)
+
+        self.setUnimportantToVar(depth=depth)
+
 
         #positive traces should be accepted
-        self.solver.add(And( [ self.y[(self.formulaDepth - 1, traceIdx, 0)] for traceIdx in range(len(self.traces.acceptedTraces))] ))
+        self.solver.add(And( [ self.y[(depth - 1, traceIdx, 0)] for traceIdx in range(len(self.traces.acceptedTraces))] ))
 
         #negative traces should be rejected
-        self.solver.add(And( [ Not(self.y[(self.formulaDepth - 1, traceIdx, 0)]) for traceIdx in range(len(self.traces.acceptedTraces), len(self.traces.acceptedTraces+self.traces.rejectedTraces))] ))
+        self.solver.add(And( [ Not(self.y[(depth - 1, traceIdx, 0)]) for traceIdx in range(len(self.traces.acceptedTraces), len(self.traces.acceptedTraces+self.traces.rejectedTraces))] ))
 
-        self.roughGrammarRestrictions()
-
-        self.include_hint_variables_softly(hint_variables_with_weights=hintVariablesWithWeights)
-       # pdb.set_trace()
-
-        # self.solver.add_soft(self.x[(0,0)], weight=1)
-        # self.solver.add_soft(self.x[(0, 1)], weight=5)
-        
         
     
-    def include_hint_variables_softly(self, hint_variables_with_weights):
-        for prop_var in hint_variables_with_weights:
+    def include_hint_variables_softly(self, depth = None):
+        if depth is None:
+            depth = self.formulaDepth
+        for prop_var in self.hints:
             self.solver.add_soft(
-                Or([self.x[(i, prop_var)] for i in range(self.formulaDepth)]),
-                weight=hint_variables_with_weights[prop_var])
+                Or([self.x[(i, prop_var)] for i in range(depth)]),
+                weight=self.hints[prop_var])
 
             # debug: adding weights to operators
             # self.solver.add_soft(
@@ -141,11 +153,15 @@ class DagSATEncoding:
             # )
 
 
+    def setUnimportantToVar(self, depth):
+        for i in range(depth, self.formulaDepth):
+            self.solver.add(self.x[(i, self.listOfVariables[0])])
 
 
-
-    def propVariablesSemantics(self):
-        for i in range(self.formulaDepth):
+    def propVariablesSemantics(self, depth=None):
+        if depth is None:
+            depth = self.formulaDepth
+        for i in range(depth):
             for p in self.listOfVariables:
                 for traceIdx, tr in enumerate(self.traces.acceptedTraces + self.traces.rejectedTraces):
                     self.solver.add(Implies(self.x[(i, p)],\
@@ -160,38 +176,41 @@ class DagSATEncoding:
         self.solver.add(Or([self.x[k] for k in self.x if k[0] == 0 and k[1] in self.listOfVariables]))
 
 
-    def noDanglingVariables(self):
-        if self.formulaDepth > 0:
-            self.solver.add(
-                And([
+    def noDanglingVariables(self, depth=None):
+        if depth is None:
+            depth = self.formulaDepth
+        if depth > 0:
+            # each formula is somebody's child
+            danglingCondition = And([
                     Or(
-                        AtLeast([self.l[(rowId, i)] for rowId in range(i+1, self.formulaDepth)]+ [1]),
-                        AtLeast([self.r[(rowId, i)] for rowId in range(i+1, self.formulaDepth)] + [1])
+                        AtLeast([self.l[(rowId, i)] for rowId in range(i+1, depth)]+ [1]),
+                        AtLeast([self.r[(rowId, i)] for rowId in range(i+1, depth)] + [1])
                     )
-                    for i in range(self.formulaDepth - 1)]
+                    for i in range(depth - 1)]
                 )
-            )
+            self.solver.add(danglingCondition)
 
-    def FandGOnlyTopLevel(self):
-        self.solver.add( And([
-            Not(self.x[(i,o)]) for i in range(self.formulaDepth-1) for o in [encodingConstants.G]
-        ]))
+
+
     
     def exactlyOneOperator(self):
+
             
-            
+            # at most one type of formula is true
             self.solver.add(And([\
                                               AtMost( [self.x[k] for k in self.x if k[0] == i] +[1])\
                                               for i in range(self.formulaDepth)\
                                               ])
             )
-            
+
+            # at least one type of formula is true
             self.solver.add(And([\
                                               AtLeast( [self.x[k] for k in self.x if k[0] == i] +[1])\
                                               for i in range(self.formulaDepth)\
                                               ])
             )
-            
+
+            # if a formula has a left child, then it has at most one left child
             if (self.formulaDepth > 0):
                 self.solver.add(And([\
                                                 Implies(
@@ -203,7 +222,8 @@ class DagSATEncoding:
                                               for i in range(1,self.formulaDepth)\
                                               ])
             )
-            
+
+            # if formula has a left child, then it has at least one left child
             if (self.formulaDepth > 0):
                 self.solver.add(And([\
                                                 Implies(
@@ -217,6 +237,7 @@ class DagSATEncoding:
                                               ])
             )
 
+            # if formula has a right child, then it has at most one right child
             if (self.formulaDepth > 0):
                 self.solver.add(And([ \
                     Implies(
@@ -228,7 +249,7 @@ class DagSATEncoding:
                     for i in range(1, self.formulaDepth) \
                     ])
                     )
-
+            #if the formula has a right child, then it has at least one right child
             if (self.formulaDepth > 0):
                 self.solver.add(And([ \
                     Implies(
@@ -241,7 +262,7 @@ class DagSATEncoding:
                     for i in range(1, self.formulaDepth) \
                     ])
                     )
-
+            # if formula does not have a right child, then it really has none of them
             if (self.formulaDepth > 0):
                 self.solver.add(And([ \
                     Implies(
@@ -256,7 +277,7 @@ class DagSATEncoding:
                     for i in range(1, self.formulaDepth) \
                     ])
                     )
-
+            # if formula is a prop variable, then it has neither a left child nor a right child
             if (self.formulaDepth > 0):
                 self.solver.add(And([ \
                     Implies(
@@ -276,9 +297,11 @@ class DagSATEncoding:
                     ])
                     )
 
-    def roughGrammarRestrictions(self):
+    def roughGrammarRestrictions(self, depth=None):
+        if depth is None:
+            depth = self.formulaDepth
 
-        for i in range(self.formulaDepth):
+        for i in range(depth):
             # left operator of U, E, G, F, B may only be a literal
             allowedLeft =  self.listOfVariables + [k for k in [encodingConstants.LNOT] if k in self.listOfOperators]
 
@@ -418,11 +441,13 @@ class DagSATEncoding:
 
 
 
-    def operatorsSemantics(self):
+    def operatorsSemantics(self, depth=None):
+        if depth is None:
+            depth = self.formulaDepth
 
 
         for traceIdx, tr in enumerate(self.traces.acceptedTraces + self.traces.rejectedTraces):
-            for i in range(1, self.formulaDepth):
+            for i in range(1, depth):
                 
                 if encodingConstants.LOR in self.listOfOperators:
                     #disjunction
@@ -634,10 +659,14 @@ class DagSATEncoding:
                                                                          )\
                                                                 for leftArg in range(i) for rightArg in range(i) ]))
                                      )
-    def reconstructWholeFormula(self, model):
-        return self.reconstructFormula(self.formulaDepth-1, model)
+    def reconstructWholeFormula(self, model, depth=None):
+        if depth is None:
+            depth = self.formulaDepth
+        return self.reconstructFormula(depth-1, model)
 
-    def reconstructTable(self, model):
+    def reconstructTable(self, model, depth=None):
+        if depth is None:
+            depth = self.formulaDepth
 
         def getValue(row, vars):
             tt = [k[1] for k in vars if k[0] == row and model[vars[k]] == True]
@@ -647,7 +676,7 @@ class DagSATEncoding:
                 return tt[0]
 
         table = {}
-        for row in range(self.formulaDepth):
+        for row in range(depth):
             table[row] = getValue(row, self.x)
         return table
 
