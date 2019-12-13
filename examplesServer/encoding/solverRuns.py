@@ -21,7 +21,7 @@ import logging, os
 
 
 
-def run_solver(finalDepth, traces, maxNumOfFormulas=1, startValue=1, step=1, q=None, encoder=DagSATEncoding,
+def run_solver(finalDepth, traces, maxNumOfFormulas=1, step=1, q=None, encoder=DagSATEncoding,
                maxSolutionsPerDepth = 1, testing=False):
 
 
@@ -33,10 +33,10 @@ def run_solver(finalDepth, traces, maxNumOfFormulas=1, startValue=1, step=1, q=N
     t = TicToc()
     t.tic()
     if not testing:
-        results = get_models(finalDepth=finalDepth, traces=traces, startValue=startValue, step=step,
+        results = get_models(finalDepth=finalDepth, traces=traces, step=step,
                              encoder=encoder, literals=traces.literals, maxNumModels=maxNumOfFormulas, maxSolutionsPerDepth=maxSolutionsPerDepth, testing=testing)
     else:
-        results, num_attempts, solver_solving_times = get_models(finalDepth=finalDepth, traces=traces, startValue=startValue, step=step,
+        results, num_attempts, solver_solving_times = get_models(finalDepth=finalDepth, traces=traces, step=step,
                              encoder=encoder, literals=traces.literals, maxNumModels=maxNumOfFormulas, maxSolutionsPerDepth=maxSolutionsPerDepth, testing=testing)
 
     time_passed = t.tocvalue()

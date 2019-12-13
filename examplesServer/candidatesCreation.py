@@ -16,13 +16,16 @@ from logger_initialization import stats_log
 from pytictoc import TicToc
 
 
-def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, starting_depth=None, id=None):
+def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, id=None, max_depth=None):
 
     t = TicToc()
     emitted_events_seq = []
     collection_of_negative = []
     pickup_locations = []
     all_locations = []
+
+    if max_depth is None:
+        max_depth = constants.CANDIDATE_MAX_DEPTH
 
     for ex in examples:
         context = ex["context"]
@@ -42,6 +45,7 @@ def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, 
 
     t.tic()
     hints = nlp_helpers.get_hints_from_utterance(nl_utterance)
+
     stats_log.debug("nlp hints creation time: {}".format(t.tocvalue()))
 
     relevant_locations = nlp_helpers.get_locations_from_utterance(nl_utterance)
@@ -49,8 +53,10 @@ def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, 
 
     hintsWithLocations = {}
     for hint in hints:
+
         if hint == constants.DRY:
             hintsWithLocations[hint] = hints[hint]
+
             continue
         for l in pickup_locations:
             hintsWithLocations["{}_at_{}_{}".format(hint, l[0], l[1])] = hints[hint]
@@ -69,6 +75,12 @@ def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, 
     atLocationsHints = {"at_{}_{}".format(loc[0],loc[1]): max(middleValue,1) for loc in relevant_locations}
     hintsWithLocations.update(atLocationsHints)
 
+    hintsWithLocations = nlp_helpers.filter_hints_with_emitted_events(hintsWithLocations, emitted_events_seq)
+    # DEBUG: at_dry hint is disadvantaged. want to give it back some weight
+    if constants.DRY in hintsWithLocations:
+        hintsWithLocations[hint] = hints[constants.DRY] + 1
+
+
     os.makedirs("data", exist_ok=True)
     hints_report = [ "{} --> {}".format(k, hintsWithLocations[k]) for k in hintsWithLocations ]
     stats_log.debug("hints: \n\t{}".format("\n\t".join(hints_report)))
@@ -76,9 +88,10 @@ def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, 
     json_name = "data/"+id+".json"
     txt_name = "data/"+id+".txt"
 
+
     create_json_spec(file_name=json_name, emitted_events_sequences=emitted_events_seq, hints=hintsWithLocations,
                      pickup_locations=pickup_locations, all_locations=all_locations,
-                     negative_sequences=collection_of_negative, num_formulas=num_formulas, start_depth=starting_depth)
+                     negative_sequences=collection_of_negative, num_formulas=num_formulas, max_depth=max_depth)
 
 
     if testing:

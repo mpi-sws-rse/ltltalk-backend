@@ -57,7 +57,7 @@ def hello_world():
 @app.route('/get-candidate-spec')
 def candidate_spec():
 
-    try:
+    #try:
 
 
         stats_log.info("\n======\n")
@@ -71,8 +71,6 @@ def candidate_spec():
 
             disambiguation_stats = []
             num_disambiguations = 0
-
-        #pdb.set_trace()
 
         nl_utterance = json.loads(request.args.get('query'))
 
@@ -89,12 +87,19 @@ def candidate_spec():
         if constants.TESTING:
             try:
                 num_formulas = json.loads(request.args.get("num-formulas"))
-                starting_depth = json.loads(request.args.get("starting-depth"))
+                max_depth = json.loads(request.args.get("max-depth"))
+
             except:
                 num_formulas = None
-                starting_depth = None
+                max_depth = constants.CANDIDATE_MAX_DEPTH
 
-            candidates, num_attempts, candidates_generation_time, solver_solving_times = create_candidates(nl_utterance, examples, testing=constants.TESTING, num_formulas=num_formulas, starting_depth=starting_depth, id=sessionId)
+            candidates, num_attempts, candidates_generation_time, solver_solving_times = create_candidates(nl_utterance,
+                                                                                                           examples,
+                                                                                                           testing=constants.TESTING,
+                                                                                                           num_formulas=num_formulas,
+                                                                                                           id=sessionId,
+                                                                                                           max_depth=max_depth)
+
             answer["num_attempts"] = num_attempts
             answer["candidates_generation_time"] = candidates_generation_time
             stats_log.info("solving times are {}".format(solver_solving_times))
@@ -135,7 +140,7 @@ def candidate_spec():
             if not status == "indoubt":
                 answer['status'] = status
                 if status == "ok":
-                    answer["candidates"].append(candidate_1)
+                    answer["candidates"].append(str(candidate_1))
                 if constants.TESTING:
                     answer["num_disambiguations"] = num_disambiguations
                     answer["disambiguation_stats"] = disambiguation_stats
@@ -172,9 +177,9 @@ def candidate_spec():
 
         return answer
 
-    except Exception as e:
-        error_log.error("exception {}".format(e))
-        return (str(e), 500)
+    # except Exception as e:
+    #     error_log.error("exception {}".format(e))
+    #     return (str(e), 500)
 
 
 @app.route('/get-path')
@@ -308,6 +313,7 @@ def user_decision_update():
 
                     answer["num_disambiguations"] = num_disambiguations
                     answer["disambiguation_stats"] = disambiguation_stats
+
                 return answer
     except Exception as e:
         error_log.error("exception {}".format(e))

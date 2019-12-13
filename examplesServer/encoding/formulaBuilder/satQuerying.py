@@ -18,71 +18,51 @@ def get_models_with_safety_restrictions(safety_restrictions, traces, final_depth
     raise NotImplementedError
 
 
-def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumModels=1, maxSolutionsPerDepth=1,
+def get_models(finalDepth, traces, step, encoder, literals, maxNumModels=1, maxSolutionsPerDepth=1,
                testing=False):
     formula_generation_times = []
     results = []
-    i = startValue
+
     generation_tic = TicToc()
     generation_tic.tic()
+
     fg = encoder(finalDepth, traces, literals=literals, testing=testing, hintVariablesWithWeights=traces.hints_with_weights)
-    fg.encodeFormula(depth=i)
+    fg.encodeFormula()
     formula_generation_times.append(generation_tic.tocvalue())
 
 
-    maxSolutionsPerDepth = maxSolutionsPerDepth
-    solutionsPerDepth = 0
+
     num_attemts = 0
-    num_attemts_per_depth = 0
-    blocking_constraints = []
     solver_solving_times = []
 
 
-    while len(results) < maxNumModels and i < finalDepth:
+    while len(results) < maxNumModels and num_attemts < maxNumModels + 2:
 
-
-        num_attemts_per_depth += 1
         num_attemts += 1
-        logging.info("ATTEMPT {}, running solver for depth = {}".format(num_attemts, i))
 
-        if num_attemts_per_depth > constants.NUM_ATTEMPTS_PER_DEPTH:
-            logging.info("enough attempts for depth {0}".format(i))
-            num_attemts_per_depth = 0
 
-            solutionsPerDepth = 0
-            i += step
-            generation_tic.tic()
-            #fg = encoder(i, traces, literals=literals, testing=testing)
-            fg.encodeFormula(depth=i)
-            formula_generation_times.append(generation_tic.tocvalue())
         solverTic = TicToc()
         solverTic.tic()
         solverRes = fg.solver.check()
         solver_solving_times.append(solverTic.tocvalue())
 
         if solverRes == unsat:
+            logging.info("unsat!")
+            break
 
-            logging.info("not sat for i = {}".format(i))
-
-            i += step
-            solutionsPerDepth = 0
-
-            num_attemts_per_depth = 0
-            generation_tic.tic()
-            fg.encodeFormula(depth=i)
-            formula_generation_times.append(generation_tic.tocvalue())
         elif solverRes == unknown:
-
             results = [constants.UNKNOWN_SOLVER_RES]
             break
+
 
         else:
 
             solverModel = fg.solver.model()
+            found_formula_depth = solverModel[fg.guessed_depth].as_long()
 
-            formula = fg.reconstructWholeFormula(solverModel, depth=i)
-            table = fg.reconstructTable(solverModel, depth=i)
-            logging.info("found formula {}".format(formula.prettyPrint()))
+            formula = fg.reconstructWholeFormula(solverModel, depth=found_formula_depth)
+            table = fg.reconstructTable(solverModel, depth=found_formula_depth)
+            logging.info("found formula {} of depth {}".format(formula.prettyPrint(), found_formula_depth))
             formula = Formula.normalize(formula)
             if not os.path.exists("debug_models/"):
                 os.makedirs("debug_models/")
@@ -101,41 +81,23 @@ def get_models(finalDepth, traces, startValue, step, encoder, literals, maxNumMo
                 logging.info(
                     "added formula {} to the set. Currently we have {} formulas and looking for total of {}".format(
                         formula, len(results), maxNumModels))
-                solutionsPerDepth += 1
 
-            if solutionsPerDepth < maxSolutionsPerDepth:
-                logging.info("blocking the solution {} from appearing again".format(formula))
-                # prevent current result from being found again
-                block = []
+            block = []
 
-                infVariables = fg.getInformativeVariables(depth=i, model = solverModel)
+            infVariables = fg.getInformativeVariables(depth=found_formula_depth, model=solverModel)
 
-
-                logging.debug("informative variables of the model:")
-                for v in infVariables:
-                    block.append(Not(v))
-                logging.debug("===========================")
-
-
-
-                fg.solver.add(Or(block))
-
-            # reset the solver
-            else:
-                if len(results) > maxNumModels:
-                    break
-                logging.info("enough solutions for depth {0}".format(i))
-                i += step
-                solutionsPerDepth = 0
-                num_attemts_per_depth = 0
-                generation_tic.tic()
-                fg.encodeFormula(depth=i)
-                formula_generation_times.append(generation_tic.tocvalue())
-
+            logging.debug("informative variables of the model:")
+            for v in infVariables:
+                print("{}: {}".format(v, solverModel[v]))
+                block.append(Not(v))
+            logging.debug("===========================")
+            print("blocking {}".format(block))
+            fg.solver.add(Or(block))
     stats_log.info("number of initial candidates: {}".format(len(results)))
     stats_log.debug("number of candidates per depth: {}".format(constants.NUM_CANDIDATE_FORMULAS_OF_SAME_DEPTH))
     stats_log.info("number of attempts to get initial candidates: {}".format(num_attemts))
     stats_log.info("propositional formula building times are {}".format(formula_generation_times))
+
     if testing:
         return results, num_attemts, solver_solving_times
     else:

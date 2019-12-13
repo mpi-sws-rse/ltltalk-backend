@@ -37,12 +37,12 @@ NUM_ATTEMPTS_FOR_CANDIDATES_GENERATION_HEADER = "num_attempts_candidates_generat
 TEST_FILENAME_HEADER = "filename"
 TEST_ID_HEADER = "test_id"
 MAX_NUM_CANDIDATES_HEADER = "max_num_candidates"
-STARTING_DEPTH_HEADER = "start_depth"
+MAX_DEPTH_HEADER = "max depth"
 
 HEADERS = [
     TEST_ID_HEADER,
     MAX_NUM_CANDIDATES_HEADER,
-    STARTING_DEPTH_HEADER,
+    MAX_DEPTH_HEADER,
     NL_UTTERANCE_HEADER,
     FORMULA_HEADER,
     WAITING_TIME_FOR_FIRST_CANDIDATES_HEADER,
@@ -87,7 +87,7 @@ def sanity_check(path, w, f):
         return False
 
 
-def flipper_session(test_def, max_num_init_candidates, starting_depth, questions_timeout, candidates_timeout, test_id=TEST_SESSION_ID):
+def flipper_session(test_def, max_num_init_candidates, questions_timeout, candidates_timeout, max_depth, test_id=TEST_SESSION_ID):
     stats = {}
     server_num_disambiguations = 0
     server_disambiguations_stats = []
@@ -97,9 +97,6 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
 
     examples = test_def["examples"]
 
-    #world_context = test_def["context"]
-    #world = World(world_context, json_type=2)
-    #init_path = test_def["init-path"]
 
 
     candidate_spec_payload = {}
@@ -109,7 +106,7 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
     candidate_spec_payload["examples"] = json.dumps(examples)
     candidate_spec_payload["sessionId"] = test_id
     candidate_spec_payload["num-formulas"] = max_num_init_candidates
-    candidate_spec_payload["starting-depth"] = starting_depth
+    candidate_spec_payload["max-depth"] = max_depth
 
     # try:
     #     r = requests.get(FLIPPER_URL + "/get-candidate-spec", params=candidate_spec_payload, timeout=candidates_timeout)
@@ -130,9 +127,9 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
 
 
 
-    stats[STARTING_DEPTH_HEADER] = starting_depth
     stats[MAX_NUM_CANDIDATES_HEADER] = max_num_init_candidates
     stats[NL_UTTERANCE_HEADER] = nl_utterance
+    stats[MAX_DEPTH_HEADER] = max_depth
 
     r = requests.get(FLIPPER_URL + "/get-candidate-spec", params=candidate_spec_payload)
     init_candidates_time = r.elapsed.total_seconds()
@@ -158,17 +155,9 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
     main_log.info("init candidates are {}\n\n".format(candidates))
 
     num_initial_candidates = len(candidates)
-    interaction_status = json_response["status"]
-    if interaction_status == "ok":
-        return stats
 
-    world_context = json_response["world"]
-
-    world = World(world_context, json_type=2)
-    disambiguation_path = json_response["path"]
     server_num_disambiguations += json_response["num_disambiguations"]
     server_disambiguations_stats += json_response["disambiguation_stats"]
-
 
     stats[WAITING_TIME_FOR_FIRST_CANDIDATES_HEADER] = init_candidates_time
     stats[INIT_CANDIDATES_GENERATION_TIME] = json_response["candidates_generation_time"]
@@ -179,6 +168,28 @@ def flipper_session(test_def, max_num_init_candidates, starting_depth, questions
     stats[FORMULA_HEADER] = test_def["target-formula"]
 
 
+    interaction_status = json_response["status"]
+    if interaction_status == "ok":
+        foundFormula = Formula.convertTextToFormula(candidates[0])
+        stats[RESULT_FORMULA_HEADER] = str(foundFormula)
+        if foundFormula == target_formula:
+            stats[IS_FORMULA_FOUND_HEADER] = True
+        else:
+            stats[IS_FORMULA_FOUND_HEADER] = False
+        return stats
+
+
+
+
+    if num_initial_candidates == 0:
+        stats[IS_FORMULA_FOUND_HEADER] = False
+        for h in HEADERS:
+            if h not in stats:
+                stats[h] = "/"
+        return stats
+    world_context = json_response["world"]
+
+    world = World(world_context, json_type=2)
 
     actions = json_response["actions"]
 
@@ -284,7 +295,7 @@ def main():
     parser.add_argument("--output", dest="statsOutput", default="stats.csv")
     parser.add_argument("--num_repetitions", dest="numRepetitions", type=int, default=1)
     parser.add_argument("--num_init_candidates", dest="numInitCandidates", nargs='+', type=int, default=[3, 6, 10])
-    parser.add_argument("--starting_depth", dest="startingDepth", type=int, nargs='+', default=[2, 3])
+    parser.add_argument("--max_depth", dest="maxDepth", type=int, nargs='+', default=[2, 3, 4])
     parser.add_argument("--continue_test", dest="continueTest", action='store_true', default=False)
     parser.add_argument("--candidates_timeout", dest="candidatesTimeout", type=int,
                         default=CANDIDATES_GENERATION_TIMEOUT)
@@ -320,29 +331,25 @@ def main():
                 test_def = json.load(test_file)
                 for num_init_candidates in args.numInitCandidates:
 
-                    for starting_depth in args.startingDepth:
-                        main_log.info("\t\tstarting depth: {}".format(starting_depth))
+                    for max_depth in args.maxDepth:
                         for rep in range(args.numRepetitions):
 
                             main_log.info(
-                                "testing {}, for max {} candidates, with starting depth {}, repetition {}".format(
-                                    test_filename.name, num_init_candidates, starting_depth, rep))
-                            test_id = test_filename.name + str(num_init_candidates) + str(starting_depth) + str(rep)
+                                "testing {}, for max {} candidates, max depth {}, repetition {}".format(
+                                    test_filename.name, num_init_candidates, max_depth, rep))
+                            test_id = test_filename.name + str(num_init_candidates) + str(max_depth) + str(rep)
                             if not test_id in tests_already_covered:
                                 try:
                                     stats = flipper_session(test_def, max_num_init_candidates=num_init_candidates,
-                                                        starting_depth=starting_depth,
-                                                        questions_timeout=args.questionsTimeout,
-                                                        candidates_timeout=args.candidatesTimeout, test_id=test_id)
+                                                            questions_timeout=args.questionsTimeout,
+                                                            candidates_timeout=args.candidatesTimeout, test_id=test_id,
+                                                            max_depth=max_depth)
                                 except Exception as e:
                                     stats = {}
                                     for h in HEADERS:
                                             stats[h] = "unknown error"
                                     main_log.error("Failed with the exception {}".format(e))
-                                # stats = flipper_session(test_def, max_num_init_candidates=num_init_candidates,
-                                #                         starting_depth=starting_depth,
-                                #                         questions_timeout=args.questionsTimeout,
-                                #                         candidates_timeout=args.candidatesTimeout)
+
 
                                 stats[TEST_ID_HEADER] = test_id
                                 writer.writerow(stats)

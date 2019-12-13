@@ -25,6 +25,22 @@ def get_locations_from_utterance(nl_utterance):
 
     return locations
 
+def filter_hints_with_emitted_events(hints, seq_of_events):
+
+    new_hints = {}
+    for events in seq_of_events:
+        for e in events:
+
+            hints_in_e = {h:hints[h] for h in hints if h in e}
+
+            if len(hints_in_e) > 0:
+                max_hints_value = max(hints_in_e.values())
+                for k in hints_in_e:
+                    if hints_in_e[k] == max_hints_value:
+                        new_hints[k] = max_hints_value
+    return new_hints
+
+
 def get_hints_from_utterance(nl_utterance):
 
 
@@ -49,8 +65,7 @@ of individual subwords. --->  SHOULD BE REPLACED BY SOMETHING BETTER
     for prop_variable in constants.EVENTS:
         score = 0
         list_of_descriptors = [lemmatizer.lemmatize(el) for el in prop_variable.split("_") if not (el == "x" or el == "item" or el == "at")]
-        # if prop_variable == "at_dry":
-        #     pdb.set_trace()
+
         for desc in list_of_descriptors:
             candidates = [desc]
             if desc in constants.SYNONYMS:

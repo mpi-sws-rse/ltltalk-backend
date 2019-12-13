@@ -28,18 +28,18 @@ def start_experiment(experiment_specification, iteration_step=1, testing=False, 
     traces.readTracesFromFlieJson(json_traces)
     maxDepth = json_traces["max-depth-of-formula"]
     numFormulas = json_traces["number-of-formulas"]
-    startDepth = json_traces["start-depth"]
+
     maxSolutionsPerDepth = json_traces["num-solutions-per-depth"]
 
     if testing:
         [formulas, timePassed, num_attempts, solver_solving_times] = run_solver(finalDepth=maxDepth, traces=traces,
                                                           maxNumOfFormulas=numFormulas,
-                                                          startValue=startDepth, step=iteration_step,
+                                                          step=iteration_step,
                                                           maxSolutionsPerDepth=maxSolutionsPerDepth, testing=testing)
     else:
         [formulas, timePassed] = run_solver(finalDepth=maxDepth, traces=traces,
                                                           maxNumOfFormulas=numFormulas,
-                                                          startValue=startDepth, step=iteration_step,
+                                                          step=iteration_step,
                                                           maxSolutionsPerDepth=maxSolutionsPerDepth, testing=testing)
     stats_log.info("initial candidates creation time: {}".format(timePassed))
     stats_log.debug("number of found formulas: {}".format(len(formulas)))
