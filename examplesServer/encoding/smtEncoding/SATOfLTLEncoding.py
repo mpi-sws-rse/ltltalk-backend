@@ -321,7 +321,7 @@ class SATOfLTLEncoding:
                     Sum([self.items[(x,y,c,s,0)] for c in COLORS for s in SHAPES]) > 0,
                     And(
                         self.wall[(x,y)] == 0,
-                        self.water[(x,y)] == 0
+                        #self.water[(x,y)] == 0
                     )
                 )
                 # only here there might be any items
@@ -391,9 +391,10 @@ class SATOfLTLEncoding:
             self.pass_or_not[tmstp]
             for tmstp in range(self.traceLength - 1)
         ])
-
-        for i in range(constants.STEP_COARSE_RANGE):
-            self.solver.add_soft(self.total_passes > i)
+        self.solver.add(self.total_passes < self.traceLength-1)
+        # for i in range(constants.STEP_COARSE_RANGE):
+        #     self.solver.add_soft(self.total_passes > i)
+        self.solver.maximize(self.total_passes)
 
 
     # if passes can be used, use them (in order to avoid superfluous moves)
