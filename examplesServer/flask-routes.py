@@ -125,6 +125,7 @@ def candidate_spec():
 
         elif len(candidates) == 1:
             answer["status"] = "ok"
+            answer["candidates"] = [str(candidates[0])]
 
         elif len(candidates) > 1:
 
