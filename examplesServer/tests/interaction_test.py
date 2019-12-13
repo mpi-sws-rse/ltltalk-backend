@@ -87,7 +87,7 @@ def sanity_check(path, w, f):
         return False
 
 
-def flipper_session(test_def, max_num_init_candidates, questions_timeout, candidates_timeout, max_depth, test_id=TEST_SESSION_ID):
+def flipper_session(test_def, max_num_init_candidates, criterion, questions_timeout, candidates_timeout, max_depth, test_id=TEST_SESSION_ID):
     stats = {}
     server_num_disambiguations = 0
     server_disambiguations_stats = []
@@ -107,6 +107,8 @@ def flipper_session(test_def, max_num_init_candidates, questions_timeout, candid
     candidate_spec_payload["sessionId"] = test_id
     candidate_spec_payload["num-formulas"] = max_num_init_candidates
     candidate_spec_payload["max-depth"] = max_depth
+    candidate_spec_payload["optimizer-criterion"] = json.dumps(criterion)
+
 
     # try:
     #     r = requests.get(FLIPPER_URL + "/get-candidate-spec", params=candidate_spec_payload, timeout=candidates_timeout)
@@ -301,6 +303,7 @@ def main():
                         default=CANDIDATES_GENERATION_TIMEOUT)
     parser.add_argument("--questions_timeout", dest="questionsTimeout", type=int,
                         default=WAITING_FOR_A_QUESTION_TIMEOUT)
+    parser.add_argument("--optimizer_criterion", dest="optimizerCriterion", default="lexicographic")
 
     args, unknown = parser.parse_known_args()
     directory = args.testsFolder
@@ -343,7 +346,7 @@ def main():
                                     stats = flipper_session(test_def, max_num_init_candidates=num_init_candidates,
                                                             questions_timeout=args.questionsTimeout,
                                                             candidates_timeout=args.candidatesTimeout, test_id=test_id,
-                                                            max_depth=max_depth)
+                                                            max_depth=max_depth, criterion=args.optimizerCriterion)
                                 except Exception as e:
                                     stats = {}
                                     for h in HEADERS:

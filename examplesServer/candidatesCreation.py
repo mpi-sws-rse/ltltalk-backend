@@ -16,7 +16,7 @@ from logger_initialization import stats_log
 from pytictoc import TicToc
 
 
-def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, id=None, max_depth=None):
+def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, id=None, max_depth=None, criterion=None):
 
     t = TicToc()
     emitted_events_seq = []
@@ -95,7 +95,8 @@ def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, 
 
 
     if testing:
-        collection_of_candidates, num_attempts, time_passed, solver_solving_times = start_experiment(experiment_specification=json_name, testing=testing, trace_out=txt_name)
+
+        collection_of_candidates, num_attempts, time_passed, solver_solving_times = start_experiment(experiment_specification=json_name, testing=testing, trace_out=txt_name, criterion=criterion)
         return collection_of_candidates, num_attempts, time_passed, solver_solving_times
     else:
         collection_of_candidates = start_experiment(experiment_specification=json_name,

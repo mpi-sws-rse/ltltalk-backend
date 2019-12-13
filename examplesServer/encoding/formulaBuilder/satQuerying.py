@@ -19,14 +19,15 @@ def get_models_with_safety_restrictions(safety_restrictions, traces, final_depth
 
 
 def get_models(finalDepth, traces, step, encoder, literals, maxNumModels=1, maxSolutionsPerDepth=1,
-               testing=False):
+               testing=False, criterion=None):
     formula_generation_times = []
     results = []
 
     generation_tic = TicToc()
     generation_tic.tic()
 
-    fg = encoder(finalDepth, traces, literals=literals, testing=testing, hintVariablesWithWeights=traces.hints_with_weights)
+    fg = encoder(finalDepth, traces, literals=literals, testing=testing,
+                 hintVariablesWithWeights=traces.hints_with_weights, criterion=criterion)
     fg.encodeFormula()
     formula_generation_times.append(generation_tic.tocvalue())
 

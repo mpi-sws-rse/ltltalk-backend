@@ -20,7 +20,7 @@ def helper(m, d, vars):
     return tt
 
 
-def start_experiment(experiment_specification, iteration_step=1, testing=False, trace_out=None):
+def start_experiment(experiment_specification, iteration_step=1, testing=False, trace_out=None, criterion=None):
 
     traces = ExperimentTraces()
     json_traces = json.load(open(experiment_specification))
@@ -32,10 +32,12 @@ def start_experiment(experiment_specification, iteration_step=1, testing=False, 
     maxSolutionsPerDepth = json_traces["num-solutions-per-depth"]
 
     if testing:
+
         [formulas, timePassed, num_attempts, solver_solving_times] = run_solver(finalDepth=maxDepth, traces=traces,
                                                           maxNumOfFormulas=numFormulas,
                                                           step=iteration_step,
-                                                          maxSolutionsPerDepth=maxSolutionsPerDepth, testing=testing)
+                                                          maxSolutionsPerDepth=maxSolutionsPerDepth, testing=testing,
+                                                                                criterion=criterion)
     else:
         [formulas, timePassed] = run_solver(finalDepth=maxDepth, traces=traces,
                                                           maxNumOfFormulas=numFormulas,

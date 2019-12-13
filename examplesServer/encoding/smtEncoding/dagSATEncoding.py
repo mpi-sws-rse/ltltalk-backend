@@ -16,7 +16,7 @@ class DagSATEncoding:
       - each trace is a list of recordings at time units (time point)
       - each time point is a list of variable values (x1,..., xk)
     """
-    def __init__(self, D, testTraces, literals, testing=False, hintVariablesWithWeights = {'p':2}):
+    def __init__(self, D, testTraces, literals, testing=False, hintVariablesWithWeights = {'p':2}, criterion=None):
         
         defaultOperators = [encodingConstants.G, encodingConstants.F, encodingConstants.LNOT, encodingConstants.UNTIL, encodingConstants.LAND,encodingConstants.LOR, encodingConstants.IMPLIES, encodingConstants.X]
         unary = [encodingConstants.G, encodingConstants.F, encodingConstants.LNOT, encodingConstants.X, encodingConstants.ENDS]
@@ -41,7 +41,8 @@ class DagSATEncoding:
         
         self.solver = Optimize()
         #z3.set_param("verbose",10)
-        self.solver.set("priority", "pareto")
+        if not criterion is None:
+            self.solver.set("priority", criterion)
         if testing:
             self.solver.set("timeout", encodingConstants.SOLVER_TIMEOUT)
 

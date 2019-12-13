@@ -76,6 +76,8 @@ def candidate_spec():
 
         examples = json.loads(request.args.get("examples"))
 
+        criterion = json.loads(request.args.get("optimizer-criterion"))
+
 
         sessionId = request.args.get("sessionId")
         world_1 = World(examples[0]["context"], json_type=2)
@@ -98,7 +100,8 @@ def candidate_spec():
                                                                                                            testing=constants.TESTING,
                                                                                                            num_formulas=num_formulas,
                                                                                                            id=sessionId,
-                                                                                                           max_depth=max_depth)
+                                                                                                           max_depth=max_depth,
+                                                                                                           criterion=criterion)
 
             answer["num_attempts"] = num_attempts
             answer["candidates_generation_time"] = candidates_generation_time
