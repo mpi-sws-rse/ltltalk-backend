@@ -57,7 +57,7 @@ def hello_world():
 @app.route('/get-candidate-spec')
 def candidate_spec():
 
-    #try:
+    try:
 
 
         stats_log.info("\n======\n")
@@ -177,9 +177,9 @@ def candidate_spec():
 
         return answer
 
-    # except Exception as e:
-    #     error_log.error("exception {}".format(e))
-    #     return (str(e), 500)
+    except Exception as e:
+        error_log.error("exception {}".format(e))
+        return (str(e), 500)
 
 
 @app.route('/get-path')
