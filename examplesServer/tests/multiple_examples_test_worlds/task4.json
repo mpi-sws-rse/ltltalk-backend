@@ -1,5 +1,5 @@
 {
-  "description": "pick two squares from [4,0]",
+  "description": "pick two square items from [4,0]",
   "target-formula": "eventually(pick_two_x_square_item_at_4_0)",
   "examples": [
     {
