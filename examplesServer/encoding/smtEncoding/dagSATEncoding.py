@@ -164,13 +164,13 @@ class DagSATEncoding:
     
     def include_hint_variables_softly(self):
 
-        for prop_var in self.hints:
+        for hint in self.hints:
             self.solver.add_soft(
                 Or([
-                    And(self.x[(i, prop_var)], i < self.guessed_depth)
+                    And(self.x[(i, hint)], i < self.guessed_depth)
                     for i in range(self.formulaDepth)
                 ]),
-                weight=self.hints[prop_var]
+                weight=self.hints[hint]
             )
 
 

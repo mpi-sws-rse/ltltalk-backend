@@ -38,6 +38,8 @@ def filter_hints_with_emitted_events(hints, seq_of_events):
                 for k in hints_in_e:
                     if hints_in_e[k] == max_hints_value:
                         new_hints[k] = max_hints_value
+    if constants.DRY in hints:
+        new_hints[constants.DRY] = hints[constants.DRY]
     return new_hints
 
 
@@ -87,6 +89,15 @@ of individual subwords. --->  SHOULD BE REPLACED BY SOMETHING BETTER
         scores[prop_variable] = score
 
 
+    for operator in constants.CONNECTED_WORDS:
+        if not operator in constants.OPERATORS:
+            continue
+        score = 0
+        for operator_description in constants.CONNECTED_WORDS[operator]:
+            if operator_description in utterance_tokens:
+                score += 1
+        scores[operator] = score
+
 
 
     # try:
@@ -97,6 +108,6 @@ of individual subwords. --->  SHOULD BE REPLACED BY SOMETHING BETTER
     #     second_max_value = max( [value for value in scores.values() if value < max_dict_value] )
     # except:
     #     second_max_value = max_dict_value
-    hints = {k : (1 + scores[k]) for k in scores if scores[k] > constants.HINTS_CUTOFF_VALUE}
 
+    hints = {k : (1 + scores[k]) for k in scores if scores[k] > constants.HINTS_CUTOFF_VALUE}
     return hints

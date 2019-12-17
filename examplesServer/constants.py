@@ -72,9 +72,13 @@ EVENTS = PICKUP_EVENTS + STATE_EVENTS
 
 SYNONYMS = {"every": ["all"], PICK: ["grab", "collect", "take"],
             "one": ["1", "single", "individual", "the"], "two": ["2"], "three": ["3"]}
-CONNECTED_WORDS = {"dry": ["water"], "water": ["dry"]}
+CONNECTED_WORDS = {"dry": ["water"], "water": ["dry"], encodingConstants.STRICTLY_BEFORE: ["first", "then", "before"],
+                   encodingConstants.UNTIL: ["until", "while"], encodingConstants.F: ["eventually"]}
 
-ALL_SIGNIFICANT_WORDS = COLORS + SHAPES + ["dry"] + ["water"] + QUANTIFIERS + [syn for syns in SYNONYMS.values() for syn in syns ] + DIRECTIONS + [MOVE]
+ALL_SIGNIFICANT_WORDS = COLORS + SHAPES + QUANTIFIERS + [syn for syns in SYNONYMS.values() for syn in
+                                                         syns] + DIRECTIONS + [MOVE] + [con for cons in
+                                                                                        CONNECTED_WORDS.values() for con
+                                                                                        in cons]
 
 OPERATORS = [
     encodingConstants.F,

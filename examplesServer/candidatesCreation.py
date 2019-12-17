@@ -76,6 +76,7 @@ def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, 
     hintsWithLocations.update(atLocationsHints)
 
     hintsWithLocations = nlp_helpers.filter_hints_with_emitted_events(hintsWithLocations, emitted_events_seq)
+
     # DEBUG: at_dry hint is disadvantaged. want to give it back some weight
     if constants.DRY in hints:
         hintsWithLocations[hint] = hints[constants.DRY] + 1
