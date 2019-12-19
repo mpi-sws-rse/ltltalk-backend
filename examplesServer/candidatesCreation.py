@@ -72,10 +72,11 @@ def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, 
     stats_log.debug("hints: {}".format("\n\t".join(hints)))
     middleValue = (maxHintsWithLocations + minHintsWithLocations) / 2
 
-    atLocationsHints = {"at_{}_{}".format(loc[0],loc[1]): max(middleValue,1) for loc in relevant_locations}
-    hintsWithLocations.update(atLocationsHints)
+    atLocationsHints = {"at_{}_{}".format(loc[0],loc[1]): max(minHintsWithLocations,1) for loc in relevant_locations}
+
 
     hintsWithLocations = nlp_helpers.filter_hints_with_emitted_events(hintsWithLocations, emitted_events_seq)
+    hintsWithLocations.update(atLocationsHints)
 
     # DEBUG: at_dry hint is disadvantaged. want to give it back some weight
     if constants.DRY in hints:

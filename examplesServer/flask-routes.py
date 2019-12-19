@@ -116,7 +116,6 @@ def candidate_spec():
         else:
             candidates = create_candidates(nl_utterance, examples, testing=constants.TESTING, id=sessionId)
 
-
         answer["sessionId"] = sessionId
 
 
@@ -129,6 +128,8 @@ def candidate_spec():
         elif len(candidates) == 1:
             answer["status"] = "ok"
             answer["candidates"] = [str(candidates[0])]
+            answer["num_disambiguations"] = num_disambiguations
+            answer["disambiguation_stats"] = disambiguation_stats
 
         elif len(candidates) > 1:
 
@@ -137,6 +138,7 @@ def candidate_spec():
             t.tic()
             status, disambiguation_world, disambiguation_path, candidate_1, candidate_2, considered_candidates, disambiguation_trace = create_disambiguation_example(
                 candidates, wall_locations, testing=constants.TESTING)
+
             disambiguation_time = t.tocvalue()
             if constants.TESTING:
                 num_disambiguations += 1
