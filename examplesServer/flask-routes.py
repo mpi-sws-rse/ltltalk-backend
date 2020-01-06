@@ -65,7 +65,7 @@ def candidate_spec():
         answer = {}
         answer["candidates"] = []
 
-
+        
         if constants.TESTING:
 
 
@@ -75,8 +75,10 @@ def candidate_spec():
         nl_utterance = json.loads(request.args.get('query'))
 
         examples = json.loads(request.args.get("examples"))
-
-        criterion = json.loads(request.args.get("optimizer-criterion"))
+        try:
+            criterion = json.loads(request.args.get("optimizer-criterion"))
+        except:
+            criterion = None
 
 
         sessionId = request.args.get("sessionId")
