@@ -87,7 +87,8 @@ def sanity_check(path, w, f):
         return False
 
 
-def flipper_session(test_def, max_num_init_candidates, criterion, questions_timeout, candidates_timeout, max_depth, test_id=TEST_SESSION_ID):
+def flipper_session(test_def, max_num_init_candidates, criterion, questions_timeout, candidates_timeout,
+                    max_depth, test_id=TEST_SESSION_ID, num_examples=None):
     stats = {}
     server_num_disambiguations = 0
     server_disambiguations_stats = []
@@ -96,6 +97,12 @@ def flipper_session(test_def, max_num_init_candidates, criterion, questions_time
     target_formula = Formula.convertTextToFormula(test_def["target-formula"])
 
     examples = test_def["examples"]
+
+    if not num_examples is None:
+        if num_examples <= len(examples):
+            examples = examples[0:num_examples]
+
+    print("number of examples traces is {}".format(len(examples)))
 
 
 
@@ -296,6 +303,7 @@ def main():
     parser.add_argument("--tests_definition_folder", dest="testsFolder")
     parser.add_argument("--output", dest="statsOutput", default="stats.csv")
     parser.add_argument("--num_repetitions", dest="numRepetitions", type=int, default=1)
+    parser.add_argument("--num_examples", dest="numExamples", type=int, default=None)
     parser.add_argument("--num_init_candidates", dest="numInitCandidates", nargs='+', type=int, default=[3, 6, 10])
     parser.add_argument("--max_depth", dest="maxDepth", type=int, nargs='+', default=[2, 3, 4])
     parser.add_argument("--continue_test", dest="continueTest", action='store_true', default=False)
@@ -346,7 +354,8 @@ def main():
                                     stats = flipper_session(test_def, max_num_init_candidates=num_init_candidates,
                                                             questions_timeout=args.questionsTimeout,
                                                             candidates_timeout=args.candidatesTimeout, test_id=test_id,
-                                                            max_depth=max_depth, criterion=args.optimizerCriterion)
+                                                            max_depth=max_depth, criterion=args.optimizerCriterion,
+                                                            num_examples=args.numExamples)
                                 except Exception as e:
                                     stats = {}
                                     for h in HEADERS:
