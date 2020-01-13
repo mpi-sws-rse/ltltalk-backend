@@ -21,6 +21,9 @@ TEST_SESSION_ID = "test"
 CANDIDATES_GENERATION_TIMEOUT = 60
 WAITING_FOR_A_QUESTION_TIMEOUT = 60
 
+
+TOP_DICT = {k:"TOP{}".format(k) for k in constants.TOP_VALUES}
+
 WAITING_TIME_FOR_FIRST_CANDIDATES_HEADER = "initial_user_waiting"
 INIT_CANDIDATES_GENERATION_TIME = "initial_candidates_generation_time"
 INIT_CANDIDATES_ONLY_SOLVING_TIME = "candidates_generation_solving_time"
@@ -57,6 +60,8 @@ HEADERS = [
     IS_FORMULA_FOUND_HEADER,
     RESULT_FORMULA_HEADER
 ]
+
+HEADERS = HEADERS + list(TOP_DICT.values())
 
 main_log = logging.getLogger('main_logger')
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -162,6 +167,12 @@ def flipper_session(test_def, max_num_init_candidates, criterion, questions_time
 
     candidates = json_response["candidates"]
     main_log.info("init candidates are {}\n\n".format(candidates))
+
+    for top_x in TOP_DICT:
+        if str(target_formula) in candidates[0:top_x]:
+            stats[TOP_DICT[top_x]] = True
+        else:
+            stats[TOP_DICT[top_x]] = False
 
     num_initial_candidates = len(candidates)
 
