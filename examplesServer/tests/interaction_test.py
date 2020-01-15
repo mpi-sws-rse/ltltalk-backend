@@ -93,7 +93,7 @@ def sanity_check(path, w, f):
 
 
 def flipper_session(test_def, max_num_init_candidates, criterion, questions_timeout, candidates_timeout,
-                    max_depth, test_id=TEST_SESSION_ID, num_examples=None):
+                    max_depth, test_id=TEST_SESSION_ID, use_hints=True, num_examples=None):
     stats = {}
     server_num_disambiguations = 0
     server_disambiguations_stats = []
@@ -119,6 +119,8 @@ def flipper_session(test_def, max_num_init_candidates, criterion, questions_time
     candidate_spec_payload["sessionId"] = test_id
     candidate_spec_payload["num-formulas"] = max_num_init_candidates
     candidate_spec_payload["max-depth"] = max_depth
+
+    candidate_spec_payload["use-hints"] = use_hints
     candidate_spec_payload["optimizer-criterion"] = json.dumps(criterion)
 
 
@@ -318,6 +320,7 @@ def main():
     parser.add_argument("--num_init_candidates", dest="numInitCandidates", nargs='+', type=int, default=[3, 6, 10])
     parser.add_argument("--max_depth", dest="maxDepth", type=int, nargs='+', default=[2, 3, 4])
     parser.add_argument("--continue_test", dest="continueTest", action='store_true', default=False)
+    parser.add_argument("--no_hints", dest="notUseHints", action='store_true', default=False)
     parser.add_argument("--candidates_timeout", dest="candidatesTimeout", type=int,
                         default=CANDIDATES_GENERATION_TIMEOUT)
     parser.add_argument("--questions_timeout", dest="questionsTimeout", type=int,
@@ -331,6 +334,11 @@ def main():
         statsOpeningMode = "a"
     else:
         statsOpeningMode = "w"
+
+    if args.notUseHints is True:
+        use_hints = False
+    else:
+        use_hints = True
 
     with open(args.statsOutput, statsOpeningMode) as csv_stats:
         headers = HEADERS
@@ -366,7 +374,7 @@ def main():
                                                             questions_timeout=args.questionsTimeout,
                                                             candidates_timeout=args.candidatesTimeout, test_id=test_id,
                                                             max_depth=max_depth, criterion=args.optimizerCriterion,
-                                                            num_examples=args.numExamples)
+                                                            num_examples=args.numExamples, use_hints=use_hints)
                                 except Exception as e:
                                     stats = {}
                                     for h in HEADERS:

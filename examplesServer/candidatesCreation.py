@@ -16,7 +16,8 @@ from logger_initialization import stats_log
 from pytictoc import TicToc
 
 
-def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, id=None, max_depth=None, criterion=None):
+def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, id=None, max_depth=None, criterion=None,
+                      use_hints = True):
 
     t = TicToc()
     emitted_events_seq = []
@@ -44,7 +45,11 @@ def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, 
 
 
     t.tic()
-    hints = nlp_helpers.get_hints_from_utterance(nl_utterance)
+
+    if use_hints is True:
+        hints = nlp_helpers.get_hints_from_utterance(nl_utterance)
+    else:
+        hints = {}
 
     stats_log.debug("nlp hints creation time: {}".format(t.tocvalue()))
 

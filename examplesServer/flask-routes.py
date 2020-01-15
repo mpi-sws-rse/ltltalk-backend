@@ -82,6 +82,15 @@ def candidate_spec():
 
 
         sessionId = request.args.get("sessionId")
+
+
+        try:
+
+
+            use_hints = request.args.get("use-hints")
+            use_hints = True if use_hints=="True" else False
+        except:
+            use_hints = True
         world_1 = World(examples[0]["context"], json_type=2)
         wall_locations = world_1.get_wall_locations()
 
@@ -103,7 +112,8 @@ def candidate_spec():
                                                                                                            num_formulas=num_formulas,
                                                                                                            id=sessionId,
                                                                                                            max_depth=max_depth,
-                                                                                                           criterion=criterion)
+                                                                                                           criterion=criterion,
+                                                                                                           use_hints=use_hints)
 
             answer["num_attempts"] = num_attempts
             answer["candidates_generation_time"] = candidates_generation_time
