@@ -36,11 +36,6 @@ import fig.basic.LispTree;
 import fig.basic.LogInfo;
 import fig.basic.Option;
 import edu.stanford.nlp.sempre.interactive.embeddings.Embeddings;
-import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.SimpleLoopRewriting;
-import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.MovesToVisitRewriting;
-import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.VisitDestinationRewriting;
-import edu.stanford.nlp.sempre.interactive.rephrasingFormulas.PickingAndDroppingRewriting;
-
 /**
  * Takes two examples, and induce Rules
  *
@@ -149,62 +144,7 @@ public class GrammarInducer {
 
 		this.headTokens = headTokens;
 		int numTokens = headTokens.size();
-		LinkedList<Derivation> equivalentDerivationsToTry = new LinkedList<Derivation>();
 
-		List<Formula> equivalentFormulas;
-		if (opts.useEquivalentRewriting == true && parser != null) {
-			if (opts.useLoopRewriting) {
-
-				SimpleLoopRewriting rewriting = new SimpleLoopRewriting(originalDerivation, headTokens);
-
-				equivalentFormulas = rewriting.getEquivalentFormulas();
-				for (Formula f : equivalentFormulas) {
-					Derivation equivalentDerivation = createInducedDerivationFromFormula(f, parser, params, session);
-					equivalentDerivationsToTry.add(equivalentDerivation);
-					allHead = true;
-				}
-			}
-
-			if (opts.useMovesToVisitRewriting == true) {
-				MovesToVisitRewriting movesRewriting = new MovesToVisitRewriting(originalDerivation, headTokens,
-						executionAnswer, session);
-				equivalentFormulas = movesRewriting.getEquivalentFormulas();
-				for (Formula f : equivalentFormulas) {
-					Derivation equivalentDerivation = createInducedDerivationFromFormula(f, parser, params, session);
-					equivalentDerivationsToTry.add(equivalentDerivation);
-					allHead = true;
-				}
-			}
-			if (opts.useVisitDestinationRewriting == true) {
-				VisitDestinationRewriting destinationRewriting = new VisitDestinationRewriting(originalDerivation,
-						headTokens, executionAnswer, session);
-				equivalentFormulas = destinationRewriting.getEquivalentFormulas();
-				for (Formula f : equivalentFormulas) {
-
-					Derivation equivalentDerivation = createInducedDerivationFromFormula(f, parser, params, session);
-					equivalentDerivationsToTry.add(equivalentDerivation);
-					allHead = true;
-				}
-			}
-			if (opts.usePickingAndDroppingRewriting == true) {
-				PickingAndDroppingRewriting PNDRewriting = new PickingAndDroppingRewriting(parser, originalDerivation,
-						headTokens, executionAnswer, session);
-				equivalentFormulas = PNDRewriting.getEquivalentFormulas();
-				for (Formula f : equivalentFormulas) {
-					Derivation equivalentDerivation = createInducedDerivationFromFormula(f, parser, params, session);
-					equivalentDerivationsToTry.add(equivalentDerivation);
-					allHead = true;
-				}
-			}
-		}
-		if (opts.verbose > 0) {
-			LogInfo.logs("equivalent derivations = %s", equivalentDerivationsToTry);
-			LogInfo.logs("candidate formulas are:");
-			for (Derivation dEq : equivalentDerivationsToTry) {
-
-				LogInfo.logs("%s", dEq.getFormula().prettyString());
-			}
-		}
 
 		inducedRules = new ArrayList<>();
 		List<Derivation> chartList = chartListArg;
@@ -272,79 +212,8 @@ public class GrammarInducer {
 
 				filterRule(rule);
 			}
-			// then, find the best equivalent packing
-			if (opts.useEquivalentRewriting == true) {
-				double overallBestPackingScore = -1.0;
-				double overallBestSemScore = -1.0;
-				List<Derivation> bestScoringEquivalentPacking = null;
-				Derivation bestScoringEquivalentDefinition = null;
-				for (Derivation def : equivalentDerivationsToTry) {
-					chartList = chartListArg;
-					if (opts.verbose > 1) {
-						LogInfo.logs("Grammar inducer: examining derivation %s", def.toString());
-					}
-					this.matches = new ArrayList<>();
-					addMatches(def, makeChartMap(chartList));
-					Collections.reverse(this.matches);
-					bestScoredPacking = bestPackingDP(this.matches, numTokens);
-					bestPacking = bestScoredPacking.packing;
-					if (opts.verbose > 1) {
-						LogInfo.logs("best packing score = %f", bestScoredPacking.score);
-					}
-					double currentSemScore = semanticScore(headTokens, def, embeddings);
-					double currentPackingScore = bestScoredPacking.score;
-					if (opts.verbose > 1) {
-						LogInfo.logs("++ packScore = %f, semScore = %f", currentPackingScore, currentSemScore);
-					}
 
-					if (greaterScore(currentSemScore, currentPackingScore, overallBestSemScore,
-							overallBestPackingScore)) {
-						bestScoringEquivalentPacking = bestPacking;
-						bestScoringEquivalentDefinition = def;
-						overallBestSemScore = currentSemScore;
-						overallBestPackingScore = currentPackingScore;
-					}
-				}
-				if (bestScoringEquivalentDefinition != null) {
-					Derivation finalDefinition = bestScoringEquivalentDefinition;
-					if (opts.verbose > 0) {
-						LogInfo.logs("best scoring equivalent definition = %s", finalDefinition);
-					}
-					HashMap<String, String> formulaToCatBestEquivalent = new HashMap<>();
-					bestScoringEquivalentPacking.forEach(
-							d -> formulaToCatBestEquivalent.put(catFormulaKey(d), varName(d, finalDefinition)));
-					buildFormula(finalDefinition, formulaToCatBestEquivalent);
-					if (opts.verbose > 1) {
-						LogInfo.logs("chartList.size = %d", chartList.size());
-						LogInfo.log("Potential packings: ");
-						this.matches.forEach(d -> LogInfo.logs("%f: %s\t", d.getScore(), d.formula));
-						LogInfo.logs("BestPacking: %s", bestScoringEquivalentPacking);
-						LogInfo.logs("formulaToCat: %s", formulaToCatBestEquivalent);
-					}
-					double originalDerivationSemScore = semanticScore(headTokens, originalDerivation, embeddings);
-					if (opts.verbose > 0) {
-						LogInfo.logs(
-								"equivalent derivation sem score= %f, equivalent derivation packing score = %f, original def sem score = %f, original def pack score = %f",
-								overallBestSemScore, overallBestPackingScore, originalDerivationSemScore,
-								originalDerivationPackingScore);
-					}
 
-					// if the best equivalent packing is good enough (better score than original
-					// packing), induce it, too
-					if (greaterScore(overallBestSemScore, overallBestPackingScore, originalDerivationSemScore,
-							originalDerivationPackingScore)) {
-						for (Rule rule : induceRules(bestScoringEquivalentPacking, finalDefinition)) {
-							// ALTER : I am not sure why this is here, but it prevents some use cases from
-							// being defined
-							// if (rule.rhs.stream().allMatch(s -> Rule.isCat(s)))
-							// continue;
-							rule.addInfo("rewriting", "true");
-							filterRule(rule);
-						}
-					}
-				}
-
-			}
 		}
 
 		if (opts.useSpecialTokens) {
