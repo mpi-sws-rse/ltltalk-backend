@@ -14,8 +14,10 @@ import os
 
 try:
     from utils.SimpleTree import Formula
+    import encodingConstants
 except:
     from encoding.utils.SimpleTree import Formula
+    from encoding import encodingConstants
 
 from flask import session
 from pytictoc import TicToc
@@ -78,7 +80,7 @@ def candidate_spec():
         try:
             criterion = json.loads(request.args.get("optimizer-criterion"))
         except:
-            criterion = None
+            criterion = encodingConstants.COMBINING_OBJECTIVES_MODE
 
 
         sessionId = request.args.get("sessionId")
