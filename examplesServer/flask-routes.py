@@ -86,13 +86,13 @@ def candidate_spec():
         sessionId = request.args.get("sessionId")
 
 
-        try:
-
+        if "use-hints" in request.args:
 
             use_hints = request.args.get("use-hints")
             use_hints = True if use_hints=="True" else False
-        except:
+        else:
             use_hints = True
+        
         world_1 = World(examples[0]["context"], json_type=2)
         wall_locations = world_1.get_wall_locations()
 
