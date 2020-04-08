@@ -63,6 +63,9 @@ def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, 
             hintsWithLocations[hint] = hints[hint]
 
             continue
+        if hint in constants.OPERATORS:
+            hintsWithLocations[hint] = hints[hint]
+
         for l in pickup_locations:
             hintsWithLocations["{}_at_{}_{}".format(hint, l[0], l[1])] = hints[hint]
     #hintsWithLocations = {"{}_{}_{}".format(hint, l[0], l[1]) : hints[hint] for hint in hints for l in pickup_locations}
