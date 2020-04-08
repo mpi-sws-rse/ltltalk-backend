@@ -200,11 +200,19 @@ public class GrammarInducer {
 			this.matches = new ArrayList<>();
 			addMatches(originalDerivation, makeChartMap(chartList));
 			Collections.reverse(this.matches);
+			if (opts.verbose > 1){
+			    LogInfo.logs("Matches used for best packing:\n %s", this.matches);
+			}
 			bestScoredPacking = bestPackingDP(this.matches, numTokens);
 			double originalDerivationPackingScore = bestScoredPacking.score;
 			bestPacking = bestScoredPacking.packing;
 			HashMap<String, String> formulaToCatOriginalBestPacking = new HashMap<>();
-
+            if (opts.verbose > 1) {
+				LogInfo.logs("chartList.size = %d", chartList.size());
+				LogInfo.log("Potential best packings: ");
+				this.matches.forEach(d -> LogInfo.logs("%f: %s\t %s", d.getScore(), d.formula, d.allAnchored()));
+				LogInfo.logs("best packing: %s", bestPacking);
+			}
 			bestPacking.forEach(
 					d -> formulaToCatOriginalBestPacking.put(catFormulaKey(d), varName(d, originalDerivation)));
 			buildFormula(originalDerivation, formulaToCatOriginalBestPacking);
@@ -404,6 +412,9 @@ public class GrammarInducer {
 			if (endsAtI[i] != null) {
 				for (Derivation d : endsAtI[i]) {
 					double score = d.getScore() + maximalAtI.get(d.start).score;
+					if (opts.verbose  > 1){
+					    LogInfo.logs("\n For packing [%s + %s] score is %f", maximalAtI.get(d.start), d, score);
+					}
 					if (score >= bestOverall.score) {
 						bestOverall.score = score;
 						bestDerivI = d;
@@ -438,18 +449,23 @@ public class GrammarInducer {
 
 	private List<Rule> induceRules(List<Derivation> packings, Derivation defDeriv) {
 		List<String> RHS = getRHS(defDeriv, packings);
-		SemanticFn sem = getSemantics(defDeriv, packings);
-		if (opts.verbose > 2) {
-			LogInfo.logs("in induce rules");
+		if (opts.verbose > 2){
+		    LogInfo.logs("induce rules, RHS are %s", RHS);
 		}
+		SemanticFn sem = getSemantics(defDeriv, packings);
+
 		// sem will be null if type inference fails
-		if (sem == null)
+		if (sem == null){
 			return new ArrayList<>();
+			}
 		String cat = getNormalCat(defDeriv);
 		Rule inducedRule = new Rule(cat, RHS, sem);
 		inducedRule.addInfo("induced", "true");
 		inducedRule.addInfo("anchored", "true");
 		List<Rule> inducedRules = new ArrayList<>();
+		if (opts.verbose > 2) {
+				LogInfo.logs("current induced rules: %s", inducedRule);
+			}
 		if (!inducedRule.isCatUnary() && !opts.nonInducingCats.contains(inducedRule.lhs)) {
 			if (opts.verbose > 2) {
 				LogInfo.logs("adding to inducedRUlse: %s", inducedRule);
@@ -542,6 +558,7 @@ public class GrammarInducer {
 				// Type inference will throw an exception if it fails
 				constantFn.init(newTree);
 			} catch (RuntimeException e) {
+			    LogInfo.logs("caught an exception in SemanticFn init. E: %s", e);
 				return null;
 			}
 			return constantFn;

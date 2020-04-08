@@ -275,7 +275,9 @@ public final class TypeInference {
     } else if (formula instanceof ActionFormula) {
       initCallTypeInfo();
       return SemType.anyType;
-    } else {
+    } else if (formula instanceof DSLTLFormula){
+        return SemType.anyType;
+    }else {
       throw new RuntimeException("Can't infer type of formula: " + formula);
     }
   }
