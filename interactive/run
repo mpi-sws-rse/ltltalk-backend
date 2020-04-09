@@ -268,6 +268,7 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('DSLTLFormula.strictly_before', 'before'),
   o('DSLTLFormula.next', 'X'),
   o('DSLTLFormula.land', 'and'),
+  o('DSLTLFormula.lor', 'or'),
   o('DSLTLFormula.lnot', 'neg'),
 
   o('NumberFn.allowedRange', -99, 99),

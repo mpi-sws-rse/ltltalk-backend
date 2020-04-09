@@ -235,7 +235,7 @@ class Formula(SimpleTree):
                 _binary_expression: binary_operator "(" formula "," formula ")"
                 _unary_expression: unary_operator "(" formula ")"                
                 !variable: NAME
-                !binary_operator: "and" | "|" | "->" | "until" | "B" | "before"
+                !binary_operator: "and" | "or" | "->" | "until" | "B" | "before"
                 !unary_operator: "eventually" | "G" | "neg" | "X" | "E"                
                 %import common.SIGNED_NUMBER
                 %import common.WS                

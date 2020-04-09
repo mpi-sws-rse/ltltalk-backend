@@ -92,6 +92,7 @@
 (rule $B ($A) (IdentityFn) (anchored true))
 (rule $A (neg $A) (lambda p (:neg (var p))) (anchored true))
 (rule $B ($B and $B) (lambda p (lambda q (:and (var p) (var q)))) (anchored true))
+(rule $B ($B or $B) (lambda p (lambda q (:or (var p) (var q)))) (anchored true))
 
 (rule $B (eventually $A) (lambda p (:eventually (var p))) (anchored true))
 (rule $B

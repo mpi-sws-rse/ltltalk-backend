@@ -22,6 +22,7 @@ public class DSLTLFormula extends Formula {
     globally(":globally"),
       until(":until"),
     lnot(":neg"),
+    lor(":or"),
     land(":and");
 
 
@@ -52,6 +53,8 @@ public class DSLTLFormula extends Formula {
     public  String before;
     @Option(gloss = "symbol for operator logical and")
     public  String land;
+    @Option(gloss = "symbol for operator logical or")
+    public  String lor;
     @Option(gloss = "symbol for operator logical negation")
     public  String lnot;
 
@@ -94,6 +97,9 @@ public class DSLTLFormula extends Formula {
       }
       else if (this.mode.equals(Mode.land)){
         s = opts.land + "(" + this.getChildren().get(0).prettyString()+", "+this.getChildren().get(1).prettyString()+")";
+      }
+      else if (this.mode.equals(Mode.lor)){
+        s = opts.lor + "(" + this.getChildren().get(0).prettyString()+", "+this.getChildren().get(1).prettyString()+")";
       }
       else if (this.mode.equals(Mode.lnot)){
         s = opts.lnot+"("+this.getChildren().get(0).prettyString()+")";

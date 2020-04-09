@@ -1,7 +1,7 @@
 F = "eventually"
 G = "G"
 LAND = "and"
-LOR = "|"
+LOR = "or"
 UNTIL = "until"
 STRICTLY_BEFORE = "before"
 LNOT = "neg"
