@@ -121,6 +121,13 @@ public class GrammarInducer {
 			Params params, Session session, String executionAnswer, Embeddings embeddings) {
 		// grammarInfo start and end is used to indicate partial, when using aligner
 		boolean allHead = false;
+		if (opts.verbose > 1){
+		    LogInfo.logs("GrammarInducer init");
+		    LogInfo.logs("headTokens = %s", headTokens);
+		    LogInfo.logs("def1 = %s", def1);
+		    LogInfo.logs("chartListArg = %s", chartListArg);
+		    LogInfo.logs("executionAnswer = %s", executionAnswer);
+		}
 		if (def1.grammarInfo.start == -1) {
 			def1.grammarInfo.start = 0;
 			def1.grammarInfo.end = headTokens.size();
@@ -135,7 +142,7 @@ public class GrammarInducer {
 			throw new RuntimeException("The head is empty, refusing to define.");
 		}
 
-		if (executionAnswer.equals("") && opts.useMovesToVisitRewriting) {
+		if (opts.useMovesToVisitRewriting && executionAnswer.equals("") ) {
 			throw new RuntimeException("When using rewriting, the execution path must not be empty");
 		}
 		// take this into account!
