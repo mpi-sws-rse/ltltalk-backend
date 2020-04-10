@@ -22,8 +22,11 @@ def create_json_spec(file_name, emitted_events_sequences, hints, pickup_location
         literals += constants.STATE_EVENTS
         for loc in pickup_locations:
             literals += constants.PICKUP_EVENTS_PER_LOCATION[loc]
+
         for loc in all_locations:
             literals.append(constants.AT_EVENTS_PER_LOCATION[loc])
+            if loc in constants.SPECIAL_LOCATIONS:                
+                literals.append("at_{}".format(constants.SPECIAL_LOCATIONS[loc]))
 
         example_info["literals"] = literals
         example_info["number-of-formulas"] = num_formulas

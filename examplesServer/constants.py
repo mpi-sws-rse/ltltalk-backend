@@ -47,6 +47,9 @@ HINTS_CUTOFF_VALUE = 0.15
 
 
 
+SPECIAL_LOCATIONS = {(2,3): "kitchen", (1,1): "bathroom"}
+SPECIAL_NAMES = {v: k for k, v in SPECIAL_LOCATIONS.items()}
+
 # x is sa symbol for don't care
 PICKUP_EVENTS = ["{}_{}_{}_{}_item".format(PICK, quantifier, color, shape)
                 for quantifier in QUANTIFIERS
@@ -54,6 +57,8 @@ PICKUP_EVENTS = ["{}_{}_{}_{}_item".format(PICK, quantifier, color, shape)
                 for shape in SHAPES+["x"]]
 
 STATE_EVENTS = [DRY]
+
+AT_SPECIAL_LOCATION_EVENTS = ["at_"+ l for l in SPECIAL_NAMES]
 
 AT_EVENTS_PER_LOCATION ={(i,j): "at_{}_{}".format(i,j) for i in range(WIDTH) for j in range(HEIGHT)}
 
@@ -68,7 +73,7 @@ for x in range(WIDTH):
 
 
 
-EVENTS = PICKUP_EVENTS + STATE_EVENTS
+EVENTS = PICKUP_EVENTS + STATE_EVENTS + AT_SPECIAL_LOCATION_EVENTS
 
 SYNONYMS = {"every": ["all"], PICK: ["grab", "collect", "take"],
             "one": ["1", "single", "individual", "the"], "two": ["2"], "three": ["3"]}
@@ -76,10 +81,12 @@ CONNECTED_WORDS = {"dry": ["water"], "water": ["dry"], encodingConstants.STRICTL
                    encodingConstants.UNTIL: ["until", "while"], encodingConstants.F: ["eventually"],
                    encodingConstants.LAND: ["simultaneously", "togetherWith"]}
 
-ALL_SIGNIFICANT_WORDS = COLORS + SHAPES + QUANTIFIERS + [syn for syns in SYNONYMS.values() for syn in
-                                                         syns] + DIRECTIONS + [MOVE] + [con for cons in
-                                                                                        CONNECTED_WORDS.values() for con
-                                                                                        in cons]
+ALL_SIGNIFICANT_WORDS = COLORS + SHAPES + QUANTIFIERS + [syn for syns in SYNONYMS.values() for syn in syns] + \
+                        DIRECTIONS + [MOVE] + [con for cons in CONNECTED_WORDS.values() for con in cons] + \
+                        list(SPECIAL_NAMES.keys())
+
+
+
 
 OPERATORS = [
     encodingConstants.F,
@@ -98,7 +105,7 @@ MAX_NUM_ATTEMPTS = NUM_CANDIDATE_FORMULAS + 3
 CANDIDATE_START_DEPTH = 2
 CANDIDATE_MAX_DEPTH = 6
 
-DEBUG_UNSAT_CORE = False
+DEBUG_UNSAT_CORE = True
 LOGGING_LEVEL = logging.INFO
 
 TESTING = True

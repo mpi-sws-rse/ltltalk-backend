@@ -24,15 +24,13 @@
 # variables
 
  (rule
-   $LocationVar
-    ($At $Number , $Number)
-    (lambda p
+   $PointVar
+    ($Number , $Number)
         (lambda n1
             (lambda n2
-                (: (var p) (var n1) (var n2))
+                (: (var n1) (var n2))
           )
         )
-     )
     (anchored true)
     )
 
@@ -41,16 +39,16 @@
 
 
 
-(rule
-    $DryVar
-    ($At $Dry)
-    (lambda p
-        (lambda q
-            (: (var p) (var q))
-        )
-    )
-    (anchored true)
-    )
+#(rule
+#    $DryVar
+#    ($At $Dry)
+#    (lambda p
+#        (lambda q
+#            (: (var p) (var q))
+#        )
+#    )
+#    (anchored true)
+#    )
 
 (rule $Quantity ($TOKEN) (NumberFn) (anchored true))
 (rule $Quantity (every) every (anchored true))
@@ -72,7 +70,29 @@
     )
 
 
-(for @var ($LocationVar $DryVar $ActionVar)
+(rule $OfficeX (kitchen) (ConstantFn (: 2 3) ) (anchored true))
+(rule $OfficeY (bathroom) (ConstantFn (: 1 1) ) (anchored true))
+
+(for @var ($PointVar $Dry $OfficeX $OfficeY)
+    (rule $Location
+        (@var)
+        (IdentityFn)
+        (anchored true)
+    )
+)
+
+
+    (rule $LocationVar
+        ($At $Location)
+        (lambda p
+            (lambda q
+                (: (var p) (var q))
+            )
+        )
+        (anchored true)
+    )
+
+(for @var ($LocationVar $ActionVar)
 	(rule $Var
 	    (@var)
 	  (IdentityFn)
