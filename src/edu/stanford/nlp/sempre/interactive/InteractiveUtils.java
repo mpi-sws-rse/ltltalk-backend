@@ -86,7 +86,7 @@ public final class InteractiveUtils {
 	  List<Derivation> allDerivs = new ArrayList<>();
 	  Formula targetFormula = formula;
 	  
-	  String utt = utterance;
+	  String utt = utterance.replaceAll("[{}]", "");
 	  	  
 	  Example exHead = InteractiveUtils.exampleFromUtterance(utt, session);
 	  
@@ -100,6 +100,7 @@ public final class InteractiveUtils {
 	
 	  boolean found = false;
 	  for (Derivation d : exHead.predDerivations) {
+
 		if (opts.verbose > 2){
 		  LogInfo.logs("Deriv from utteranceAnd formula, predDerivations. considering: %s", d.formula.toString());
 		}

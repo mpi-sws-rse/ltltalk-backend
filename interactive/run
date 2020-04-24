@@ -224,6 +224,7 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('InteractiveMaster.useAligner', true),
   o('DefinitionAligner.strategies', 'ExactExclusion'),
   o('DefinitionAligner.maxLengthDifference', 3), # Default is 3
+  o('DefinitionAligner.maxMatches', 6), # Default is 3
   # It does not appear that this used in the Java code
   o('DefinitionAligner.alignedCats',
     '$Item', '$ColorSet'
