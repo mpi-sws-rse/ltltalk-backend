@@ -43,6 +43,7 @@ def filter_hints_with_emitted_events(hints, seq_of_events):
     for op in constants.OPERATORS:
         if op in hints:
             new_hints[op] = hints[op]
+
     return new_hints
 
 

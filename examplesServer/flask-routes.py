@@ -11,7 +11,7 @@ import logging
 import constants
 from logger_initialization import stats_log, error_log
 import os
-
+import traceback
 try:
     from utils.SimpleTree import Formula
     import encodingConstants
@@ -199,6 +199,7 @@ def candidate_spec():
 
     except Exception as e:
         error_log.error("exception {}".format(e))
+        traceback.print_exc()
         return (str(e), 500)
 
 
