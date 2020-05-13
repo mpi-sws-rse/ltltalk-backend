@@ -57,13 +57,14 @@ def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, 
 
 
     hintsWithLocations = {}
+
     for hint in hints:
 
         if hint == constants.DRY:
             hintsWithLocations[hint] = hints[hint]
 
             continue
-        if hint in constants.OPERATORS:
+        if hint in constants.OPERATORS or hint in constants.AT_SPECIAL_LOCATION_EVENTS:
             hintsWithLocations[hint] = hints[hint]
 
         for l in pickup_locations:
@@ -77,6 +78,7 @@ def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, 
         maxHintsWithLocations = 0
         minHintsWithLocations = 0
 
+
     stats_log.debug("hints: {}".format("\n\t".join(hints)))
     middleValue = (maxHintsWithLocations + minHintsWithLocations) / 2
 
@@ -88,7 +90,7 @@ def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, 
 
     # DEBUG: at_dry hint is disadvantaged. want to give it back some weight
     if constants.DRY in hints:
-        hintsWithLocations[hint] = hints[constants.DRY] + 1
+        hintsWithLocations[constants.DRY] = hints[constants.DRY] + 1
 
 
     os.makedirs("data", exist_ok=True)
@@ -102,6 +104,7 @@ def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, 
     create_json_spec(file_name=json_name, emitted_events_sequences=emitted_events_seq, hints=hintsWithLocations,
                      pickup_locations=pickup_locations, all_locations=all_locations,
                      negative_sequences=collection_of_negative, num_formulas=num_formulas, max_depth=max_depth)
+
 
 
     if testing:
