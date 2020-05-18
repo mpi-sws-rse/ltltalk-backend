@@ -222,7 +222,7 @@ class Formula(SimpleTree):
 
     @classmethod
     def convertTextToFormula(cls, formulaText):
-        
+
         f = Formula()
         try:
             formula_parser = Lark(r"""
@@ -329,7 +329,6 @@ class Formula(SimpleTree):
 
 class TreeToFormula(Transformer):
         def formula(self, formulaArgs):
-            
             return Formula(formulaArgs)
         def variable(self, varName):
 
