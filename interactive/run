@@ -221,9 +221,10 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('InteractiveMaster.maxChars', 2000),
   o('InteractiveMaster.verbose', 0),
 
-  o('InteractiveMaster.useAligner', false),
+  o('InteractiveMaster.useAligner', true),
   o('DefinitionAligner.strategies', 'ExactExclusion'),
   o('DefinitionAligner.maxLengthDifference', 3), # Default is 3
+  o('DefinitionAligner.maxMatches', 6), # Default is 3
   # It does not appear that this used in the Java code
   o('DefinitionAligner.alignedCats',
     '$Item', '$ColorSet'
@@ -258,6 +259,7 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('Derivation.showRules', false),
   o('Derivation.showCat', false),
   o('Derivation.anchoredBonus', 1.0),
+  o('Derivation.lengthBonusFactor', 1.5),
 
   o('Formula.precisePrettyPrinting', true),
   o('DSLTLFormula.eventually', 'eventually'),
@@ -267,6 +269,7 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('DSLTLFormula.strictly_before', 'before'),
   o('DSLTLFormula.next', 'X'),
   o('DSLTLFormula.land', 'and'),
+  o('DSLTLFormula.lor', 'or'),
   o('DSLTLFormula.lnot', 'neg'),
 
   o('NumberFn.allowedRange', -99, 99),

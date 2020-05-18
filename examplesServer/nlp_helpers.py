@@ -40,6 +40,9 @@ def filter_hints_with_emitted_events(hints, seq_of_events):
                         new_hints[k] = max_hints_value
     if constants.DRY in hints:
         new_hints[constants.DRY] = hints[constants.DRY]
+    for op in constants.OPERATORS:
+        if op in hints:
+            new_hints[op] = hints[op]
     return new_hints
 
 
@@ -108,6 +111,7 @@ of individual subwords. --->  SHOULD BE REPLACED BY SOMETHING BETTER
     #     second_max_value = max( [value for value in scores.values() if value < max_dict_value] )
     # except:
     #     second_max_value = max_dict_value
+
 
     hints = {k : (1 + scores[k]) for k in scores if scores[k] > constants.HINTS_CUTOFF_VALUE}
     return hints

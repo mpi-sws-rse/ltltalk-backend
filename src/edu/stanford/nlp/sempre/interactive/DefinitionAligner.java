@@ -78,6 +78,11 @@ public class DefinitionAligner {
     if (opts.verbose > 0)
       LogInfo.logs("DefinitionAligner.chartList: %s", chartList);
 
+      def = def.stream()
+     .filter(token -> !( "{".equals(token) || "}".equals(token)))
+     .collect(Collectors.toList());
+
+
     DefinitionAligner aligner = new DefinitionAligner(head, def, deriv, chartList);
 
     List<Rule> allAlignedRules = Lists.newArrayList();
@@ -133,7 +138,7 @@ public class DefinitionAligner {
     this.defTokens = defTokens;
     this.chartMap = GrammarInducer.makeChartMap(chartList);
     if (opts.verbose > 0)
-      LogInfo.logs("DefinitionAligner: head '%s' as body: '%s'", headTokens, defTokens);
+      LogInfo.logs("DefinitionAligner: head '%s' as body: '%s'", this.headTokens, this.defTokens);
     // ALTER : why is this here?
     //if (Math.abs(headTokens.size() - defTokens.size()) >= 4)
       // return;
@@ -161,6 +166,7 @@ public class DefinitionAligner {
     for (Derivation d : def.children) {
       recursiveMatch(d);
     }
+
   }
 
   boolean isMatch(Derivation def, int start, int end) {
@@ -212,30 +218,37 @@ public class DefinitionAligner {
 
   private boolean exactExclusion(Derivation def, int start, int end) {
     if (opts.verbose > 0)
-      LogInfo.log("In exactExclusion");
+      LogInfo.logs("In exactExclusion. With start = %s, end = %s, and windowSize = %s", start, end, opts.windowSize);
     if (end - start > opts.maxExactExclusionLength)
       return false;
+
+    List<String> prefixHead = window(start - opts.windowSize, start, headTokens);
+    List<String> prefixDef = window(def.start - opts.windowSize, def.start, defTokens);
+    List<String> suffixHead = window(end, end + opts.windowSize, headTokens);
+    List<String> suffixDef = window(def.end, def.end + opts.windowSize, defTokens);
+
+    if (opts.verbose > 1){
+        LogInfo.logs("prefixHead = %s, prefixDef = %s\nsuffixHead = %s, suffixDef = %s", prefixHead, prefixDef, suffixHead, suffixDef);
+    }
 
     boolean prefixEq = window(start - opts.windowSize, start, headTokens)
         .equals(window(def.start - opts.windowSize, def.start, defTokens));
     boolean sufixEq = window(end, end + opts.windowSize, headTokens)
         .equals(window(def.end, def.end + opts.windowSize, defTokens));
-//    if (opts.verbose > 0)
-//      LogInfo.logs("%b : %b", prefixEq, sufixEq);
-    if (opts.verbose > 0)
+   if (opts.verbose > 1)
+     LogInfo.logs("head and body::: %s : %s", window(start - opts.windowSize, start, headTokens), window(def.start - opts.windowSize, def.start, defTokens));
+    if (opts.verbose > 1)
       LogInfo.logs("(%d,%d)-head(%d,%d): %b %b %s %s", def.start, def.end, start, end, prefixEq, sufixEq,
           window(end, end + opts.windowSize, headTokens), window(def.end, def.end + opts.windowSize, defTokens));
-//      LogInfo.logs("(%d,%d)-head(%d,%d): %b %b", def.start, def.end, start, end, prefixEq, sufixEq);
-//      LogInfo.logs("%s...%s == %s...%s",
-//          window(start - opts.windowSize, start, headTokens),
-//          window(end, end + opts.windowSize, headTokens),
-//          window(def.start - opts.windowSize, def.start, defTokens),
-//          window(def.end, def.end + opts.windowSize, defTokens)
-//      );
+
     if (!prefixEq || !sufixEq)
       return false;
-    if (headTokens.subList(start, end).equals(defTokens.subList(def.start, def.end)))
+
+
+
+    if (headTokens.subList(start, end).equals(defTokens.subList(def.start, def.end))){
       return false;
+      }
 
     return true;
   }

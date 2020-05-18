@@ -650,10 +650,17 @@ class SATOfLTLEncoding:
                         )
                     else:
                         self.solver.add(cond)
+
+
                 # at_location case
                 else:
-                    x_pos_desc = v_desc[1]
-                    y_pos_desc = v_desc[2]
+                    # at special location case
+                    if v_desc[1] in constants.SPECIAL_NAMES:
+                        x_pos_desc = constants.SPECIAL_NAMES[v_desc[1]][0]
+                        y_pos_desc = constants.SPECIAL_NAMES[v_desc[1]][1]
+                    else:
+                        x_pos_desc = v_desc[1]
+                        y_pos_desc = v_desc[2]
 
                     cond = And([
                                 Implies(

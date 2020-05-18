@@ -33,6 +33,8 @@ def get_models(finalDepth, traces, step, encoder, literals, maxNumModels=1, maxS
 
 
 
+
+
     num_attemts = 0
     solver_solving_times = []
 
@@ -49,7 +51,14 @@ def get_models(finalDepth, traces, step, encoder, literals, maxNumModels=1, maxS
 
         if solverRes == unsat:
             logging.info("unsat!")
-            break
+            if constants.LOGGING_LEVEL == logging.DEBUG:
+                if not os.path.exists("debug_files/"):
+                    os.makedirs("debug_files/")
+                solver_filename = "debug_files/" + str(num_attemts) + ".solver"
+                with open(solver_filename, "w") as solver_file:
+                    solver_file.write(str(fg.solver))
+
+            continue
 
         elif solverRes == unknown:
             results = [constants.UNKNOWN_SOLVER_RES]

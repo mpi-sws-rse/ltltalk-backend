@@ -263,7 +263,11 @@ class World:
 
 
         # add initial location event
-        init_events.append("at_{}_{}".format(self.robot_position[0], self.robot_position[1]))
+        if self.robot_position in constants.SPECIAL_LOCATIONS:
+            init_events.append("at_{}".format(constants.SPECIAL_LOCATIONS[self.robot_position]))
+        else:
+            init_events.append("at_{}_{}".format(self.robot_position[0], self.robot_position[1]))
+
         all_locations.append(self.robot_position)
         events.append(init_events)
 
@@ -281,13 +285,21 @@ class World:
                 self.move(action[1])
                 if not self.robot_position in self.water:
                     action_events.append(constants.DRY)
-                action_events.append("at_{}_{}".format(self.robot_position[0], self.robot_position[1]))
+
+                if self.robot_position in constants.SPECIAL_LOCATIONS:
+                    action_events.append("at_{}".format(constants.SPECIAL_LOCATIONS[self.robot_position]))
+                else:
+                    action_events.append("at_{}_{}".format(self.robot_position[0], self.robot_position[1]))
                 all_locations.append(self.robot_position)
 
             elif action[0] == constants.PASS:
                 if not self.robot_position in self.water:
                     action_events.append(constants.DRY)
-                action_events.append("at_{}_{}".format(self.robot_position[0], self.robot_position[1]))
+
+                if self.robot_position in constants.SPECIAL_LOCATIONS:
+                    action_events.append("at_{}".format(constants.SPECIAL_LOCATIONS[self.robot_position]))
+                else:
+                    action_events.append("at_{}_{}".format(self.robot_position[0], self.robot_position[1]))
                 if not self.robot_position in all_locations:
                     all_locations.append(self.robot_position)
 
