@@ -52,6 +52,7 @@
 
 (rule $Quantity ($TOKEN) (NumberFn) (anchored true))
 (rule $Quantity (every) every (anchored true))
+(rule $Quantity (all) every (anchored true))
 
  (rule $ActionVar
     # ($Pick $Quantity $Color $Shape $Item $At $Number , $Number)
