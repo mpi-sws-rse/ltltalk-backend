@@ -155,7 +155,8 @@ class ExperimentTraces:
                  operators=[encodingConstants.G, encodingConstants.F, encodingConstants.LNOT, encodingConstants.UNTIL,
                             encodingConstants.LAND, encodingConstants.LOR, encodingConstants.IMPLIES,
                             encodingConstants.X],
-                 depth=None, possibleSolution=None):
+                 depth=None, possibleSolution=None, hints=None, literals=None):
+
         if tracesToAccept != None:
             self.acceptedTraces = tracesToAccept
 
@@ -172,15 +173,22 @@ class ExperimentTraces:
                 if trace.lengthOfTrace > self.maxLengthOfTraces:
                     self.maxLengthOfTraces = trace.lengthOfTrace
 
+            if literals is None:
+                self.literals = self.acceptedTraces[0].literals
+            else:
+                self.literals = literals
+
             try:
-                self.literals = self.acceptedTraces[0]
                 self.numVariables = self.acceptedTraces[0].numVariables
             except:
                 self.numVariables = self.rejectedTraces[0].numVariables
 
+
+
         self.operators = operators
         self.depthOfSolution = depth
         self.possibleSolution = possibleSolution
+        self.hints_with_weights = hints
 
     def isFormulaConsistent(self, f):
 

@@ -8,6 +8,19 @@ DEFAULT_NUM_FORMULAS = constants.NUM_CANDIDATE_FORMULAS
 DEFAULT_START_DEPTH = constants.CANDIDATE_START_DEPTH
 DEFAULT_MAX_DEPTH = constants.CANDIDATE_MAX_DEPTH
 
+def get_literals(pickup_locations, all_locations):
+    literals = []
+    literals += constants.STATE_EVENTS
+    for loc in pickup_locations:
+        literals += constants.PICKUP_EVENTS_PER_LOCATION[loc]
+
+    for loc in all_locations:
+        literals.append(constants.AT_EVENTS_PER_LOCATION[loc])
+        if loc in constants.SPECIAL_LOCATIONS:
+            literals.append("at_{}".format(constants.SPECIAL_LOCATIONS[loc]))
+    return literals
+
+
 def create_json_spec(file_name, emitted_events_sequences, hints, pickup_locations, all_locations, negative_sequences, num_formulas = DEFAULT_NUM_FORMULAS,
                       max_depth = DEFAULT_MAX_DEPTH):
 

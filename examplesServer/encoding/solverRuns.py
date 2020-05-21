@@ -11,10 +11,6 @@ except:
     import constants
 from logger_initialization import stats_log
 from pytictoc import TicToc
-try:
-    from formulaBuilder.satQuerying import get_models#, get_models_with_safety_restrictions
-except:
-    from encoding.formulaBuilder.satQuerying import get_models  # , get_models_with_safety_restrictions
 
 from z3 import sat, unknown
 import logging, os

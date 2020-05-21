@@ -1,11 +1,13 @@
 import random
-from utils import create_json_spec, convert_json_actions_to_world_format, convert_path_to_formatted_path, unwind_actions
+
+from utils import create_json_spec, convert_json_actions_to_world_format, convert_path_to_formatted_path
+from utils import unwind_actions, get_literals
 import nlp_helpers
-from encoding.experiment import start_experiment
 from encoding.run_solver_tests import disambiguate, get_path
 from encoding.utils.SimpleTree import Formula
 from encoding.utils.Traces import Trace, ExperimentTraces
 from world import World
+from encoding.smtEncoding.dagSATEncoding import DagSATEncoding
 import pdb
 import json
 import os
@@ -14,6 +16,7 @@ from copy import deepcopy
 import constants
 from logger_initialization import stats_log
 from pytictoc import TicToc
+from z3 import *
 
 
 def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, id=None, max_depth=None, criterion=None,
@@ -96,28 +99,110 @@ def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, 
     ============================================
     ============================================
     """
-    positive_traces = [Trace()]
-    traces = ExperimentTraces
-    os.makedirs("data", exist_ok=True)
+
+    literals = get_literals(pickup_locations, all_locations)
+    emitted_traces = [Trace.create_trace_from_events_list(demonstration_events, literals_to_consider=literals) for
+                      demonstration_events in emitted_events_seq]
+    negative_traces = [Trace.create_trace_from_events_list(derived_events, literals_to_consider=literals)
+                       for derived_events in collection_of_negative]
+
+    traces = ExperimentTraces(tracesToAccept=emitted_traces, tracesToReject=negative_traces, hints=hintsWithLocations,)
+
     hints_report = ["{} --> {}".format(k, hintsWithLocations[k]) for k in hintsWithLocations]
     stats_log.debug("hints: \n\t{}".format("\n\t".join(hints_report)))
 
-    json_name = "data/" + id + ".json"
-    txt_name = "data/" + id + ".txt"
+    if constants.EXPORT_JSON_TASK:
+        os.makedirs("data", exist_ok=True)
+        json_name = "data/" + id + ".json"
+        create_json_spec(file_name=json_name, emitted_events_sequences=emitted_events_seq, hints=hintsWithLocations,
+                         pickup_locations=pickup_locations, all_locations=all_locations,
+                         negative_sequences=collection_of_negative, num_formulas=num_formulas, max_depth=max_depth)
 
-    create_json_spec(file_name=json_name, emitted_events_sequences=emitted_events_seq, hints=hintsWithLocations,
-                     pickup_locations=pickup_locations, all_locations=all_locations,
-                     negative_sequences=collection_of_negative, num_formulas=num_formulas, max_depth=max_depth)
+    formula_generation_times = []
+    results = []
 
-    if testing:
+    generation_tic = TicToc()
+    generation_tic.tic()
 
-        collection_of_candidates, num_attempts, time_passed, solver_solving_times = start_experiment(
-            experiment_specification=json_name, testing=testing, trace_out=txt_name, criterion=criterion)
-        return collection_of_candidates, num_attempts, time_passed, solver_solving_times
-    else:
-        collection_of_candidates = start_experiment(experiment_specification=json_name,
-                                                    testing=testing)
-        return collection_of_candidates
+    ltl_formula_encoder = DagSATEncoding(max_depth, traces, literals=literals, testing=testing,
+                 hintVariablesWithWeights=traces.hints_with_weights, criterion=criterion)
+    ltl_formula_encoder.encodeFormula()
+    formula_generation_times.append(generation_tic.tocvalue())
+
+    num_attempts = 0
+    solver_solving_times = []
+
+    # give 3 attempts more than the number of formulas, to cover for the cases when equivalent formulas are found
+    while len(results) < num_formulas and num_attempts < num_formulas + 3:
+
+        num_attempts += 1
+
+        solverTic = TicToc()
+        solverTic.tic()
+        solverRes = ltl_formula_encoder.solver.check()
+        solver_solving_times.append(solverTic.tocvalue())
+
+        if solverRes == unsat:
+            logging.info("unsat!")
+            if constants.LOGGING_LEVEL == logging.DEBUG:
+                if not os.path.exists("debug_files/"):
+                    os.makedirs("debug_files/")
+                solver_filename = "debug_files/" + str(num_attempts) + ".solver"
+                with open(solver_filename, "w") as solver_file:
+                    solver_file.write(str(ltl_formula_encoder.solver))
+
+            continue
+
+        elif solverRes == unknown:
+            results = [constants.UNKNOWN_SOLVER_RES]
+            break
+
+
+        else:
+
+            solverModel = ltl_formula_encoder.solver.model()
+            found_formula_depth = solverModel[ltl_formula_encoder.guessed_depth].as_long()
+
+            formula = ltl_formula_encoder.reconstructWholeFormula(solverModel, depth=found_formula_depth)
+            table = ltl_formula_encoder.reconstructTable(solverModel, depth=found_formula_depth)
+            logging.info("found formula {} of depth {}".format(formula.prettyPrint(), found_formula_depth))
+            formula = Formula.normalize(formula)
+            if constants.LOGGING_LEVEL == logging.DEBUG:
+                os.makedirs("debug_models/", exist_ok=True)
+                model_filename = "debug_models/" + str(num_attempts) + ".model"
+                table_filename = "debug_models/" + str(num_attempts) + ".table"
+                with open(table_filename, "w") as table_file:
+                    table_file.write(str(table))
+                with open(model_filename, "w") as model_file:
+                    model = solverModel
+                    for idx in range(len(model)):
+                        model_file.writelines("{}: {}\n".format(model[idx], model[model[idx]]))
+
+            logging.debug("normalized formula {}\n=============\n".format(formula))
+            if formula not in results:
+                results.append(formula)
+                logging.info(
+                    "added formula {} to the set. Currently we have {} formulas and looking for total of {}".format(
+                        formula, len(results), num_formulas))
+
+            block = []
+
+            informative_variables = ltl_formula_encoder.getInformativeVariables(depth=found_formula_depth, model=solverModel)
+
+            logging.debug("informative variables of the model:")
+            for v in informative_variables:
+                logging.debug("{}: {}".format(v, solverModel[v]))
+                block.append(Not(v))
+            logging.debug("===========================\n")
+            logging.debug("blocking {}".format(block))
+            ltl_formula_encoder.solver.add(Or(block))
+    stats_log.info("number of initial candidates: {}".format(len(results)))
+    stats_log.debug("number of candidates per depth: {}".format(constants.NUM_CANDIDATE_FORMULAS_OF_SAME_DEPTH))
+    stats_log.info("number of attempts to get initial candidates: {}".format(num_attempts))
+    stats_log.info("propositional formula building times are {}".format(formula_generation_times))
+
+
+    return results, num_attempts, formula_generation_times, solver_solving_times
 
 
 def update_candidates(old_candidates, path, decision, world, actions):
