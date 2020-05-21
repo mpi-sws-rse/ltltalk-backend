@@ -1,4 +1,5 @@
 import pdb
+
 try:
     from utils.SimpleTree import SimpleTree, Formula
     import encodingConstants
@@ -34,7 +35,8 @@ class Trace:
             self.literals = literals
 
     def __repr__(self):
-        return repr([{self.literals[i]: self.traceVector[t][i] for i in range(len(self.literals))} for t in range(self.lengthOfTrace)])
+        return repr([{self.literals[i]: self.traceVector[t][i] for i in range(len(self.literals))} for t in
+                     range(self.lengthOfTrace)])
 
     def nextPos(self, currentPos):
         if currentPos == self.lengthOfTrace - 1:
@@ -46,7 +48,7 @@ class Trace:
     def create_trace_from_events_list(cls, events_list, literals_to_consider=None):
 
         if literals_to_consider is None:
-            literals = list(set([ it for event in events_list for it in event ]))
+            literals = list(set([it for event in events_list for it in event]))
         else:
             literals = [str(l) for l in literals_to_consider]
 
@@ -61,12 +63,10 @@ class Trace:
             trace_vector.append(tmstp_events)
         return cls(trace_vector, literals=literals)
 
-
     def futurePos(self, currentPos):
-        return list(range(currentPos,self.lengthOfTrace))
+        return list(range(currentPos, self.lengthOfTrace))
 
     def evaluateFormulaOnTrace(self, formula):
-
 
         nodes = list(set(formula.getAllNodes()))
         self.truthAssignmentTable = {node: [None for _ in range(self.lengthOfTrace)] for node in nodes}
@@ -79,7 +79,6 @@ class Trace:
         return self.truthValue(formula, 0)
 
     def truthValue(self, formula, timestep):
-
 
         futureTracePositions = self.futurePos(timestep)
         tableValue = self.truthAssignmentTable[formula][timestep]
@@ -113,28 +112,33 @@ class Trace:
                                                formula.right])
                                       ])
                              ]))
-            #strictly before
+            # strictly before
             elif label == encodingConstants.STRICTLY_BEFORE:
                 if timestep == self.lengthOfTrace - 1:
                     return False
                 if self.truthValue(formula.left, timestep) is True:
-                    return Trace(self.traceVector[self.nextPos(timestep):], literals=self.literals).evaluateFormulaOnTrace(Formula([encodingConstants.F, formula.right, None]))
+                    return Trace(self.traceVector[self.nextPos(timestep):],
+                                 literals=self.literals).evaluateFormulaOnTrace(
+                        Formula([encodingConstants.F, formula.right, None]))
                 else:
                     return self.truthValue(formula, self.nextPos(timestep))
 
                 # return self.truthValue(formula.left, timestep) and not self.truthValue(formula, self.nextPos(timestep))
             elif label == encodingConstants.UNTIL:
-                #logging.debug(timestep, formula)
-                qEventuallyTrue = max([self.truthValue(formula.right, futureTimestep) for futureTimestep in futureTracePositions]) == True
+                # logging.debug(timestep, formula)
+                qEventuallyTrue = max(
+                    [self.truthValue(formula.right, futureTimestep) for futureTimestep in futureTracePositions]) == True
                 if qEventuallyTrue == False:
                     return False
                 qTrueNow = self.truthValue(formula.right, timestep)
                 if qTrueNow:
                     return True
-                promiseForTheNextStep = self.truthValue(formula.left, timestep) and self.truthValue(formula, self.nextPos(timestep))
+                promiseForTheNextStep = self.truthValue(formula.left, timestep) and self.truthValue(formula,
+                                                                                                    self.nextPos(
+                                                                                                        timestep))
                 return promiseForTheNextStep
             elif label == encodingConstants.ENDS:
-                return self.truthValue(formula.left, self.lengthOfTrace-1)
+                return self.truthValue(formula.left, self.lengthOfTrace - 1)
             elif label == encodingConstants.X:
                 if timestep == self.lengthOfTrace - 1:
                     return False
@@ -142,11 +146,15 @@ class Trace:
                     return self.truthValue(formula.left, self.nextPos(timestep))
 
 
-defaultOperators = [encodingConstants.G, encodingConstants.F, encodingConstants.LNOT, encodingConstants.UNTIL, encodingConstants.LAND, encodingConstants.LOR, encodingConstants.IMPLIES, encodingConstants.X]
+defaultOperators = [encodingConstants.G, encodingConstants.F, encodingConstants.LNOT, encodingConstants.UNTIL,
+                    encodingConstants.LAND, encodingConstants.LOR, encodingConstants.IMPLIES, encodingConstants.X]
 
 
 class ExperimentTraces:
-    def __init__(self, tracesToAccept=None, tracesToReject=None, operators=[encodingConstants.G, encodingConstants.F, encodingConstants.LNOT, encodingConstants.UNTIL, encodingConstants.LAND, encodingConstants.LOR, encodingConstants.IMPLIES, encodingConstants.X],
+    def __init__(self, tracesToAccept=None, tracesToReject=None,
+                 operators=[encodingConstants.G, encodingConstants.F, encodingConstants.LNOT, encodingConstants.UNTIL,
+                            encodingConstants.LAND, encodingConstants.LOR, encodingConstants.IMPLIES,
+                            encodingConstants.X],
                  depth=None, possibleSolution=None):
         if tracesToAccept != None:
             self.acceptedTraces = tracesToAccept
@@ -216,8 +224,6 @@ class ExperimentTraces:
             tracesFile.write("---\n")
             tracesFile.write(str(self.possibleSolution))
 
-
-
     def _flieLiteralsStringToVector(self, v, literals):
         vec = []
         true_literals = v.split(',')
@@ -247,7 +253,6 @@ class ExperimentTraces:
                     lit = lit.strip()
                     if not lit == "null" and not lit in self.literals:
                         self.literals.append(lit)
-
 
     def readTracesFromFlieJson(self, data):
 
@@ -287,7 +292,6 @@ class ExperimentTraces:
         self.hints_with_weights = {}
         for hint in hints:
             self.hints_with_weights[hint[0]] = hint[1]
-
 
     def readTracesFromString(self, s):
         stream = io.StringIO(s)
