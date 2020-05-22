@@ -4,12 +4,12 @@ import argparse
 import itertools
 
 try:
-    from solverRuns import run_solver, get_finite_witness
+    from solverRuns import get_finite_witness
     from utils.SimpleTree import Formula
     import encodingConstants
     from . import constants
 except:
-    from encoding.solverRuns import run_solver, get_finite_witness
+    from encoding.solverRuns import get_finite_witness
     from encoding.utils.SimpleTree import Formula
     from encoding import encodingConstants
     import constants

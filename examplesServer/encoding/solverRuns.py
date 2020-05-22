@@ -17,40 +17,6 @@ import logging, os
 
 
 
-def run_solver(finalDepth, traces, maxNumOfFormulas=1, step=1, q=None, encoder=DagSATEncoding,
-               maxSolutionsPerDepth = 1, testing=False, criterion=None):
-
-
-    if q is not None:
-        separate_process = True
-    else:
-        separate_process = False
-
-    t = TicToc()
-    t.tic()
-    if not testing:
-        results = get_models(finalDepth=finalDepth, traces=traces, step=step,
-                             encoder=encoder, literals=traces.literals, maxNumModels=maxNumOfFormulas,
-                             maxSolutionsPerDepth=maxSolutionsPerDepth, testing=testing)
-    else:
-        results, num_attempts, solver_solving_times = get_models(finalDepth=finalDepth, traces=traces, step=step,
-                                                                 encoder=encoder, literals=traces.literals,
-                                                                 maxNumModels=maxNumOfFormulas,
-                                                                 maxSolutionsPerDepth=maxSolutionsPerDepth,
-                                                                 testing=testing, criterion=criterion)
-
-    time_passed = t.tocvalue()
-
-    if testing:
-        ret = [results, time_passed, num_attempts, solver_solving_times]
-    else:
-        ret = [results, time_passed]
-
-    if separate_process == True:
-        q.put(ret)
-    else:
-        return ret
-
 
 def get_finite_witness(f, trace_length=5, operators=[encodingConstants.G, encodingConstants.F, encodingConstants.LAND,
                                                      encodingConstants.LOR, encodingConstants.ENDS,
