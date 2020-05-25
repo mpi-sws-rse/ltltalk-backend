@@ -1,9 +1,9 @@
-from utils.Traces import Trace, ExperimentTraces
+from encoding.utils.Traces import Trace, ExperimentTraces
 import glob
 import logging
 
 
-testTracesFolder ='traces/tests/'
+testTracesFolder ='traces/experiments/'
 
 
 

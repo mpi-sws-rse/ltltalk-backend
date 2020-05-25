@@ -100,7 +100,7 @@ def disambiguate(f_1, f_2, wall_locations=[], min_trace_length = None, max_trace
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--log", dest="loglevel", default="INFO")
-    parser.add_argument("--test_file", default="tests/data/test1.txt")
+    parser.add_argument("--test_file", default="experiments/data/test1.txt")
     parser.add_argument("--max_trace_length", default = 5)
     parser.add_argument("--min_trace_length", default=3)
 

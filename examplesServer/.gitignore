@@ -4,5 +4,4 @@ debug_files
 testLibraries.sh
 debug_models
 *.csv
-*.json
 *.ods

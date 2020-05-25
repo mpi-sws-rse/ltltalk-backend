@@ -3,21 +3,19 @@ import sys
 import pdb
 from z3 import *
 
-from smtEncoding.treeSATEncoding import TreeSATEncoding
-from smtEncoding.dagSATEncoding import DagSATEncoding
-from utils.Traces import ExperimentTraces
-
-from utils.SimpleTree import Formula
+from encoding.smtEncoding.dagSATEncoding import DagSATEncoding
+from encoding.utils.Traces import ExperimentTraces
 
 
 
-testTracesFolder ='traces/tests/'
+
+
+testTracesFolder ='traces/experiments/'
 maxDepth = 5
 
 
 
 def test_run():
-    run(TreeSATEncoding)
     run(DagSATEncoding)
 
 def run(encoder):

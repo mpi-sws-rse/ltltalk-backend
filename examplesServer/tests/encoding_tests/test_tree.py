@@ -1,9 +1,11 @@
 import pdb
+import sys, os
 import logging
 try:
-    from utils.SimpleTree import SimpleTree
+    from encoding.utils.SimpleTree import SimpleTree
 except:
     from traces2LTL.utils.SimpleTree import SimpleTree
+from encoding import encodingConstants
 
 def test_basic():
     root = SimpleTree(label=encodingConstants.LOR)
