@@ -53,7 +53,7 @@ def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, 
     =================================================
     """
     if use_hints is True:
-        hints = nlp_helpers.get_hints_from_utterance(nl_utterance)
+        hints = nlp_helpers.get_hints_from_utterance(nl_utterance, pickup_locations, all_locations)
     else:
         hints = {}
 

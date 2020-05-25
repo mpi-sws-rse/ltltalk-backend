@@ -5,7 +5,6 @@ import logging
 
 
 DEFAULT_NUM_FORMULAS = constants.NUM_CANDIDATE_FORMULAS
-DEFAULT_START_DEPTH = constants.CANDIDATE_START_DEPTH
 DEFAULT_MAX_DEPTH = constants.CANDIDATE_MAX_DEPTH
 
 def get_literals(pickup_locations, all_locations):

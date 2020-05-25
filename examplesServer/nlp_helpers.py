@@ -5,11 +5,19 @@ import nltk
 import re
 import pdb
 import logging
+from nltk.corpus import wordnet
 
 
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 
+
+def get_wordnet_synonyms(word):
+    # for syn in wordnet.synsets(word):
+    #     print("{}\n".format(syn.lemmas()))
+    #     print("\t{}".format([l.name() for l in syn.lemmas()]))
+    # print("\n==============\n")
+    return [l.name() for syn in wordnet.synsets(word) for l in syn.lemmas() ]
 
 def get_locations_from_utterance(nl_utterance):
     locations_strings = re.findall(r"(\d+,[\n\t ]*\d+)", nl_utterance)
@@ -47,7 +55,7 @@ def filter_hints_with_emitted_events(hints, seq_of_events):
     return new_hints
 
 
-def get_hints_from_utterance(nl_utterance):
+def get_hints_from_utterance(nl_utterance, pickup_locations, all_locations=[]):
 
 
     """
@@ -56,6 +64,8 @@ def get_hints_from_utterance(nl_utterance):
 of individual subwords. --->  SHOULD BE REPLACED BY SOMETHING BETTER
 
     :param nl_utterance: string
+    :param pickup_locations: list of all locations at which a pickup was happening in the user's demonstration
+    :param all_locations: list of all locations in the user's demonstration
     :return: dictionary {prop_variable: weight}
     """
 
@@ -64,7 +74,7 @@ of individual subwords. --->  SHOULD BE REPLACED BY SOMETHING BETTER
 
 
     lemmatizer = WordNetLemmatizer()
-
+    # all the tokens that correspond to the notions we care about (such as quantities, colors, or shapes), or the synonyms of those words
     utterance_tokens = [lemmatizer.lemmatize(token) for token in nl_utterance.split() if token in constants.ALL_SIGNIFICANT_WORDS]
 
     scores = {}

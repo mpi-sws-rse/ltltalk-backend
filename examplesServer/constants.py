@@ -1,5 +1,10 @@
+import pdb
+
 from encoding import encodingConstants
 import logging
+from nlp_helpers import get_wordnet_synonyms
+
+
 
 UP = "up"
 DOWN = "down"
@@ -78,13 +83,14 @@ EVENTS = PICKUP_EVENTS + STATE_EVENTS + AT_SPECIAL_LOCATION_EVENTS
 SYNONYMS = {"every": ["all"], PICK: ["grab", "collect", "take"],
             "one": ["1", "single", "individual", "the"], "two": ["2"], "three": ["3"],
             "bathroom":["bathroom"], "kitchen":["kitchen"]}
+WORDNET_SYNONYMS = { k:  get_wordnet_synonyms(k) for k in SYNONYMS}
 CONNECTED_WORDS = {"dry": ["water"], "water": ["dry"], encodingConstants.STRICTLY_BEFORE: ["first", "then", "before"],
                    encodingConstants.UNTIL: ["until", "while"], encodingConstants.F: ["eventually"],
                    encodingConstants.LAND: ["simultaneously", "also", "togetherWith"]}
-
-ALL_SIGNIFICANT_WORDS = COLORS + SHAPES + QUANTIFIERS + [syn for syns in SYNONYMS.values() for syn in syns] + \
+#pdb.set_trace()
+ALL_SIGNIFICANT_WORDS = list(set(COLORS + SHAPES + QUANTIFIERS + [syn for syns in SYNONYMS.values() for syn in syns] + \
                         DIRECTIONS + [MOVE] + [con for cons in CONNECTED_WORDS.values() for con in cons] + \
-                        list(SPECIAL_NAMES.keys())
+                        list(SPECIAL_NAMES.keys()) + [syn for syns in WORDNET_SYNONYMS.values() for syn in syns]))
 
 
 
@@ -103,7 +109,7 @@ NUM_CANDIDATE_FORMULAS_OF_SAME_DEPTH = 3
 NUM_ATTEMPTS_PER_DEPTH = NUM_CANDIDATE_FORMULAS_OF_SAME_DEPTH + 2
 MAX_NUM_ATTEMPTS = NUM_CANDIDATE_FORMULAS + 3
 
-CANDIDATE_START_DEPTH = 2
+
 CANDIDATE_MAX_DEPTH = 6
 
 DEBUG_UNSAT_CORE = False
