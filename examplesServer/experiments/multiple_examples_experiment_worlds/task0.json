@@ -1,6 +1,7 @@
 {
   "description": "Step into water and then visit [6,4]",
   "target-formula": "before(neg(at_dry),at_6_4)",
+  "expected-hints": ["at_6_4", "at_dry"],
   "examples": [
     {
       "init-path": [

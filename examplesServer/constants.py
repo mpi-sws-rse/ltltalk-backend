@@ -1,8 +1,13 @@
 import pdb
+import sys
 
+#try:
 from encoding import encodingConstants
 import logging
-from nlp_helpers import get_wordnet_synonyms
+from nltk.corpus import wordnet
+
+def get_wordnet_synonyms(word):
+    return [l.name() for syn in wordnet.synsets(word) for l in syn.lemmas() ]
 
 
 

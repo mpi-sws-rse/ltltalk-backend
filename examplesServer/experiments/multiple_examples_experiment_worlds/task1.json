@@ -1,6 +1,7 @@
 {
   "description": "stay dry until reaching [4,1]",
   "target-formula": "until(at_dry,at_4_1)",
+  "expected-hints": ["at_4_1", "at_dry"],
   "examples": [{
 
     "init-path": [

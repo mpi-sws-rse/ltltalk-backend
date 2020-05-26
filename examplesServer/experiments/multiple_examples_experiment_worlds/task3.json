@@ -1,6 +1,7 @@
 {
   "description": "take all green from [7,4] to water",
   "target-formula": "before(pick_every_green_x_item_at_7_4,neg(at_dry))",
+  "expected-hints": ["at_7_4", "at_dry"],
   "examples": [
     {
       "init-path": [

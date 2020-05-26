@@ -1,6 +1,7 @@
 {
   "description": "get one triangle from [4,0] and then one item from [11,1]",
   "target-formula": "before(pick_one_x_triangle_item_at_4_0,pick_one_x_x_item_at_11_1)",
+  "expected-hints": ["at_4_0", "at_11_1", "pick_one_x_triangle_item_at_4_0"],
   "examples": [
     {
       "init-path": [

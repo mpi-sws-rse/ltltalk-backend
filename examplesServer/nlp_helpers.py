@@ -5,19 +5,13 @@ import nltk
 import re
 import pdb
 import logging
-from nltk.corpus import wordnet
+
 
 
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 
 
-def get_wordnet_synonyms(word):
-    # for syn in wordnet.synsets(word):
-    #     print("{}\n".format(syn.lemmas()))
-    #     print("\t{}".format([l.name() for l in syn.lemmas()]))
-    # print("\n==============\n")
-    return [l.name() for syn in wordnet.synsets(word) for l in syn.lemmas() ]
 
 def get_locations_from_utterance(nl_utterance):
     locations_strings = re.findall(r"(\d+,[\n\t ]*\d+)", nl_utterance)
@@ -33,6 +27,10 @@ def get_locations_from_utterance(nl_utterance):
 
     return locations
 
+"""
+this function takes hints and keeps only the maximal value of those hints
+that actually appear in the emitted events of the example
+"""
 def filter_hints_with_emitted_events(hints, seq_of_events):
 
     new_hints = {}
@@ -55,7 +53,7 @@ def filter_hints_with_emitted_events(hints, seq_of_events):
     return new_hints
 
 
-def get_hints_from_utterance(nl_utterance, pickup_locations, all_locations=[]):
+def get_hints_from_utterance(nl_utterance, pickup_locations, all_locations, emitted_events_seq):
 
 
     """
@@ -80,12 +78,14 @@ of individual subwords. --->  SHOULD BE REPLACED BY SOMETHING BETTER
     scores = {}
     for prop_variable in constants.EVENTS:
         score = 0
+        # because the input here are propositional variables (and not the core-language expressions),
+        # we need to detach different elements of the prop variables (e.g., referring to color, shape, quantity)
         list_of_descriptors = [lemmatizer.lemmatize(el) for el in prop_variable.split("_") if not (el == "x" or el == "item" or el == "at")]
 
         for desc in list_of_descriptors:
             candidates = [desc]
             if desc in constants.SYNONYMS:
-                candidates  += constants.SYNONYMS[desc]
+                candidates += constants.SYNONYMS[desc]
             if desc in constants.CONNECTED_WORDS:
                 candidates += constants.CONNECTED_WORDS[desc]
             for candidate in candidates:
@@ -99,7 +99,8 @@ of individual subwords. --->  SHOULD BE REPLACED BY SOMETHING BETTER
             score = score / (len(list_of_descriptors) + len(utterance_tokens))
         except:
             score = 0
-        #logging.debug("assigning score of {} to prop_var {}".format(score, prop_variable))
+        logging.debug("assigning score of {} to prop_var {}".format(score, prop_variable))
+
         scores[prop_variable] = score
 
 
@@ -113,16 +114,39 @@ of individual subwords. --->  SHOULD BE REPLACED BY SOMETHING BETTER
         scores[operator] = score
 
 
-
-    # try:
-    #     max_dict_value = max(scores.values())
-    # except:
-    #     max_dict_value = -1
-    # try:
-    #     second_max_value = max( [value for value in scores.values() if value < max_dict_value] )
-    # except:
-    #     second_max_value = max_dict_value
-
-
     hints = {k : (1 + scores[k]) for k in scores if scores[k] > constants.HINTS_CUTOFF_VALUE}
-    return hints
+
+
+    # locations that are mentioned in the uttera
+    utterance_relevant_locations = get_locations_from_utterance(nl_utterance)
+
+    hintsWithLocations = {}
+
+    for hint in hints:
+
+        if hint == constants.DRY:
+            # heuristically, dry gets less value so we are pumping it up artificially
+            hintsWithLocations[hint] = 1 + hints[hint]
+
+            continue
+        if hint in constants.OPERATORS or hint in constants.AT_SPECIAL_LOCATION_EVENTS:
+            hintsWithLocations[hint] = hints[hint]
+
+        for l in pickup_locations:
+            hintsWithLocations["{}_at_{}_{}".format(hint, l[0], l[1])] = hints[hint]
+
+
+    if len(hintsWithLocations) > 0:
+        maxHintsWithLocations = max(hintsWithLocations.values())
+        minHintsWithLocations = min(hintsWithLocations.values())
+    else:
+        maxHintsWithLocations = 0
+        minHintsWithLocations = 0
+
+    # for all the locations that appear in the utterance, give them some value as well
+    atLocationsHints = {"at_{}_{}".format(loc[0], loc[1]): max(minHintsWithLocations, 1) for loc in utterance_relevant_locations}
+
+    hintsWithLocations = filter_hints_with_emitted_events(hintsWithLocations, emitted_events_seq)
+    hintsWithLocations.update(atLocationsHints)
+
+    return hintsWithLocations

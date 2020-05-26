@@ -1,6 +1,7 @@
 {
   "description": "bring one green circle from [7,4] to [3,4]",
   "target-formula": "before(pick_one_green_circle_item_at_7_4,at_3_4)",
+  "expected-hints": ["at_7_4", "at_3_4", "pick_one_green_circle_item_at_7_4"],
   "examples": [
     {
       "init-path": [

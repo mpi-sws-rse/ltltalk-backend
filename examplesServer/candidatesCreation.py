@@ -47,58 +47,9 @@ def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, 
 
     t.tic()
 
-    """
-    this whole part is about getting hints
-    =================================================
-    =================================================
-    """
-    if use_hints is True:
-        hints = nlp_helpers.get_hints_from_utterance(nl_utterance, pickup_locations, all_locations)
-    else:
-        hints = {}
 
-    stats_log.debug("nlp hints creation time: {}".format(t.tocvalue()))
+    hintsWithLocations = nlp_helpers.get_hints_from_utterance(nl_utterance, pickup_locations, all_locations, emitted_events_seq)
 
-    relevant_locations = nlp_helpers.get_locations_from_utterance(nl_utterance)
-
-    hintsWithLocations = {}
-
-    for hint in hints:
-
-        if hint == constants.DRY:
-            hintsWithLocations[hint] = hints[hint]
-
-            continue
-        if hint in constants.OPERATORS or hint in constants.AT_SPECIAL_LOCATION_EVENTS:
-            hintsWithLocations[hint] = hints[hint]
-
-        for l in pickup_locations:
-            hintsWithLocations["{}_at_{}_{}".format(hint, l[0], l[1])] = hints[hint]
-    # hintsWithLocations = {"{}_{}_{}".format(hint, l[0], l[1]) : hints[hint] for hint in hints for l in pickup_locations}
-
-    if len(hintsWithLocations) > 0:
-        maxHintsWithLocations = max(hintsWithLocations.values())
-        minHintsWithLocations = min(hintsWithLocations.values())
-    else:
-        maxHintsWithLocations = 0
-        minHintsWithLocations = 0
-
-    stats_log.debug("hints: {}".format("\n\t".join(hints)))
-    middleValue = (maxHintsWithLocations + minHintsWithLocations) / 2
-
-    atLocationsHints = {"at_{}_{}".format(loc[0], loc[1]): max(minHintsWithLocations, 1) for loc in relevant_locations}
-
-    hintsWithLocations = nlp_helpers.filter_hints_with_emitted_events(hintsWithLocations, emitted_events_seq)
-    hintsWithLocations.update(atLocationsHints)
-
-    # DEBUG: at_dry hint is disadvantaged. want to give it back some weight
-    if constants.DRY in hints:
-        hintsWithLocations[constants.DRY] = hints[constants.DRY] + 1
-
-    """
-    ============================================
-    ============================================
-    """
 
     literals = get_literals(pickup_locations, all_locations)
     emitted_traces = [Trace.create_trace_from_events_list(demonstration_events, literals_to_consider=literals) for
@@ -110,7 +61,7 @@ def create_candidates(nl_utterance, examples, testing=False, num_formulas=None, 
 
     hints_report = ["{} --> {}".format(k, hintsWithLocations[k]) for k in hintsWithLocations]
     stats_log.debug("hints: \n\t{}".format("\n\t".join(hints_report)))
-
+    pdb.set_trace()
     if constants.EXPORT_JSON_TASK:
         os.makedirs("data", exist_ok=True)
         json_name = "data/" + id + ".json"

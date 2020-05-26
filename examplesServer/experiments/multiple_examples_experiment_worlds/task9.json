@@ -1,6 +1,7 @@
 {
   "description": "first get one red item from [7,4] and afterwards one green item from [10,8]",
   "target-formula": "before(pick_one_red_x_item_at_7_4,pick_one_green_x_item_at_10_8)",
+  "expected-hints": ["pick_one_red_x_item_at_7_4", "at_7_4", "at_10_8"],
   "examples": [
     {
       "init-path": [

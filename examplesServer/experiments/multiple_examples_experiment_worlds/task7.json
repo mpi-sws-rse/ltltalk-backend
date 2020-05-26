@@ -1,6 +1,7 @@
 {
   "description": "get one green and one blue item from [7,4]",
   "target-formula": "and(eventually(pick_one_blue_x_item_at_7_4),eventually(pick_one_green_x_item_at_7_4))",
+  "expected-hints": ["at_7_4", "pick_one_green_x_item_at_7_4", "pick_one_blue_x_item_at_7_4"],
   "examples": [
     {
       "init-path": [
