@@ -1,7 +1,0 @@
-addLibraries.sh
-data
-debug_files
-testLibraries.sh
-debug_models
-*.csv
-*.ods
