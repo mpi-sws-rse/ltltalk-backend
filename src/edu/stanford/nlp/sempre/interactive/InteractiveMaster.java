@@ -72,13 +72,15 @@ public class InteractiveMaster extends Master {
 		public int verbose = 0;
 		@Option(gloss="which file of word embeddings to use")
 	    public String wordEmbeddingsFilePath = null;
+	    @Option(gloss="whether to use word embeddings")
+	    public boolean useWordEmbeddings = false;
 	}
 
 	public static Options opts = new Options();
 
 	public InteractiveMaster(Builder builder) {
 		super(builder);
-		if (opts.wordEmbeddingsFilePath != null) {
+		if (opts.wordEmbeddingsFilePath != null && opts.useWordEmbeddings) {
 	    	embeddings = new Embeddings(opts.wordEmbeddingsFilePath);
 	    }
 		

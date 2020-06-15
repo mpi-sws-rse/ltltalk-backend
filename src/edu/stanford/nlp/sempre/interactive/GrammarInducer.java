@@ -71,8 +71,6 @@ public class GrammarInducer {
 		@Option(gloss = "whether to use rewriting of picking and dropping")
 		public boolean usePickingAndDroppingRewriting = false;
 		@Option(gloss = "whether to use similarity when deciding which rewriting to use")
-		public boolean useSemanticSimilarityOfSentences = false;
-		@Option(gloss = "weight to put to semantic similarity of sentences")
 		public double wordEmbeddingsWeight = 1.0;
 		@Option(gloss = "weight to put to the score of packing (learnt model)")
 		public double packingScoreWeight = 1.0;

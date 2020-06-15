@@ -57,7 +57,14 @@ To go further with running sempre in the context of Robotic world, check
 
 ## Additional options
 
-While rewriting user's definition (option `GrammarInducer.useEquivalentRewriting`), the rewritings are scored based on both best packing score and the semantic similarity (cosine similarity of average of words in the spec). In order to use semantic similarity (option `GrammarInducer.useSemanticSimilarityOfSentences`), you have to provide a file with trained vectors (e.g. from [GloVe](https://nlp.stanford.edu/projects/glove/)) and give a path to it in the option `InteractiveMaster.wordEmbeddingsFilePath`.
+While rewriting user's definition (option `GrammarInducer.useEquivalentRewriting`), 
+the rewritings are scored based on both best packing score and the semantic 
+similarity (cosine similarity of average of words in the spec). 
+In order to use semantic similarity 
+(option `InteractiveMaster.useWordEmbeddings`), 
+you have to provide a file with trained vectors 
+(e.g. from [GloVe](https://nlp.stanford.edu/projects/glove/)) 
+and give a path to it in the option `InteractiveMaster.wordEmbeddingsFilePath`.
 
 ### General Troubleshooting
 
