@@ -1,0 +1,1 @@
+python experiments/interaction_experiment.py --tests_definition_folder=experiments/multiple_examples_experiment_worlds  --num_repetitions=3 --max_depth 4 6 --num_init_candidates 3 5 --output=classic.csv --optimizer_criterion=pareto

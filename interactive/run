@@ -162,6 +162,7 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   'edu.stanford.nlp.sempre.Main',
   #figOpts,
   o('server'),
+  #o('interactive'),
   o('masterType', 'edu.stanford.nlp.sempre.interactive.InteractiveMaster'),
   o('Executor', 'interactive.DALExecutor'),
   o('LanguageAnalyzer', 'interactive.DALAnalyzer'),
@@ -170,7 +171,8 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   #o('DALExecutor.verbose', 2),
   #o('VoxelWorld.maxBlocks', 100000),
   selo(0, 'DALExecutor.worldType', 'RoboWorld'),
-  selo(0, 'Grammar.inPaths', "./#{$path}/robo.grammar"),
+  #selo(0, 'Grammar.inPaths', "./#{$path}/robo.grammar"),
+  selo(0, 'Grammar.inPaths', "./#{$path}/dsltl.grammar"),
 
   o('Params.initWeightsRandomly', false),
   o('Grammar.binarizeRules', false),
@@ -220,9 +222,10 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('InteractiveMaster.maxChars', 2000),
   o('InteractiveMaster.verbose', 0),
 
-  o('InteractiveMaster.useAligner', false),
+  o('InteractiveMaster.useAligner', true),
   o('DefinitionAligner.strategies', 'ExactExclusion'),
   o('DefinitionAligner.maxLengthDifference', 3), # Default is 3
+  o('DefinitionAligner.maxMatches', 6), # Default is 3
   # It does not appear that this used in the Java code
   o('DefinitionAligner.alignedCats',
     '$Item', '$ColorSet'
@@ -235,17 +238,17 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('InteractiveServer.port', 8410),
 
   o('GrammarInducer.useBestPacking', true),
-  o('InteractiveMaster.wordEmbeddingsFilePath', './data/glove/glove.6B.100d.txt'),
-  o('GrammarInducer.useSemanticSimilarityOfSentences', true),
+  #o('InteractiveMaster.wordEmbeddingsFilePath', './data/glove/glove.6B.100d.txt'),
+  #o('GrammarInducer.useSemanticSimilarityOfSentences', true),
   
   o('GrammarInducer.useSimplePacking', true),
   o('GrammarInducer.useSpecialTokens', false),
-  o('GrammarInducer.useLoopRewriting', true),
-  o('GrammarInducer.useEquivalentRewriting', true),
-  o('GrammarInducer.useMovesToVisitRewriting', true),
-  o('GrammarInducer.useVisitDestinationRewriting', true),
-  o('GrammarInducer.usePickingAndDroppingRewriting', true),
-  o('GrammarInducer.maxNonterminals', 4),
+  o('GrammarInducer.useLoopRewriting', false),
+  o('GrammarInducer.useEquivalentRewriting', false),
+  o('GrammarInducer.useMovesToVisitRewriting', false),
+  o('GrammarInducer.useVisitDestinationRewriting', false),
+  o('GrammarInducer.usePickingAndDroppingRewriting', false),
+  o('GrammarInducer.maxNonterminals', 10),
   o('GrammarInducer.simpleCats', 'Number', 'Color',  'Direction', 'Shape', 'Point'),
 
   o('GrammarInducer.verbose', 0),
@@ -257,12 +260,18 @@ addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e|
   o('Derivation.showRules', false),
   o('Derivation.showCat', false),
   o('Derivation.anchoredBonus', 1.0),
+  o('Derivation.lengthBonusFactor', 1.5),
 
   o('Formula.precisePrettyPrinting', true),
-
-  o('SimpleLoopRewriting.verbose', 0),
-  o('MovesToVisitRewriting.verbose', 0),
-  o('VisitDestinationRewriting.verbose', 0),
+  o('DSLTLFormula.eventually', 'eventually'),
+  o('DSLTLFormula.globally', 'G'),
+  o('DSLTLFormula.until', 'until'),
+  o('DSLTLFormula.before', 'B'),
+  o('DSLTLFormula.strictly_before', 'before'),
+  o('DSLTLFormula.next', 'X'),
+  o('DSLTLFormula.land', 'and'),
+  o('DSLTLFormula.lor', 'or'),
+  o('DSLTLFormula.lnot', 'neg'),
 
   o('NumberFn.allowedRange', -99, 99),
   o('SimpleLexicon.inPaths', "./#{$path}/simple_colors.lexicon"),

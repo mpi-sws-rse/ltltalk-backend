@@ -40,7 +40,8 @@ public class NumberValue extends Value {
   }
 
   @Override public String sortString() { return "" + value; }
-  @Override public String contentString() {return String.valueOf(value);}
+  @Override public String contentString() {
+    return String.valueOf((int)value);}
 
   @Override public int hashCode() { return Double.valueOf(value).hashCode(); }
   @Override public boolean equals(Object o) {

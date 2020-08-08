@@ -173,9 +173,9 @@ public class InteractiveMaster extends Master {
 					
 					
 					if (opts.verbose > 2){
-						//d.printDerivationRecursively();
+						d.printDerivationRecursively();
 						d.getFormula().printFormulaRecursively();
-						printDerivation(d);
+						//printDerivation(d);
 					}
 					
 				}
