@@ -156,7 +156,7 @@ nil)})
 
 ############################################################
 # {2016-07-02} [sidaw]: interactive semantic parsing
-addMode('voxelurn', 'interactive semantic parsing in a VoxelWorld', lambda { |e| l(
+addMode('ltltalk', 'interactive semantic parsing in a VoxelWorld', lambda { |e| l(
   #rlwrap,
   header('core,interactive'),
   'edu.stanford.nlp.sempre.Main',
